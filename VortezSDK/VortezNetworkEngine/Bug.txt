@@ -1,0 +1,4 @@
+-Quand on deconnecte le server, pis qu'un client est connecter, la prochaine
+ fois que le client essaye de se connecter marche po
+
+FIX: add this->Disconnect(); in CVortezNetworkClientExt::OnConnectionLoss
