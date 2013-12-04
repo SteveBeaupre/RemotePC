@@ -6,6 +6,12 @@ CRNG::CRNG()
 	InitializeGenerator(GetTickCount());
 }
 
+//
+CRNG::CRNG(int seed)
+{
+	InitializeGenerator(seed);
+}
+
 // Initialize the generator from a seed
 void CRNG::InitializeGenerator(int Seed)
 {

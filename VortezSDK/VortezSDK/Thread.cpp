@@ -23,7 +23,7 @@ void CThread::WaitForThread()
 	WaitForSingleObject(hThread, INFINITE);
 }
 
-bool CThread::StartThread(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, char *szEventName, UINT WaitMode)
+bool CThread::StartThread(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, UINT WaitMode)
 {
 	// Wait on the other thread to finish if asked to
 	if(WaitMode == WAIT_IF_RUNNING)
@@ -33,8 +33,9 @@ bool CThread::StartThread(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParame
 	if(!IsThreadRunning()){
 		if(hThreadEvent)
 			CloseHandle(hThreadEvent);
+		
 		// Create event to stop the read thread and writing loop
-		hThreadEvent = CreateEvent(NULL, TRUE, FALSE, szEventName);
+		hThreadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 		// Lauch the thread
 		hThread = CreateThread(NULL, 0, lpStartAddress, lpParameter, 0, &dwThreadID);	
 

@@ -121,7 +121,7 @@ bool CNetServer::WaitForClient(HWND hHostWnd, short nPort)
 		return false;
 	}
 
-	WaitThread.StartThread(WaitForClientThread, (void*)this, "WaitForClientThreadEvent");
+	WaitThread.StartThread(WaitForClientThread, (void*)this);
 	return false;
 }
 
@@ -288,7 +288,7 @@ bool CNetClient::ConnectToServer(HWND hHostWnd, char *ip, short nPort, int DefTi
 
 	//////////////////////////////////////////////
 	
-	ConnectThread.StartThread(ConnectToServerThread, (void*)this, "ConnectToServerThreadEvent");
+	ConnectThread.StartThread(ConnectToServerThread, (void*)this);
 	return false;
 }
 

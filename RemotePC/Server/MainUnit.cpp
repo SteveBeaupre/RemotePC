@@ -16,6 +16,15 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
+	#ifdef _DEBUG
+	Position = poDefault;
+	Left = 35;
+	Top  = 20;
+	#else
+	Position = poDesktopCenter;
+	#endif
+
+	EnableUI();
 	InitializeWinSock();
 	pRemotePCServer = new CRemotePCServer();
 }
@@ -45,12 +54,12 @@ void __fastcall TMainForm::EnableUI()
 	}
 	ButtonListen->Enabled = true;
 	ButtonDisconnect->Enabled = false;
-	CheckBoxConnectAsClient->Enabled = false;
-	CheckBoxRemoveWallpaper->Enabled = false;
-	CheckBoxMultithreaded->Enabled = false;
+	CheckBoxConnectAsClient->Enabled = true;
+	CheckBoxRemoveWallpaper->Enabled = true;
+	CheckBoxMultithreaded->Enabled = true;
 	ComboBoxHostName->Enabled = CheckBoxConnectAsClient->Checked;
-	EditPort->Enabled = false;
-	EditPassword->Enabled = false;
+	EditPort->Enabled = true;
+	EditPassword->Enabled = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DisableUI()

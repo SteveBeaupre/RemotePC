@@ -23,6 +23,7 @@ class _EXP_FUNC CRNG {
 #endif
 public:
 	CRNG();
+	CRNG(int seed);
 private:
 	int MT[624]; 
 	int index;

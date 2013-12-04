@@ -18,6 +18,16 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
+	#ifdef _DEBUG
+	Position = poDefault;
+	Left = 520;
+	Top  = 20;
+	Width = 820;
+	#else
+	Position = poDesktopCenter;
+	#endif
+
+	EnableUI();
 	InitializeWinSock();
 	pRemotePCClient = new CRemotePCClient();
 }
@@ -88,12 +98,15 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		AddListboxMessageArg(ListBox, "Disconnected");
 		if(pRemotePCClient)
 			pRemotePCClient->StopThread();
+		EnableUI();
 		break;
 	case ON_CONNECTION_LOST:
 		AddListboxMessageArg(ListBox, "Connection closed by peer.");
+		EnableUI();
 		break;
 	case ON_CONNECTION_CANCELED:
 		AddListboxMessageArg(ListBox, "Connection Canceled...");
+		EnableUI();
 		break;
 	case ON_CONNECTION_TIMED_OUT:
 		{
@@ -105,6 +118,7 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 			} else {
 				AddListboxMessageArg(ListBox, "Attemp #%d Failed... Aborting...", NumAttemp);
 				AddListboxMessageArg(ListBox, "Unable to connect to server.");
+				EnableUI();
 			}
 		}
 		break;
@@ -141,6 +155,8 @@ void __fastcall TMainForm::ButtonConnectClick(TObject *Sender)
 	} else {
 		pRemotePCClient->ConnectAsServer(Handle, Port);
 	}
+
+	DisableUI();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::ButtonDisconnectClick(TObject *Sender)

@@ -16,7 +16,7 @@ class AThread {
 public:
 	virtual HANDLE _INTERNAL_LINKAGE GetThreadHandle() = 0;
 
-	virtual bool _INTERNAL_LINKAGE StartThread(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, char *szEventName, UINT WaitMode = ABORT_IF_RUNNING) = 0;
+	virtual bool _INTERNAL_LINKAGE StartThread(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, UINT WaitMode = ABORT_IF_RUNNING) = 0;
 	virtual void _INTERNAL_LINKAGE StopThread() = 0;      // Trigger the abort signal, see MustExitThread() below
 
 	virtual bool _INTERNAL_LINKAGE IsThreadRunning() = 0; // Tell if the thread is running
@@ -51,7 +51,7 @@ public:
 	void Lock();
 	void Unlock();*/
 public:
-	bool _INTERNAL_LINKAGE StartThread(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, char *szEventName, UINT WaitMode = ABORT_IF_RUNNING);
+	bool _INTERNAL_LINKAGE StartThread(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, UINT WaitMode = ABORT_IF_RUNNING);
 	void _INTERNAL_LINKAGE StopThread();      // Trigger the abort signal, see MustExitThread() below
 
 	bool _INTERNAL_LINKAGE IsThreadRunning(); // Tell if the thread is running

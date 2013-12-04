@@ -17,20 +17,7 @@
 
 class IRemotePC {
 public:
-	virtual HWND GetHostWnd() = 0;
-	virtual CNetManager* GetNetManager() = 0;
-	virtual CThread* GetThread() = 0;
-
-	virtual void StartThread() = 0;
-	virtual void StopThread()  = 0;
-	
-	virtual void ProcessWinsockMessages(LPARAM uMsg) = 0;
-	virtual void ProcessRemotePCMessages(MsgHeaderStruct *MsgHeader, BYTE *MsgData) = 0;
-
-	virtual bool IsConnected() = 0;
-	virtual void ConnectAsServer(HWND hWnd, WORD port) = 0;
-	virtual void ConnectAsClient(HWND hWnd, char *hostname, WORD port) = 0;
-	virtual void Disconnect() = 0;
+	virtual void ProcessRemotePCMessages(MsgHeaderStruct *MsgHeader, BYTE *MsgData){}
 };
 
 class IRemotePCServer : public IRemotePC {
