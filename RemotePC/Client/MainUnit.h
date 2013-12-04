@@ -69,11 +69,14 @@ __published:	// IDE-managed Components
 	void __fastcall ButtonDisconnectClick(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+	void __fastcall CheckBoxConnectAsServerClick(TObject *Sender);
 private:	// User declarations
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);
 public:		// User declarations
 	__fastcall TMainForm(TComponent* Owner);
+	void __fastcall EnableUI();
+	void __fastcall DisableUI();
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TMainForm *MainForm;

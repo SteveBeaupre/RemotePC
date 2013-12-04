@@ -32,6 +32,39 @@ void __fastcall TMainForm::ButtonCloseClick(TObject *Sender)
 	Close();
 }
 //---------------------------------------------------------------------------
+void __fastcall TMainForm::CheckBoxConnectAsClientClick(TObject *Sender)
+{
+	EnableUI();
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::EnableUI()
+{
+	switch(CheckBoxConnectAsClient->Checked){
+	case false: ButtonListen->Caption = "Listen..."; break;
+	case true:  ButtonListen->Caption = "Connect";   break;
+	}
+	ButtonListen->Enabled = true;
+	ButtonDisconnect->Enabled = false;
+	CheckBoxConnectAsClient->Enabled = false;
+	CheckBoxRemoveWallpaper->Enabled = false;
+	CheckBoxMultithreaded->Enabled = false;
+	ComboBoxHostName->Enabled = CheckBoxConnectAsClient->Checked;
+	EditPort->Enabled = false;
+	EditPassword->Enabled = false;
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::DisableUI()
+{
+	ButtonDisconnect->Enabled = true;
+	ButtonListen->Enabled = false;
+	CheckBoxConnectAsClient->Enabled = false;
+	CheckBoxRemoveWallpaper->Enabled = false;
+	CheckBoxMultithreaded->Enabled = false;
+	ComboBoxHostName->Enabled = false;
+	EditPort->Enabled = false;
+	EditPassword->Enabled = false;
+}
+//---------------------------------------------------------------------------
 void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 {
 	switch(Message.Msg)
@@ -40,7 +73,7 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		if(pRemotePCServer)
 			pRemotePCServer->ProcessWinsockMessages(Message.LParam);
 		break;
-	case ON_CONN_THREAD_START:
+	case ON_THREAD_START:
 		if(CheckBoxConnectAsClient->Checked){
 			AddListboxMessageArg(ListBox, "Connecting");
 		} else {
@@ -49,15 +82,22 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		break;
 	case ON_CONNECTED:
 		AddListboxMessageArg(ListBox, "Connection established!");
+		if(pRemotePCServer)
+			pRemotePCServer->StartThread();
 		break;
 	case ON_DISCONNECTED:
 		AddListboxMessageArg(ListBox, "Disconnected");
+		if(pRemotePCServer)
+			pRemotePCServer->StopThread();
+		EnableUI();
 		break;
 	case ON_CONNECTION_LOST:
 		AddListboxMessageArg(ListBox, "Connection closed by peer.");
+		EnableUI();
 		break;
 	case ON_CONNECTION_CANCELED:
 		AddListboxMessageArg(ListBox, "Connection Canceled...");
+		EnableUI();
 		break;
 	case ON_CONNECTION_TIMED_OUT:
 		{
@@ -69,7 +109,25 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 			} else {
 				AddListboxMessageArg(ListBox, "Attemp #%d Failed... Aborting...", NumAttemp);
 				AddListboxMessageArg(ListBox, "Unable to connect to server.");
+				EnableUI();
 			}
+		}
+		break;
+
+	case MSG_CLIENT_LOGIN_COMPLETED:
+		AddListboxMessageArg(ListBox, "Client Loged In.");
+		break;
+	case MSG_CLIENT_LOGIN_FAILED:
+		AddListboxMessageArg(ListBox, "Client Login Failed. \nClosing Connection.");
+		if(pRemotePCServer)
+			pRemotePCServer->Disconnect();
+		break;
+
+	case ON_LOGIN:
+		switch(Message.WParam)
+		{
+		case TRUE:  AddListboxMessageArg(ListBox, "Client Loged In Sucessfully."); break;
+		case FALSE: AddListboxMessageArg(ListBox, "Client Login Failed...");       break;
 		}
 		break;
 	}
@@ -79,9 +137,14 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::ButtonListenClick(TObject *Sender)
 {
-	const int BufSize = 8;
-	char sPort[BufSize];
-	ConvertUnicodeToChar(sPort, BufSize, EditPort->Text.c_str());
+	const int PasswordBufSize = 32;
+	char sPassword[PasswordBufSize];
+	ConvertUnicodeToChar(sPassword, PasswordBufSize, EditPassword->Text.c_str());
+	pRemotePCServer->SetLoginInfo("", sPassword);
+
+	const int PortBufSize = 8;
+	char sPort[PortBufSize];
+	ConvertUnicodeToChar(sPort, PortBufSize, EditPort->Text.c_str());
 
 	WORD Port = 9966;
 	if(strlen(sPort) > 0)
@@ -89,14 +152,16 @@ void __fastcall TMainForm::ButtonListenClick(TObject *Sender)
 
 	if(CheckBoxConnectAsClient->Checked){
 
-		const int BufSize = 16;
-		char ip[BufSize];
-		ConvertUnicodeToChar(ip, BufSize, ComboBoxHostName->Text.c_str());
+		const int IPBufSize = 16;
+		char ip[IPBufSize];
+		ConvertUnicodeToChar(ip, IPBufSize, ComboBoxHostName->Text.c_str());
 
 		pRemotePCServer->ConnectAsClient(Handle, ip, Port);
 	} else {
 		pRemotePCServer->ConnectAsServer(Handle, Port);
 	}
+
+	DisableUI();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::ButtonDisconnectClick(TObject *Sender)
@@ -104,5 +169,6 @@ void __fastcall TMainForm::ButtonDisconnectClick(TObject *Sender)
 	pRemotePCServer->Disconnect();
 }
 //---------------------------------------------------------------------------
+
 
 

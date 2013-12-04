@@ -143,7 +143,7 @@ DWORD WINAPI WaitForClientThread(void *param)
 	TimeOut.tv_usec = 500;
 
 	// Notify msg
-	PostMessage(hWnd, ON_CONN_THREAD_START, 0, 0);
+	PostMessage(hWnd, ON_THREAD_START, 0, 0);
 	
 	// Start an infinite loop
 	while(1){
@@ -307,7 +307,7 @@ DWORD WINAPI ConnectToServerThread(void *param)
 	WSAAsyncSelect(*pSocket, hWnd, WM_SOCKET, FD_CLOSE);
 
 	// Notify msg
-	PostMessage(hWnd, ON_CONN_THREAD_START, 0, 0);
+	PostMessage(hWnd, ON_THREAD_START, 0, 0);
 	
 	// Get the number of attemp we shall make
 	const int NumConnAtmp = pNetEngine->GetConAttempt();

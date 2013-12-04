@@ -29,6 +29,35 @@ void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
 	ShutdownWinSock();
 }
 //---------------------------------------------------------------------------
+void __fastcall TMainForm::CheckBoxConnectAsServerClick(TObject *Sender)
+{
+	EnableUI();
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::EnableUI()
+{
+	switch(CheckBoxConnectAsServer->Checked){
+	case false: ButtonConnect->Caption = "Connect";   break;
+	case true:  ButtonConnect->Caption = "Listen..."; break;
+	}
+	ButtonConnect->Enabled = true;
+	ButtonDisconnect->Enabled = false;
+	CheckBoxConnectAsServer->Enabled = true;
+	ComboBoxHostName->Enabled = !CheckBoxConnectAsServer->Checked;
+	EditPort->Enabled = true;
+	EditPassword->Enabled = true;
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::DisableUI()
+{
+	ButtonDisconnect->Enabled = true;
+	ButtonConnect->Enabled = false;
+	CheckBoxConnectAsServer->Enabled = false;
+	ComboBoxHostName->Enabled = false;
+	EditPort->Enabled = false;
+	EditPassword->Enabled = false;
+}
+//---------------------------------------------------------------------------
 void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 {
 	switch(Message.Msg)
@@ -37,7 +66,7 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		if(pRemotePCClient)
 			pRemotePCClient->ProcessWinsockMessages(Message.LParam);
 		break;
-	case ON_CONN_THREAD_START:
+	case ON_THREAD_START:
 		if(!CheckBoxConnectAsServer->Checked){
 			AddListboxMessageArg(ListBox, "Connecting");
 		} else {
@@ -46,9 +75,19 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		break;
 	case ON_CONNECTED:
 		AddListboxMessageArg(ListBox, "Connection established!");
+		if(pRemotePCClient){
+			char Password[32];
+			ConvertUnicodeToChar(Password, 32, EditPassword->Text.c_str());
+			if(pRemotePCClient){
+				pRemotePCClient->SendLoginRequest("", Password);
+				pRemotePCClient->StartThread();
+			}
+		}
 		break;
 	case ON_DISCONNECTED:
 		AddListboxMessageArg(ListBox, "Disconnected");
+		if(pRemotePCClient)
+			pRemotePCClient->StopThread();
 		break;
 	case ON_CONNECTION_LOST:
 		AddListboxMessageArg(ListBox, "Connection closed by peer.");
@@ -67,6 +106,14 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 				AddListboxMessageArg(ListBox, "Attemp #%d Failed... Aborting...", NumAttemp);
 				AddListboxMessageArg(ListBox, "Unable to connect to server.");
 			}
+		}
+		break;
+
+	case ON_LOGIN:
+		switch(Message.WParam)
+		{
+		case TRUE:  AddListboxMessageArg(ListBox, "Login Sucessful."); break;
+		case FALSE: AddListboxMessageArg(ListBox, "Login Failed.");    break;
 		}
 		break;
 	}
@@ -101,4 +148,5 @@ void __fastcall TMainForm::ButtonDisconnectClick(TObject *Sender)
 	pRemotePCClient->Disconnect();
 }
 //---------------------------------------------------------------------------
+
 

@@ -17,7 +17,7 @@
 #define WM_SOCKET					WM_USER + 150
 //////////////////////////////////////////////
 // Shared
-#define ON_CONN_THREAD_START		WM_USER + 151
+#define ON_THREAD_START				WM_USER + 151
 #define ON_CONNECTED				WM_USER + 152
 #define ON_DISCONNECTED				WM_USER + 153
 #define ON_CONNECTION_LOST			WM_USER + 154
@@ -27,6 +27,7 @@
 //////////////////////////////////////////////
 // Client only
 #define ON_CONNECTION_TIMED_OUT		WM_USER + 156
+#define ON_LOGIN					WM_USER + 157
 //////////////////////////////////////////////
 #define ON_READLOOP_MSG				WM_USER + 158
 //////////////////////////////////////////////
