@@ -182,6 +182,28 @@ DWORD WINAPI WorkerThreadFunc(void* param)
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 
+void CRemotePC::SendMsg(void *pData, MsgHeaderStruct *pMsgHeader)
+{
+	const int HeaderSize = sizeof(MsgHeaderStruct);
+	const int BufSize = HeaderSize + pMsgHeader->MsgSize;
+
+	// Fill the buffer
+	CRawBuffer Buffer(BufSize);
+	memcpy(Buffer.GetBuffer(0), pMsgHeader, HeaderSize); 
+	memcpy(Buffer.GetBuffer(HeaderSize), pData, pMsgHeader->MsgSize);
+
+	WriteData(Buffer.GetBuffer(0), Buffer.GetSize());
+}
+
+void CRemotePC::SendMsg(void *pData, DWORD MsgSize, DWORD MsgID)
+{
+	MsgHeaderStruct MsgHeader;
+	MsgHeader.MsgSize = MsgSize;
+	MsgHeader.MsgID   = MsgID;
+
+	SendMsg(pData, &MsgHeader);
+}
+
 bool CRemotePC::WriteData(BYTE *pBuf, int BufSize)
 {
 	int NumBytesWriten = 0;

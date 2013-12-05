@@ -47,7 +47,6 @@ void CRemotePCServer::OnLoginRequest(LoginInfoStruct *pInfo)
 
 void CRemotePCServer::CalcScreenSize(int *w, int *h)
 {
-	// FIX ME LATER !! (should be encapsulated in an object)
 	RECT r;
 	HWND hDesktopWnd = GetDesktopWindow();
 	GetWindowRect(hDesktopWnd, &r);
@@ -63,7 +62,6 @@ void CRemotePCServer::SendLoginResult(bool Succeded)
 	LoginResult.LogedIn = Succeded != false;
 	
 	if(Succeded){
-		// FIX ME LATER !!
 		int w,h;
 		CalcScreenSize(&w, &h);
 
@@ -75,18 +73,7 @@ void CRemotePCServer::SendLoginResult(bool Succeded)
 	MsgHeader.MsgSize = sizeof(LoginResultStruct);
 	MsgHeader.MsgID   = Succeded ? MSG_CLIENT_LOGIN_COMPLETED : MSG_CLIENT_LOGIN_FAILED;
 
-	const int HeaderSize = sizeof(MsgHeaderStruct);
-	const int BufSize = HeaderSize + MsgHeader.MsgSize;
-
-	CRawBuffer Buffer(BufSize);
-
-	int Indx = 0;
-	memcpy(Buffer.GetBuffer(Indx), &MsgHeader, HeaderSize); 
-	Indx += HeaderSize;
-	
-	memcpy(Buffer.GetBuffer(Indx), &LoginResult, MsgHeader.MsgSize);
-
-	WriteData(Buffer.GetBuffer(0), Buffer.GetSize());
+	SendMsg(&LoginResult, &MsgHeader);
 }
 
 void CRemotePCServer::OnMouseMsg()

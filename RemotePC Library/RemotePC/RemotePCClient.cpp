@@ -36,19 +36,8 @@ void CRemotePCClient::SendLoginRequest(char *pUserName, char *pPassword)
 	MsgHeaderStruct MsgHeader;
 	MsgHeader.MsgSize = sizeof(LoginInfoStruct);
 	MsgHeader.MsgID   = MSG_CLIENT_LOGIN_REQUEST;
-
-	const int HeaderSize = sizeof(MsgHeaderStruct);
-	const int BufSize = HeaderSize + MsgHeader.MsgSize;
-
-	CRawBuffer Buffer(BufSize);
-
-	int Indx = 0;
-	memcpy(Buffer.GetBuffer(Indx), &MsgHeader, HeaderSize); 
-	Indx += HeaderSize;
 	
-	memcpy(Buffer.GetBuffer(Indx), &LoginInfo, MsgHeader.MsgSize);
-
-	WriteData(Buffer.GetBuffer(0), Buffer.GetSize());
+	SendMsg(&LoginInfo, &MsgHeader);
 }
 
 void CRemotePCClient::SendMouseMsg()

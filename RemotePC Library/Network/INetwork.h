@@ -6,7 +6,7 @@
 #include "Windows.h"
 #include "stdio.h"
 //----------------------------------------------------------------------//
-#pragma comment(lib, "WSOCK32.lib")  //WinSock lib  
+#pragma comment(lib, "WSOCK32.lib")
 #include "Winsock.h"
 //----------------------------------------------------------------------//
 

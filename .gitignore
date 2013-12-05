@@ -23,7 +23,10 @@
 *.lib
 *.dll
 *.exe
+*.bat
 
+RemotePC Compiler/
+VortezNetworkEngine/
 Win32/
 Debug/
 Release/
