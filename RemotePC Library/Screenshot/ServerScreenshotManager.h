@@ -29,7 +29,8 @@ public:
 	void Reset();
 	void SwapBuffers();
 
+	void Pack();
+	void Compress();
+	
 	CRawBuffer* Take(BOOL bShowCursor);
-	int Pack();
-	int Compress();
 };

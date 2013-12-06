@@ -57,6 +57,12 @@ void SetFDStuffs(SOCKET *s, fd_set *r, fd_set *w, fd_set *e)
 //-----------------------------------------------------------------------------
 CNetServer::CNetServer()
 {
+	#ifdef REMOTEPC_SERVER_PROJECT
+	#ifdef NO_LOG
+	Log.Disable();
+	#endif
+	Log.Create("C:\\Temp\\Logs\\Server Log.txt");
+	#endif
 	InitBPSCritSect();
 	Initialize();
 }
@@ -66,6 +72,7 @@ CNetServer::CNetServer()
 //-----------------------------------------------------------------------------
 CNetServer::~CNetServer()
 {
+	Log.Close();
 	DelBPSCritSect();
 	Disconnect();
 }
@@ -76,7 +83,7 @@ CNetServer::~CNetServer()
 //-----------------------------------------------------------------------------
 void CNetServer::Initialize()
 {
-	HostHWND = NULL;
+	SetHWND(NULL);
 	m_Socket = INVALID_SOCKET;
 	m_Connected = false;
 
@@ -90,11 +97,11 @@ void CNetServer::Initialize()
 bool CNetServer::WaitForClient(HWND hHostWnd, short nPort)
 {
 	// Return if we are already connected or trying to...
-	if(WaitThread.IsThreadRunning() || Connected() == true)
+	if(WaitThread.IsThreadRunning() || IsConnected())
 		return false;
 
 	// The Handle of the host App.
-	HostHWND = hHostWnd;
+	SetHWND(hHostWnd);
 
 	// Create a TCP/IP stream socket to "listen" with
 	m_Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -110,7 +117,7 @@ bool CNetServer::WaitForClient(HWND hHostWnd, short nPort)
 		int err = WSAGetLastError();
 		char c[64];
 		sprintf(c, "Error Code: %d", err);
-		MessageBoxA(HostHWND, c, "Unable To Bind Socket.", 0);
+		MessageBoxA(GetHWND(), c, "Unable To Bind Socket.", 0);
 		closesocket(m_Socket); 
 		return false;
 	}
@@ -134,7 +141,7 @@ bool CNetServer::WaitForClient(HWND hHostWnd, short nPort)
 DWORD WINAPI WaitForClientThread(void *param)
 {
 	CNetServer *pNetEngine = (CNetServer*)param;
-	HWND hWnd = pNetEngine->HostHWND;
+	HWND hWnd = pNetEngine->GetHWND();
 	SOCKET *pSocket = pNetEngine->GetSocket();
 
 	// Set the time out value
@@ -151,7 +158,7 @@ DWORD WINAPI WaitForClientThread(void *param)
 		// Break the loop when we receive the stop event message
 		if(pNetEngine->WaitThread.MustExitThread()){
 			closesocket(*pSocket);
-			PostMessage(pNetEngine->HostHWND, ON_CONNECTION_CANCELED, 0, 0);
+			PostMessage(pNetEngine->GetHWND(), ON_CONNECTION_CANCELED, 0, 0);
 			return false;
 		}
 
@@ -209,15 +216,14 @@ void CNetServer::Disconnect()
 		m_Connected = false;
 
 		// Notify Messages...
-		PostMessage(HostHWND, ON_DISCONNECTED, 0, 0); 
+		PostMessage(GetHWND(), ON_DISCONNECTED, 0, 0); 
 				
 		// Reset the program's main window handle
-		HostHWND = NULL;
+		SetHWND(NULL);
 
 		ResetBytesCounters();
 	}
 }
-
 
 /*****************************************************************************************/
 /*****************************************************************************************/
@@ -230,6 +236,12 @@ void CNetServer::Disconnect()
 //-----------------------------------------------------------------------------
 CNetClient::CNetClient()
 {
+	#ifdef REMOTEPC_CLIENT_PROJECT
+	#ifdef NO_LOG
+	Log.Disable();
+	#endif
+	Log.Create("C:\\Temp\\Logs\\Client Log.txt");
+	#endif
 	InitBPSCritSect();
 	Initialize();
 }
@@ -239,6 +251,7 @@ CNetClient::CNetClient()
 //-----------------------------------------------------------------------------
 CNetClient::~CNetClient()
 {
+	Log.Close();
 	Disconnect();
 	DelBPSCritSect();
 }
@@ -250,7 +263,7 @@ CNetClient::~CNetClient()
 //-----------------------------------------------------------------------------
 void CNetClient::Initialize()
 {
-	HostHWND = NULL;
+	SetHWND(NULL);
 	m_Socket = INVALID_SOCKET;
 
 	m_Connected     = false;
@@ -268,7 +281,7 @@ void CNetClient::Initialize()
 bool CNetClient::ConnectToServer(HWND hHostWnd, char *ip, short nPort, int DefTimeOut, int DefMaxAttempt)
 {
 	// Return if we are already connected or trying to...
-	if(ConnectThread.IsThreadRunning() || Connected() == true)
+	if(ConnectThread.IsThreadRunning() || IsConnected())
 		return false;
 
 	// 
@@ -276,7 +289,7 @@ bool CNetClient::ConnectToServer(HWND hHostWnd, char *ip, short nPort, int DefTi
 	m_MaxConAttempt = DefMaxAttempt;
 
 	// The Handle of the host App.
-	HostHWND = hHostWnd;
+	SetHWND(hHostWnd);
 	
 	// Create a TCP/IP stream socket to "listen" with
 	m_Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -301,7 +314,7 @@ bool CNetClient::ConnectToServer(HWND hHostWnd, char *ip, short nPort, int DefTi
 DWORD WINAPI ConnectToServerThread(void *param)
 {
 	CNetClient *pNetEngine = (CNetClient*)param;
-	HWND hWnd = pNetEngine->HostHWND;
+	HWND hWnd = pNetEngine->GetHWND();
 	SOCKET *pSocket = pNetEngine->GetSocket();
 
 	WSAAsyncSelect(*pSocket, hWnd, WM_SOCKET, FD_CLOSE);
@@ -331,7 +344,7 @@ DWORD WINAPI ConnectToServerThread(void *param)
 			// Break the loop when we receive the stop event message
 			if(pNetEngine->ConnectThread.MustExitThread()){
 				closesocket(*pSocket);
-				PostMessage(pNetEngine->HostHWND, ON_CONNECTION_CANCELED, 0, 0);
+				PostMessage(pNetEngine->GetHWND(), ON_CONNECTION_CANCELED, 0, 0);
 				return 0;
 			}
 
@@ -341,10 +354,10 @@ DWORD WINAPI ConnectToServerThread(void *param)
 			// Couldn't connect				
 			if(LastTry){
 				closesocket(*pNetEngine->GetSocket());
-				PostMessage(pNetEngine->HostHWND, ON_CONNECTION_TIMED_OUT, Cpt + 1, NumConnAtmp);
+				PostMessage(pNetEngine->GetHWND(), ON_CONNECTION_TIMED_OUT, Cpt + 1, NumConnAtmp);
 				return 0; 
 			}
-			PostMessage(pNetEngine->HostHWND, ON_CONNECTION_TIMED_OUT, Cpt + 1, NumConnAtmp);
+			PostMessage(pNetEngine->GetHWND(), ON_CONNECTION_TIMED_OUT, Cpt + 1, NumConnAtmp);
 
 		} else 
 			break; // Break the connect loop if we are connected
@@ -361,7 +374,7 @@ DWORD WINAPI ConnectToServerThread(void *param)
 	pNetEngine->SetConnectionStatus(true);
 	
 	// Notify msg
-	PostMessage(pNetEngine->HostHWND, ON_CONNECTED, 0, 0);
+	PostMessage(pNetEngine->GetHWND(), ON_CONNECTED, 0, 0);
 
 	return 0;
 }
@@ -388,10 +401,10 @@ void CNetClient::Disconnect()
 		m_Connected = false;
 
 		// Notify Message...
-		PostMessage(HostHWND, ON_DISCONNECTED, 0, 0);
+		PostMessage(GetHWND(), ON_DISCONNECTED, 0, 0);
 
 		// Reset the program's main window handle
-		HostHWND = NULL;
+		SetHWND(NULL);
 
 		ResetBytesCounters();
 	}
@@ -485,7 +498,7 @@ bool CNetBase::CanSend()
 //-----------------------------------------------------------------------------
 bool CNetBase::Recv(BYTE *buf, int size, int *indx)
 {
-	return NetIO(NET_IO_READ, buf, size, indx, MAX_PACKET_SIZE);
+	return NetIO(OP_IO_READ, buf, size, indx, MAX_PACKET_SIZE);
 }
 
 //-----------------------------------------------------------------------------
@@ -493,7 +506,7 @@ bool CNetBase::Recv(BYTE *buf, int size, int *indx)
 //-----------------------------------------------------------------------------
 bool CNetBase::Send(BYTE *buf, int size, int *indx)
 {
-	return NetIO(NET_IO_WRITE, buf, size, indx, MAX_PACKET_SIZE);
+	return NetIO(OP_IO_WRITE, buf, size, indx, MAX_PACKET_SIZE);
 }
 
 /*****************************************************************************************/
@@ -519,26 +532,50 @@ bool CNetBase::NetIO(DWORD Op, BYTE *buf, int bufsize, int *bufindx, int MaxPack
 	// Read/Write data
 	switch(Op)
 	{
-	case NET_IO_READ : res = recv(m_Socket, (char*)&buf[*bufindx], MaxBytesToProcess, 0); break;
-	case NET_IO_WRITE: res = send(m_Socket, (char*)&buf[*bufindx], MaxBytesToProcess, 0); break;
+	case OP_IO_READ : res = recv(m_Socket, (char*)&buf[*bufindx], MaxBytesToProcess, 0); break;
+	case OP_IO_WRITE: res = send(m_Socket, (char*)&buf[*bufindx], MaxBytesToProcess, 0); break;
 	}
 	
 	/////////////////////////////////////////////////
 
 	// Return 0 if we can't read/write
-	if(res == 0 || res == -1)
-		return false;
+	if(res <= 0){
+
+		int err = WSAGetLastError();
+
+		// Print current error message 
+		char *szError = GetLastErrorMessage(err);
+
+		if(err != 0)
+			Log.Log("%s\n", szError);
+
+		if(Op == OP_IO_WRITE){
+
+			// Only return false on error except for WSAEWOULDBLOCK
+			if(err != 0 && err != WSAEWOULDBLOCK){
+				Log.Log("Send() returned false\n");
+				return false;
+			}
+			res = 0;
+			
+		} else {
+			Log.Log("Recv() returned false\n");
+			return false;
+		}
+	}
 
 	/////////////////////////////////////////////////
 
 	// Inc. our counters
 	*bufindx += res;
 	
+	Log.Log("%s %d bytes (%d of %d bytes done.)\n", Op == OP_IO_READ ? "recv() read" : "send() sent", res, *bufindx, bufsize);
+	
 	EnterCriticalSection(&BPSCritSec);
 	switch(Op)
 	{
-	case NET_IO_READ : TotalBytesRecved += res; break;
-	case NET_IO_WRITE: TotalBytesSended += res; break;
+	case OP_IO_READ : TotalBytesRecved += res; break;
+	case OP_IO_WRITE: TotalBytesSended += res; break;
 	}
 	LeaveCriticalSection(&BPSCritSec);
 

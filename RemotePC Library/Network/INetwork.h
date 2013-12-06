@@ -9,6 +9,8 @@
 #pragma comment(lib, "WSOCK32.lib")
 #include "Winsock.h"
 //----------------------------------------------------------------------//
+#include "NetLog.h"
+//----------------------------------------------------------------------//
 
 enum NetworkMode {
 	ServerMode = 0,
@@ -30,8 +32,9 @@ public:
 	virtual void ConnectAsClient(HWND hWnd, char *hostname, WORD port) = 0;
 	virtual void Disconnect() = 0;
 
-	virtual SOCKET* GetSocket() = 0;
 	virtual HWND GetHostHWND() = 0;
+	virtual SOCKET* GetSocket() = 0;
+	virtual CNetLog* GetLog() = 0;
 
 	virtual bool CanRecv() = 0;
 	virtual bool CanSend() = 0;

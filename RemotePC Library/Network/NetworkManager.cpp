@@ -59,11 +59,6 @@ void CNetManager::Disconnect()
 	}
 }
 
-SOCKET* CNetManager::GetSocket()
-{
-	return pNetwork->GetSocket();
-}
-
 bool CNetManager::IsConnected()
 {
 	return pNetwork->IsConnected();
@@ -71,7 +66,17 @@ bool CNetManager::IsConnected()
 
 HWND CNetManager::GetHostHWND()
 {
-	return pNetwork->HostHWND;
+	return pNetwork->GetHWND();
+}
+
+SOCKET* CNetManager::GetSocket()
+{
+	return pNetwork->GetSocket();
+}
+
+CNetLog* CNetManager::GetLog()
+{
+	return pNetwork->GetLog();
 }
 
 bool CNetManager::CanRecv()

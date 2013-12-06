@@ -45,7 +45,7 @@ void CServerScreenshotManager::AdjustFrontBuffer()
 		pFrontBuffer->CreateEmpty(pBackBuffer->GetWidth(), pBackBuffer->GetHeight(), pBackBuffer->GetBitsPerPixel());
 }
 
-int CServerScreenshotManager::Pack()
+void CServerScreenshotManager::Pack()
 {
 	// Define the max. depth of the recursion
 	static const BYTE MaxDepth = 4; 
@@ -78,8 +78,6 @@ int CServerScreenshotManager::Pack()
 
 	// we're done with the tree
 	QuadTree.KillTree();
-
-	return UncompressedSize;
 }
 
 int CServerScreenshotManager::EstimateCompressedBufferSize(int UncompressedSize)
@@ -87,12 +85,12 @@ int CServerScreenshotManager::EstimateCompressedBufferSize(int UncompressedSize)
 	return (int)(((float)UncompressedSize * 1.1f) + 12.0f);
 }
 
-int CServerScreenshotManager::Compress()
+void CServerScreenshotManager::Compress()
 {
 	// Store the uncompressed size and return 0 if empty
 	int UncompressedSize = UncompressedBuffer.GetSize();
 	if(UncompressedSize == 0)
-		return 0;
+		return;
 	
 	int CompressedHeaderSize = sizeof(CompressedScreenshotInfoStruct);
 	int CompressedBufferSize = EstimateCompressedBufferSize(UncompressedSize) + CompressedHeaderSize;
@@ -114,7 +112,5 @@ int CServerScreenshotManager::Compress()
 
 	CompressedBufferSize = CompressedHeaderSize + CompressedDataSize;
 	CompressedBuffer.Resize(CompressedBufferSize);
-
-	return CompressedDataSize;
 }
 

@@ -39,6 +39,8 @@ void CRemotePCServer::SetLoginInfo(char *pUserName, char *pPassword)
 
 void CRemotePCServer::OnLoginRequest(LoginInfoStruct *pInfo)
 {
+	GetNetManager()->GetLog()->Log("Login info received\n");
+
 	bool LogedIn = LoginInfo.CompareLoginInfo(pInfo);
 	SendLoginResult(LogedIn);
 
@@ -60,6 +62,8 @@ void CRemotePCServer::CalcScreenSize(int *w, int *h)
 
 void CRemotePCServer::SendLoginResult(bool Succeded)
 {
+	GetNetManager()->GetLog()->Log("Sending Login Info...\n");
+
 	LoginResultStruct LoginResult;
 	ZeroMemory(&LoginResult, sizeof(LoginResultStruct));
 	LoginResult.LogedIn = Succeded != false;
@@ -81,12 +85,16 @@ void CRemotePCServer::SendLoginResult(bool Succeded)
 
 void CRemotePCServer::OnScreenshotRequest()
 {
+	GetNetManager()->GetLog()->Log("Screenshot Request received\n");
+
 	CRawBuffer* pBuf = ScreenshotManager.Take(TRUE);
 	SendScreenshot(pBuf);
 }
 
 void CRemotePCServer::SendScreenshot(CRawBuffer *pBuffer)
 {
+	GetNetManager()->GetLog()->Log("Sending Screenshot Data...\n");
+
 	MsgHeaderStruct MsgHeader;
 	MsgHeader.MsgSize = pBuffer->GetSize();
 	MsgHeader.MsgID   = MSG_SCREENSHOT_REPLY;

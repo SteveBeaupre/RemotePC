@@ -6,17 +6,7 @@
 #include "Windows.h"
 #include "stdio.h"
 //----------------------------------------------------------------------//
-#include "Screenshot.h"
-#include "QuadTree.h"
+#include "Winsock.h"
 //----------------------------------------------------------------------//
 
-class CClientScreenshotManager : IClientScreenshotManager {
-public:
-	CClientScreenshotManager();
-	~CClientScreenshotManager();
-private:
-	CRawBuffer UncompressedBuffer, OpenGLBuffer;
-public:
-	void Reset();
-	CRawBuffer* Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize);
-};
+char* GetLastErrorMessage(int err);

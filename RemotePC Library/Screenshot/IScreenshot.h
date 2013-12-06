@@ -60,12 +60,12 @@ public:
 
 	virtual CRawBuffer* Take(BOOL bShowCursor) = 0;
 	
-	virtual int  Pack() = 0;
-	virtual int  Compress() = 0;
+	virtual void Pack() = 0;
+	virtual void Compress() = 0;
 };
 
 class IClientScreenshotManager {
 public:
 	virtual void Reset() = 0;
-	virtual int  Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize) = 0;
+	virtual CRawBuffer* Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize) = 0;
 };

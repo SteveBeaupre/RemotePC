@@ -31,8 +31,9 @@ public:
 	void ConnectAsClient(HWND hWnd, char *hostname, WORD port);
 	void Disconnect();
 
-	SOCKET* GetSocket();
 	HWND GetHostHWND();
+	SOCKET* GetSocket();
+	CNetLog* GetLog();
 
 	bool CanRecv();
 	bool CanSend();

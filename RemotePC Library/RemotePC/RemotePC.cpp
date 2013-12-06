@@ -209,7 +209,7 @@ void CRemotePC::SendMsg(MsgHeaderStruct *pMsgHeader, void *pData)
 bool CRemotePC::WriteData(BYTE *pBuf, int BufSize)
 {
 	int NumBytesWriten = 0;
-	while(1) // put program in an infinite loop of writing data
+	while(1)    // <-- MAKE SURE WE CAN GET OUT OF THERE WHEN THE CONNECTION DROP
 	{
 		if(NetManager.CanSend()){
 			
@@ -218,9 +218,9 @@ bool CRemotePC::WriteData(BYTE *pBuf, int BufSize)
 
 			if(NumBytesWriten == BufSize)
 				break; 
-		} else {
+		}/* else {
 			return false;
-		}
+		}*/
 	}
 
 	return true;
