@@ -17,7 +17,7 @@
 
 class IRemotePC {
 public:
-	virtual void ProcessRemotePCMessages(MsgHeaderStruct *MsgHeader, BYTE *MsgData){}
+	virtual void ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData){}
 };
 
 class IRemotePCServer : public IRemotePC {
@@ -25,21 +25,22 @@ public:
 	virtual void SetLoginInfo(char *pUserName, char *pPassword) = 0;
 	virtual void OnLoginRequest(LoginInfoStruct *pInfo) = 0;
 	virtual void SendLoginResult(bool Succeded) = 0;
+	
+	virtual void OnScreenshotRequest() = 0;
+	virtual void SendScreenshot(CRawBuffer *pBuffer) = 0;
 
 	virtual void OnMouseMsg() = 0;
 	virtual void OnKeyboardMsg() = 0;
-	
-	virtual void OnScreenshotRequest() = 0;
-	virtual void SendScreenshot() = 0;
 };
 
 class IRemotePCClient : public IRemotePC {
 public:
 	virtual void SendLoginRequest(char *pUserName, char *pPassword) = 0;
+	virtual void OnLoginResult(LoginResultStruct* pLoginResult) = 0;
+	
+	virtual void SendScreenshotRequest() = 0;
+	virtual void OnScreenshotMsg(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData) = 0;
 
 	virtual void SendMouseMsg() = 0;
 	virtual void SendKeyboardMsg() = 0;
-	
-	virtual void OnScreenshotMsg() = 0;
-	virtual void SendScreenshotRequest() = 0;
 };

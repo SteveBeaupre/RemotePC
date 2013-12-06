@@ -9,8 +9,7 @@
 #pragma comment(lib, "FreeImage.lib")
 #include "FreeImage.h"
 //----------------------------------------------------------------------//
-#include "WinVersion.h"
-#include "RawBuffer.h"
+#include "VortezSDK.h"
 //----------------------------------------------------------------------//
 
 struct ScreenshotInfoStruct {
@@ -20,6 +19,13 @@ struct ScreenshotInfoStruct {
 	int BitsPerPixel;
 	int BytesPerPixel;
 	int BufferSize;
+};
+
+struct CompressedScreenshotInfoStruct {
+	int Width;
+	int Height;
+	int BitsPerPixel;
+	int UncompressedSize;
 };
 
 struct ScreenshotStruct {
@@ -35,6 +41,7 @@ class IScreenshot {
 public:
 	virtual void Reset() = 0;
 	virtual int  Take(BOOL bShowCursor) = 0;
+	virtual void CreateEmpty(int Width, int Height, int BitsPerPixel) = 0;
 	
 	virtual int GetWidth() = 0;
 	virtual int GetHeight() = 0;
@@ -51,7 +58,14 @@ public:
 	virtual void Reset() = 0;
 	virtual void SwapBuffers() = 0;
 
-	virtual int  Take(BOOL bShowCursor) = 0;
+	virtual CRawBuffer* Take(BOOL bShowCursor) = 0;
+	
 	virtual int  Pack() = 0;
 	virtual int  Compress() = 0;
+};
+
+class IClientScreenshotManager {
+public:
+	virtual void Reset() = 0;
+	virtual int  Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize) = 0;
 };

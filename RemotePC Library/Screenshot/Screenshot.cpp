@@ -38,7 +38,7 @@ void CScreenshot::GetScreenSizeAndPos(HWND hDesktopWnd, int *l, int *t, int *w, 
 	RECT r;
 	GetWindowRect(hDesktopWnd, &r);
 
-	*l = r.right;
+	*l = r.left;
 	*t = r.top;
 	*w = r.right  - r.left;
 	*h = r.bottom - r.top;
@@ -106,7 +106,7 @@ int CScreenshot::Take(BOOL bShowCursor)
 /////////////////////////////////////////////////////////////////////////////////////////
 
 	// Allocate the buffer
-	Buffer.Allocate(Info.BufferSize, TRUE); 
+	Buffer.Allocate(Info.BufferSize, TRUE);
 
 	// Allocate a BITMAPINFO buffer 
 	static const int BMISize = sizeof(BITMAPINFOHEADER) + 256 * sizeof(RGBQUAD);
@@ -139,4 +139,14 @@ int CScreenshot::Take(BOOL bShowCursor)
 	return Buffer.GetSize();
 }
 
+void CScreenshot::CreateEmpty(int Width, int Height, int BitsPerPixel)
+{
+	Info.Width = Width;
+	Info.Height = Height;
+	Info.NumPixels = Width * Height;
+	Info.BitsPerPixel = BitsPerPixel;
+	Info.BytesPerPixel = Info.BitsPerPixel / 8;
+	Info.BufferSize = Info.NumPixels * Info.BytesPerPixel;
+	Buffer.Allocate(Info.BufferSize, TRUE);
+}
 

@@ -129,6 +129,10 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		case TRUE:  AddListboxMessageArg(ListBox, "Login Sucessful."); break;
 		case FALSE: AddListboxMessageArg(ListBox, "Login Failed.");    break;
 		}
+
+		if(pRemotePCClient && Message.WParam != FALSE)
+			pRemotePCClient->SendScreenshotRequest();
+
 		break;
 	}
 

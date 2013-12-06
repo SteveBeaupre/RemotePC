@@ -52,6 +52,7 @@ public:
 	UINT  _INTERNAL_LINKAGE GetSize();
 	UINT  _INTERNAL_LINKAGE GetBufferSize(){return GetSize();}
 	UINT  _INTERNAL_LINKAGE GetStrBufferSize(UINT Indx = 0);
+	void  _INTERNAL_LINKAGE Resize(UINT NewSize);
 	
 #ifndef COMPILE_FOR_BORLAND
 	bool  _INTERNAL_LINKAGE Allocate(UINT Size, BOOL EraseBuf = FALSE);

@@ -26,19 +26,28 @@ void CServerScreenshotManager::Reset()
 	pFrontBuffer->Reset();
 }
 
-int CServerScreenshotManager::Take(BOOL bShowCursor)
+CRawBuffer* CServerScreenshotManager::Take(BOOL bShowCursor)
 {
 	pBackBuffer->Take(bShowCursor);
+	AdjustFrontBuffer();
 
-	int res = Compress();
-	this->SwapBuffers();
+    Pack();
+	Compress();
+	SwapBuffers();
 
-	return res;
+	return &CompressedBuffer;
+}
+
+void CServerScreenshotManager::AdjustFrontBuffer()
+{
+	// Make sure an empty buffer is allocated if that's the first frame or if the screen size changed
+	if(pFrontBuffer->GetBufferSize() != pBackBuffer->GetBufferSize())
+		pFrontBuffer->CreateEmpty(pBackBuffer->GetWidth(), pBackBuffer->GetHeight(), pBackBuffer->GetBitsPerPixel());
 }
 
 int CServerScreenshotManager::Pack()
 {
-	// Define the depth of the recursion process
+	// Define the max. depth of the recursion
 	static const BYTE MaxDepth = 4; 
 
 	BYTE *pFront = pFrontBuffer->GetBuffer();
@@ -85,16 +94,27 @@ int CServerScreenshotManager::Compress()
 	if(UncompressedSize == 0)
 		return 0;
 	
-	int CompressedDataSize = 0;
-	int CompressedBufferSize = EstimateCompressedBufferSize(UncompressedSize);
+	int CompressedHeaderSize = sizeof(CompressedScreenshotInfoStruct);
+	int CompressedBufferSize = EstimateCompressedBufferSize(UncompressedSize) + CompressedHeaderSize;
 
-	CompressedBuffer.Allocate(UncompressedSize);
+	CompressedBuffer.Allocate(CompressedBufferSize);
 
-	BYTE *pOut = CompressedBuffer.GetBuffer();
+	CompressedScreenshotInfoStruct CompressionHeader;
+	CompressionHeader.Width  = pBackBuffer->GetWidth();
+	CompressionHeader.Height = pBackBuffer->GetHeight();
+	CompressionHeader.BitsPerPixel = pBackBuffer->GetBitsPerPixel();
+	CompressionHeader.UncompressedSize = UncompressedSize;
+
+	memcpy(CompressedBuffer.GetBuffer(), &CompressionHeader, CompressedHeaderSize);
+
 	BYTE *pIn  = UncompressedBuffer.GetBuffer();
+	BYTE *pOut = CompressedBuffer.GetBuffer(CompressedHeaderSize);
 
-	int CompressedSize = FreeImage_ZLibCompress(pOut, CompressedBufferSize, pIn, UncompressedSize);
+	int CompressedDataSize = FreeImage_ZLibCompress(pOut, CompressedBufferSize, pIn, UncompressedSize);
 
-	return CompressedSize;
+	CompressedBufferSize = CompressedHeaderSize + CompressedDataSize;
+	CompressedBuffer.Resize(CompressedBufferSize);
+
+	return CompressedDataSize;
 }
 

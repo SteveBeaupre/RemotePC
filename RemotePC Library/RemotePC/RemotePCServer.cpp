@@ -14,12 +14,15 @@ CRemotePCServer::~CRemotePCServer()
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 
-void CRemotePCServer::ProcessRemotePCMessages(MsgHeaderStruct *MsgHeader, BYTE *MsgData)
+void CRemotePCServer::ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData)
 {
-	switch(MsgHeader->MsgID)
+	switch(pMsgHeader->MsgID)
 	{
 	case MSG_CLIENT_LOGIN_REQUEST:
-		OnLoginRequest((LoginInfoStruct*)MsgData);
+		OnLoginRequest((LoginInfoStruct*)pMsgData);
+		break;
+	case MSG_SCREENSHOT_REQUEST:
+		OnScreenshotRequest();
 		break;
 	}
 }
@@ -73,7 +76,22 @@ void CRemotePCServer::SendLoginResult(bool Succeded)
 	MsgHeader.MsgSize = sizeof(LoginResultStruct);
 	MsgHeader.MsgID   = Succeded ? MSG_CLIENT_LOGIN_COMPLETED : MSG_CLIENT_LOGIN_FAILED;
 
-	SendMsg(&LoginResult, &MsgHeader);
+	SendMsg(&MsgHeader, &LoginResult);
+}
+
+void CRemotePCServer::OnScreenshotRequest()
+{
+	CRawBuffer* pBuf = ScreenshotManager.Take(TRUE);
+	SendScreenshot(pBuf);
+}
+
+void CRemotePCServer::SendScreenshot(CRawBuffer *pBuffer)
+{
+	MsgHeaderStruct MsgHeader;
+	MsgHeader.MsgSize = pBuffer->GetSize();
+	MsgHeader.MsgID   = MSG_SCREENSHOT_REPLY;
+
+	SendMsg(&MsgHeader, pBuffer->GetBuffer());
 }
 
 void CRemotePCServer::OnMouseMsg()
@@ -82,16 +100,6 @@ void CRemotePCServer::OnMouseMsg()
 }
 
 void CRemotePCServer::OnKeyboardMsg()
-{
-
-}
-
-void CRemotePCServer::OnScreenshotRequest()
-{
-
-}
-
-void CRemotePCServer::SendScreenshot()
 {
 
 }

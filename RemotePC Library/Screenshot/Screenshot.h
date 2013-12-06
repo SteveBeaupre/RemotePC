@@ -22,6 +22,7 @@ private:
 public:
 	void Reset();
 	int  Take(BOOL bShowCursor);
+	void CreateEmpty(int Width, int Height, int BitsPerPixel);
 
 	int GetWidth(){return Info.Width;}
 	int GetHeight(){return Info.Height;}

@@ -19,8 +19,8 @@ protected:
 	CThread WorkerThread;
 	CNetManager NetManager;
 protected:	
-	void SendMsg(void *pData, DWORD MsgSize, DWORD MsgID);
-	void SendMsg(void *pData, MsgHeaderStruct *pMsgHeader);
+	void SendMsg(DWORD MsgSize, DWORD MsgID, void *pData);
+	void SendMsg(MsgHeaderStruct *pMsgHeader, void *pData);
 	bool WriteData(BYTE *pBuf, int BufSize);
 public:
 	HWND GetHostWnd();

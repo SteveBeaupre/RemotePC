@@ -24,6 +24,12 @@ struct QuadTreeStruct {
 
 };
 
+struct CQuadTexInfo {
+	DWORD Offset;
+	WORD  Width;
+	WORD  Height;
+};
+
 //----------------------------------------------------------------------//
 // The base class used to control the QuadTreeStruct
 //----------------------------------------------------------------------//

@@ -62,6 +62,23 @@ UINT CRawBuffer::GetStrBufferSize(UINT Offset)
 	}
 }
 
+void CRawBuffer::Resize(UINT NewSize)
+{
+	if(NewSize == 0){
+		#ifndef COMPILE_FOR_BORLAND
+			Free();
+		#else 
+			FreeBuffer();
+		#endif
+	} else if(NewSize == BufSize){ 
+		return;
+	} else if(NewSize < BufSize){ 
+		BufSize = NewSize;
+	} else if(NewSize > BufSize){ 
+		Allocate(BufSize);
+	}
+}
+
 #ifndef COMPILE_FOR_BORLAND
 bool CRawBuffer::Allocate(UINT Size, BOOL EraseBuf)
 #else

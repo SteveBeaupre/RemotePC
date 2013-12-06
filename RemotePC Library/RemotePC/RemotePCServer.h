@@ -7,6 +7,7 @@
 #include "stdio.h"
 //----------------------------------------------------------------------//
 #include "RemotePC.h"
+#include "ServerScreenshotManager.h"
 //----------------------------------------------------------------------//
 
 class CRemotePCServer : public CRemotePC, public IRemotePCServer {
@@ -15,17 +16,19 @@ public:
 	~CRemotePCServer();
 private:
 	CLoginInfo LoginInfo;
+	CServerScreenshotManager ScreenshotManager;
+private:
 	void CalcScreenSize(int *w, int *h);
 public:
-	void ProcessRemotePCMessages(MsgHeaderStruct *MsgHeader, BYTE *MsgData);
+	void ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData);
 
 	void SetLoginInfo(char *pUserName, char *pPassword);
 	void OnLoginRequest(LoginInfoStruct *pInfo);
 	void SendLoginResult(bool Succeded);
+	
+	void OnScreenshotRequest();
+	void SendScreenshot(CRawBuffer *pBuffer);
 
 	void OnMouseMsg();
 	void OnKeyboardMsg();
-	
-	void OnScreenshotRequest();
-	void SendScreenshot();
 };

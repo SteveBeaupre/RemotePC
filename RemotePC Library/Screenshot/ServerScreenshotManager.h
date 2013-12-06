@@ -22,12 +22,14 @@ private:
 	CScreenshot* GetFrontBuffer(){return pFrontBuffer;}
 
 	CRawBuffer UncompressedBuffer, CompressedBuffer;
-	int EstimateCompressedBufferSize(int UncompressedSize);
+
+	void AdjustFrontBuffer();
+	int  EstimateCompressedBufferSize(int UncompressedSize);
 public:
 	void Reset();
 	void SwapBuffers();
 
-	int Take(BOOL bShowCursor);
+	CRawBuffer* Take(BOOL bShowCursor);
 	int Pack();
 	int Compress();
 };
