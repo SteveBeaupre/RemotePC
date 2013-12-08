@@ -16,7 +16,7 @@ void CClientScreenshotManager::Reset()
 	OpenGLBuffer.Free();
 }
 
-CRawBuffer* CClientScreenshotManager::Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize)
+void CClientScreenshotManager::Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize, DecompressedScreenshotInfoStruct* pInfo)
 {
 	int CompressedHeaderSize = sizeof(CompressedScreenshotInfoStruct);
 
@@ -38,8 +38,15 @@ CRawBuffer* CClientScreenshotManager::Decompress(BYTE *pCompressedBuffer, DWORD 
 
 		// Decompress the data
 		int Res = FreeImage_ZLibUncompress(pOut, UncSize, pIn, CompressedDataSize);
-		if(Res == 0)
-			return NULL;
+		
+		// Check for error
+		if(Res == 0){
+			pInfo->Width   = 0;
+			pInfo->Height  = 0;
+			pInfo->BPP     = 0;
+			pInfo->pBuffer = NULL;
+			return;
+		}
 	}
 	
 	int NumPixels = w * h;
@@ -74,5 +81,8 @@ CRawBuffer* CClientScreenshotManager::Decompress(BYTE *pCompressedBuffer, DWORD 
 		}
 	}
 
-	return &UncompressedBuffer;
+	pInfo->Width   = w;
+	pInfo->Height  = h;
+	pInfo->BPP     = BPP;
+	pInfo->pBuffer = &OpenGLBuffer;
 }

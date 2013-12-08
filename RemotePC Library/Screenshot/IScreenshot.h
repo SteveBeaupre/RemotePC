@@ -28,6 +28,11 @@ struct CompressedScreenshotInfoStruct {
 	int UncompressedSize;
 };
 
+struct DecompressedScreenshotInfoStruct {
+	CRawBuffer *pBuffer;
+	int Width, Height, BPP;
+};
+
 struct ScreenshotStruct {
 	ScreenshotInfoStruct Info;
 	CRawBuffer Buffer;
@@ -67,5 +72,5 @@ public:
 class IClientScreenshotManager {
 public:
 	virtual void Reset() = 0;
-	virtual CRawBuffer* Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize) = 0;
+	virtual void Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize, DecompressedScreenshotInfoStruct* pInfo) = 0;
 };

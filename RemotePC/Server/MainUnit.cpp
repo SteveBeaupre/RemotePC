@@ -91,8 +91,10 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		break;
 	case ON_CONNECTED:
 		AddListboxMessageArg(ListBox, "Connection established!");
-		if(pRemotePCServer)
+		if(pRemotePCServer){
+			pRemotePCServer->Reset();
 			pRemotePCServer->StartThread();
+		}
 		break;
 	case ON_DISCONNECTED:
 		AddListboxMessageArg(ListBox, "Disconnected");

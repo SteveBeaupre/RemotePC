@@ -18,5 +18,5 @@ private:
 	CRawBuffer UncompressedBuffer, OpenGLBuffer;
 public:
 	void Reset();
-	CRawBuffer* Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize);
+	void Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize, DecompressedScreenshotInfoStruct* pInfo);
 };

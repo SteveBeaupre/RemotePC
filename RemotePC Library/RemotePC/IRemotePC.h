@@ -17,7 +17,12 @@
 
 class IRemotePC {
 public:
+	virtual void Reset() = 0;
 	virtual void ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData){}
+	
+	virtual bool InitOpenGL(){return false;}
+	virtual void ShutdownOpenGL(){}
+	virtual void RenderTexture(){}
 };
 
 class IRemotePCServer : public IRemotePC {

@@ -2,12 +2,20 @@
 
 CRemotePCClient::CRemotePCClient()
 {
-
+	hRendererWnd = NULL;
 }
 
 CRemotePCClient::~CRemotePCClient()
 {
+}
 
+//----------------------------------------------------------------------//
+//----------------------------------------------------------------------//
+//----------------------------------------------------------------------//
+
+void CRemotePCClient::Reset()
+{
+	ScreenshotManager.Reset();
 }
 
 //----------------------------------------------------------------------//
@@ -26,6 +34,33 @@ void CRemotePCClient::ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE 
 		OnScreenshotMsg(pMsgHeader, pMsgData);
 		break;
 	}
+}
+
+//----------------------------------------------------------------------//
+//----------------------------------------------------------------------//
+//----------------------------------------------------------------------//
+
+void CRemotePCClient::SetRendererWnd(HWND h)
+{
+	hRendererWnd = h;
+}
+
+bool CRemotePCClient::InitOpenGL()
+{
+	if(!hRendererWnd)
+		return false;
+
+	return OpenGL.Initialize(hRendererWnd);
+}
+
+void CRemotePCClient::ShutdownOpenGL()
+{
+	OpenGL.Shutdown();
+}
+
+void CRemotePCClient::RenderTexture()
+{
+	OpenGL.Render();
 }
 
 //----------------------------------------------------------------------//
@@ -69,8 +104,12 @@ void CRemotePCClient::OnScreenshotMsg(MsgHeaderStruct *pMsgHeader, BYTE *pMsgDat
 {
 	GetNetManager()->GetLog()->Log("Screenshot data received\n");
 
-	ScreenshotManager.Decompress(pMsgData, pMsgHeader->MsgSize);
-	MessageBeep(0);
+	DecompressedScreenshotInfoStruct Info;
+	ScreenshotManager.Decompress(pMsgData, pMsgHeader->MsgSize, &Info);
+
+	if(Info.pBuffer){
+		OpenGL.LoadTexture(Info.pBuffer->GetBuffer(), Info.Width, Info.Height, Info.BPP, Info.BPP == 3 ? GL_BGR : GL_BGRA);
+	}	
 }
 
 void CRemotePCClient::SendMouseMsg()

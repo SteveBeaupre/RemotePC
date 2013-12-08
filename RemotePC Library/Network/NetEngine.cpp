@@ -521,7 +521,7 @@ bool CNetBase::NetIO(DWORD Op, BYTE *buf, int bufsize, int *bufindx, int MaxPack
 	if(bufsize == 0)
 		bufsize = MaxPacketSize;
 
-	// Find how many bytes we have to read, in chunk of MAX_PACKET_SIZE
+	// Find how many bytes we have to read, in chunk of MaxPacketSize
 	int MaxBytesToProcess = (bufsize - *bufindx);
 	if(MaxBytesToProcess > MaxPacketSize)
 		MaxBytesToProcess = MaxPacketSize;
@@ -538,16 +538,14 @@ bool CNetBase::NetIO(DWORD Op, BYTE *buf, int bufsize, int *bufindx, int MaxPack
 	
 	/////////////////////////////////////////////////
 
-	// Return 0 if we can't read/write
+	// Error handler
 	if(res <= 0){
 
 		int err = WSAGetLastError();
 
-		// Print current error message 
-		char *szError = GetLastErrorMessage(err);
-
+		// Print current error message, if any...
 		if(err != 0)
-			Log.Log("%s\n", szError);
+			Log.Log("%s\n", GetLastErrorMessage(err));
 
 		if(Op == OP_IO_WRITE){
 
@@ -556,6 +554,7 @@ bool CNetBase::NetIO(DWORD Op, BYTE *buf, int bufsize, int *bufindx, int MaxPack
 				Log.Log("Send() returned false\n");
 				return false;
 			}
+			// Make sure res is 0 (and not -1) to avoid decrementing the counter
 			res = 0;
 			
 		} else {

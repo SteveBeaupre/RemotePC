@@ -106,6 +106,9 @@ DWORD WINAPI WorkerThreadFunc(void* param)
 
 	CRawBuffer Buffer;
 
+	// Initialize the client OpenGL object (all opengl stuff have no effect on server)
+	pRemotePC->InitOpenGL();
+
 	try
 	{
 		while(1) 
@@ -160,19 +163,28 @@ DWORD WINAPI WorkerThreadFunc(void* param)
 					}					
 				
 				}			
+			} else {
+				// Render the texture (client only)
+				pRemotePC->RenderTexture();
 			}
 
 			// Not to fast :)
-			Sleep(100);
+			Sleep(10);
 		
 		} // while
 	}
 	catch (...)
 	{
 		MessageBoxA(hWnd, "An Error occured in ReadLoop thread.\nPerforming Cleanup.", "Error!", 0);
-		//CleanupReadLoopThread(hWnd, &VideoEncoder, &OriginalDesktopColor);
+		
+		// Cleanup OpenGL (client only)
+		pRemotePC->ShutdownOpenGL();
+
 		throw;
 	} 
+
+	// Cleanup OpenGL (client only)
+	pRemotePC->ShutdownOpenGL();
 
 	PostMessage(hWnd, ON_READLOOP_MSG, READLOOP_END, 0);
 

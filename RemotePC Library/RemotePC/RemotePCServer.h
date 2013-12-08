@@ -20,6 +20,7 @@ private:
 private:
 	void CalcScreenSize(int *w, int *h);
 public:
+	void Reset();
 	void ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData);
 
 	void SetLoginInfo(char *pUserName, char *pPassword);

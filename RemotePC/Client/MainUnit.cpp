@@ -29,12 +29,14 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 
 	EnableUI();
 	InitializeWinSock();
+
 	pRemotePCClient = new CRemotePCClient();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
 {
 	pRemotePCClient->Disconnect();
+
 	SAFE_DELETE_OBJECT(pRemotePCClient);
 	ShutdownWinSock();
 }
@@ -89,6 +91,8 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 			char Password[32];
 			ConvertUnicodeToChar(Password, 32, EditPassword->Text.c_str());
 			if(pRemotePCClient){
+				pRemotePCClient->Reset();
+				pRemotePCClient->SetRendererWnd(DesktopViewer->Handle);
 				pRemotePCClient->SendLoginRequest("", Password);
 				pRemotePCClient->StartThread();
 			}
@@ -168,5 +172,6 @@ void __fastcall TMainForm::ButtonDisconnectClick(TObject *Sender)
 	pRemotePCClient->Disconnect();
 }
 //---------------------------------------------------------------------------
+
 
 
