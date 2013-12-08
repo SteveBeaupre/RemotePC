@@ -288,7 +288,7 @@ void COpenGL::LoadTexture(BYTE *pTex, UINT w, UINT h, UINT bpp, UINT format)
 	if(Texture.ID != 0){
 		glBindTexture(GL_TEXTURE_2D, Texture.ID);
 		
-		if(Texture.Width != w || Texture.Width != w || Texture.Width != w || Texture.Width != w){
+		if(Texture.Width != w || Texture.Height != h || Texture.BPP != bpp || Texture.Format != format){
 			
 			DeleteTexture();
 			CreateTexture();
