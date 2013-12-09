@@ -17,6 +17,7 @@
 #include "BitmapFonts.h"
 #include "Timer.h"
 #include "Lock.h"
+#include "WinMsg.h"
 //----------------------------------------------------------------------//
 
 // VSync Extension

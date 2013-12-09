@@ -52,11 +52,29 @@ Siz2 COpenGL::CalcWndSize()
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 
+void COpenGL::UpdateScrollBars(bool Stretched)
+{
+	HWND h = hWnd;
+	for(int i = 0; i < 3; i++)
+		h = GetParent(h);
+
+	if(h){
+		switch(Stretched)
+		{
+		case true:  PostMessage(h, ON_UPDATE_SCROLLBARS_MSG, 0, 0); break;
+		case false: PostMessage(h, ON_UPDATE_SCROLLBARS_MSG, Texture.Width, Texture.Height); break; 
+		}
+		
+	}
+}
+
 void COpenGL::SetStretchedFlag(bool Stretched)
 {
 	SettingsThreadLock.Lock();
 	RenderSettings.Stretch = Stretched;
 	SettingsThreadLock.Unlock();
+
+	UpdateScrollBars(Stretched);
 }
 
 //----------------------------------------------------------------------//
@@ -325,6 +343,8 @@ void COpenGL::LoadTexture(BYTE *pTex, UINT w, UINT h, UINT bpp, UINT format)
 			Texture.BPP = bpp;
 			Texture.Format = format;
 
+			UpdateScrollBars(GetStretchedFlag());
+
 			glTexImage2D(GL_TEXTURE_2D, 0, Texture.BPP, Texture.Width, Texture.Height, 0, Texture.Format, GL_UNSIGNED_BYTE, pTex);
 		} else {
 			glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, Texture.Width, Texture.Height, Texture.Format, GL_UNSIGNED_BYTE, pTex);
@@ -442,22 +462,22 @@ void COpenGL::Render()
 
 	Siz2 WndSize = CalcWndSize();
 
-	if(GetStretchedFlag()){
+	if(!GetStretchedFlag()){
+		float ww = (float)WndSize.w;
+		float wh = (float)WndSize.h;
+		float tw = (float)Texture.Width;
+		float th = (float)Texture.Height;
+
+		float l = tw < ww ? ((ww - tw) / 2.0f) : 0.0f;
+		float t = th < wh ? (wh - th) - ((wh - th) / 2.0f) : wh - th;
+		int vw = (int)(ww < tw ? tw : ww);
+		int vh = (int)(wh < th ? th : wh);
+
+		Set2DMode(vw, vh);
+		DrawQuad(l, t, tw, th);
+	} else {
 		Set2DMode(WndSize.w, WndSize.h);
 		DrawQuad(0.0f, 0.0f, (float)WndSize.w, (float)WndSize.h);
-	} else {
-		int ww = WndSize.w;
-		int wh = WndSize.h;
-		int tw = Texture.Width;
-		int th = Texture.Height;
-
-		// Draw at original size, with scrollsbars if the image dosen't fit
-		Set2DMode(ww < tw ? tw : ww, wh < th ? th : wh);
-
-		int l = tw < ww ? ((ww - tw) / 2) : 0;
-		int t = th < wh ? (wh - th) - ((wh - th) / 2) : wh - th;
-
-		DrawQuad(l, t, tw, th);
 	}
 
 	if(GetShowFPSFlag()){

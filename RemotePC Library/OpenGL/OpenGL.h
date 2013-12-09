@@ -33,6 +33,8 @@ public:
 
 	void SetVSync(int i);
 	
+	void UpdateScrollBars(bool Stretched);
+
 	void SetStretchedFlag(bool Stretched);
 	void SetShowFPSFlag(bool ShowFPS);
 	bool GetStretchedFlag();

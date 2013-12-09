@@ -138,6 +138,11 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 			pRemotePCClient->SendScreenshotRequest();
 
 		break;
+
+	case ON_UPDATE_SCROLLBARS_MSG:
+		ScrollBox->VertScrollBar->Range = Message.LParam;
+		ScrollBox->HorzScrollBar->Range = Message.WParam;
+		break;
 	}
 
 	TForm::WndProc(Message); // Default processing for any other message
@@ -207,7 +212,7 @@ void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Bu
 	CMouseInputMsgStruct mm;
 
 	mm.Msg  = pRemotePCClient->GetClientInputs()->EncodeMouseButton(Button, true);
-	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
+	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, CheckBoxStretch->Checked);
 
 	pRemotePCClient->SendMouseMsg(&mm);
 }
