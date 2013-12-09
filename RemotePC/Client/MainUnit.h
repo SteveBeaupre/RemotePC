@@ -78,6 +78,8 @@ __published:	// IDE-managed Components
           int X, int Y);
 	void __fastcall DesktopViewerMouseRoll(TObject *Sender, short WheelDelta);
 	void __fastcall CheckBoxStretchClick(TObject *Sender);
+	void __fastcall CheckBoxShowFPSClick(TObject *Sender);
+	void __fastcall CheckBoxFullscreenClick(TObject *Sender);
 private:	// User declarations
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);
@@ -85,6 +87,8 @@ public:		// User declarations
 	__fastcall TMainForm(TComponent* Owner);
 	void __fastcall EnableUI();
 	void __fastcall DisableUI();
+	void __fastcall SwitchToWindowedMode();
+	void __fastcall SwitchToFullscreenMode();
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TMainForm *MainForm;

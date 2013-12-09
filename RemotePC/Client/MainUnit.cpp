@@ -179,15 +179,18 @@ void __fastcall TMainForm::ButtonDisconnectClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState Shift, int X, int Y)
 {
-	if(!pRemotePCClient->GetNetManager()->IsConnected())
-		return;
+	if(CheckBoxFullscreen->Checked){
+		SettingsPanel->Visible = X < 3;
+	}
 
-	CMouseInputMsgStruct mm;
+	if(pRemotePCClient->GetNetManager()->IsConnected()){
+		CMouseInputMsgStruct mm;
 
-	mm.Msg  = MSG_MOUSE_MOVE;
-	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
+		mm.Msg  = MSG_MOUSE_MOVE;
+		mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
 
-	pRemotePCClient->SendMouseMsg(&mm);
+		pRemotePCClient->SendMouseMsg(&mm);
+	}
 }
 //---------------------------------------------------------------------------
 
@@ -233,6 +236,49 @@ void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDe
 void __fastcall TMainForm::CheckBoxStretchClick(TObject *Sender)
 {
 	pRemotePCClient->GetOpenGL()->SetStretchedFlag(CheckBoxStretch->Checked);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TMainForm::CheckBoxShowFPSClick(TObject *Sender)
+{
+	pRemotePCClient->GetOpenGL()->SetShowFPSFlag(CheckBoxShowFPS->Checked);
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::CheckBoxFullscreenClick(TObject *Sender)
+{
+	switch(CheckBoxFullscreen->Checked)
+	{
+	case FALSE: SwitchToWindowedMode();   break;
+	case TRUE:  SwitchToFullscreenMode(); break;
+	}
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::SwitchToFullscreenMode()
+{
+	//if(KbHookDll.IsLoaded())
+	//	KbHookDll.RemoveHook();
+
+	int ScrW = Screen->Width;
+	int ScrH = Screen->Height;
+
+	BorderStyle = bsNone;
+	SetWindowLongPtr(Handle, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE);
+	MoveWindow(Handle, 0, 0, ScrW, ScrH, TRUE);
+
+	SettingsPanel->Hide();
+	ConnectionPanel->Hide();
+
+	//if(KbHookDll.IsLoaded())
+	//	KbHookDll.InstallHook(DesktopViewer->Handle, OnKeyEvent);
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::SwitchToWindowedMode()
+{
+	SetWindowLongPtr(Handle, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+	BorderStyle = bsSingle;
+	MoveWindow(Handle, 520, 20, 820, 538, TRUE);
+
+	ConnectionPanel->Show();
 }
 //---------------------------------------------------------------------------
 
