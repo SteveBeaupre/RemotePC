@@ -33,6 +33,12 @@ void CRemotePCServer::ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE 
 	case MSG_SCREENSHOT_REQUEST:
 		OnScreenshotRequest();
 		break;
+	case MSG_MOUSE_INPUT_DATA:
+		OnMouseMsg((CMouseInputMsgStruct*)pMsgData);
+		break;
+	case MSG_KB_INPUT_DATA:
+		OnKeyboardMsg((CKeyboardInputMsgStruct*)pMsgData);
+		break;
 	}
 }
 
@@ -111,12 +117,12 @@ void CRemotePCServer::SendScreenshot(CRawBuffer *pBuffer)
 	SendMsg(&MsgHeader, pBuffer->GetBuffer());
 }
 
-void CRemotePCServer::OnMouseMsg()
+void CRemotePCServer::OnMouseMsg(CMouseInputMsgStruct* pMsg)
 {
-
+	ServerInputs.ProcessMouseInput(pMsg);
 }
 
-void CRemotePCServer::OnKeyboardMsg()
+void CRemotePCServer::OnKeyboardMsg(CKeyboardInputMsgStruct* pMsg)
 {
 
 }

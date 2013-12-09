@@ -154,6 +154,9 @@ DWORD WINAPI WorkerThreadFunc(void* param)
 						//
 						pRemotePC->ProcessRemotePCMessages(&Header, Buffer.GetBuffer());
 
+						if(Header.MsgID == MSG_SCREENSHOT_REPLY)
+							pRemotePC->RenderTexture();
+
 						// Reset the header
 						HeaderIndx = 0;
 						ZeroMemory(&Header, HeaderSize);
@@ -163,13 +166,13 @@ DWORD WINAPI WorkerThreadFunc(void* param)
 					}					
 				
 				}			
-			} else {
+			}/* else {
 				// Render the texture (client only)
 				pRemotePC->RenderTexture();
-			}
+			}*/
 
 			// Not to fast :)
-			Sleep(10);
+			//Sleep(10);
 		
 		} // while
 	}
@@ -221,19 +224,27 @@ void CRemotePC::SendMsg(MsgHeaderStruct *pMsgHeader, void *pData)
 bool CRemotePC::WriteData(BYTE *pBuf, int BufSize)
 {
 	int NumBytesWriten = 0;
-	while(1)    // <-- MAKE SURE WE CAN GET OUT OF THERE WHEN THE CONNECTION DROP
+
+	WriteLock.Lock();
+	while(1)
 	{
+		if(WorkerThread.MustExitThread()){
+			WriteLock.Unlock();
+			return false;
+		}
+
 		if(NetManager.CanSend()){
-			
-			if(!NetManager.Send(pBuf, BufSize, &NumBytesWriten))
+
+			if(!NetManager.Send(pBuf, BufSize, &NumBytesWriten)){
+				WriteLock.Unlock();
 				return false;
+			}
 
 			if(NumBytesWriten == BufSize)
-				break; 
-		}/* else {
-			return false;
-		}*/
+				break;
+		}
 	}
+	WriteLock.Unlock();
 
 	return true;
 }

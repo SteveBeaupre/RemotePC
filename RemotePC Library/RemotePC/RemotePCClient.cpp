@@ -78,7 +78,7 @@ void CRemotePCClient::SendLoginRequest(char *pUserName, char *pPassword)
 	MsgHeaderStruct MsgHeader;
 	MsgHeader.MsgSize = sizeof(LoginInfoStruct);
 	MsgHeader.MsgID   = MSG_CLIENT_LOGIN_REQUEST;
-	
+
 	SendMsg(&MsgHeader, &LoginInfo);
 }
 
@@ -96,7 +96,7 @@ void CRemotePCClient::SendScreenshotRequest()
 	MsgHeaderStruct MsgHeader;
 	MsgHeader.MsgSize = 0;
 	MsgHeader.MsgID   = MSG_SCREENSHOT_REQUEST;
-	
+
 	SendMsg(&MsgHeader, NULL);
 }
 
@@ -109,15 +109,20 @@ void CRemotePCClient::OnScreenshotMsg(MsgHeaderStruct *pMsgHeader, BYTE *pMsgDat
 
 	if(Info.pBuffer){
 		OpenGL.LoadTexture(Info.pBuffer->GetBuffer(), Info.Width, Info.Height, Info.BPP, Info.BPP == 3 ? GL_BGR : GL_BGRA);
+		SendScreenshotRequest();
 	}	
 }
 
-void CRemotePCClient::SendMouseMsg()
+void CRemotePCClient::SendMouseMsg(CMouseInputMsgStruct *mm)
 {
+	MsgHeaderStruct MsgHeader;
+	MsgHeader.MsgSize = sizeof(CMouseInputMsgStruct);
+	MsgHeader.MsgID   = MSG_MOUSE_INPUT_DATA;
 
+	SendMsg(&MsgHeader, mm);
 }
 
-void CRemotePCClient::SendKeyboardMsg()
+void CRemotePCClient::SendKeyboardMsg(CKeyboardInputMsgStruct *km)
 {
 
 }

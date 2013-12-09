@@ -17,6 +17,7 @@ public:
 private:
 	CLoginInfo LoginInfo;
 	CServerScreenshotManager ScreenshotManager;
+	CServerInputs ServerInputs;
 private:
 	void CalcScreenSize(int *w, int *h);
 public:
@@ -30,6 +31,6 @@ public:
 	void OnScreenshotRequest();
 	void SendScreenshot(CRawBuffer *pBuffer);
 
-	void OnMouseMsg();
-	void OnKeyboardMsg();
+	void OnMouseMsg(CMouseInputMsgStruct* pMsg);
+	void OnKeyboardMsg(CKeyboardInputMsgStruct* pMsg);
 };

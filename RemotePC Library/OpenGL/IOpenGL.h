@@ -16,6 +16,7 @@
 //----------------------------------------------------------------------//
 #include "BitmapFonts.h"
 #include "Timer.h"
+#include "Lock.h"
 //----------------------------------------------------------------------//
 
 // VSync Extension
@@ -59,8 +60,10 @@ public:
 
 	virtual void SetVSync(int i) = 0;
 	
-	virtual void SetSettings(bool Stretch, bool ShowFPS) = 0;
-	virtual RenderSettingsStruct* GetSettings() = 0;
+	virtual void SetStretchedFlag(bool Stretched) = 0;
+	virtual void SetShowFPSFlag(bool ShowFPS) = 0;
+	virtual bool GetStretchedFlag() = 0;
+	virtual bool GetShowFPSFlag() = 0;
 
 	virtual bool Initialize(HWND h) = 0;
 	virtual void Shutdown() = 0;

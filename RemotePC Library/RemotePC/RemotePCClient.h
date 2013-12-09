@@ -19,8 +19,11 @@ private:
 	HWND hRendererWnd;
 	COpenGL OpenGL;
 	CClientScreenshotManager ScreenshotManager;
+	CClientInputs ClientInputs;
 public:
 	COpenGL* GetOpenGL(){return &OpenGL;}
+	CClientScreenshotManager* GetScreenshotManager(){return &ScreenshotManager;}
+	CClientInputs* GetClientInputs(){return &ClientInputs;}
 
 	void Reset();
 	void ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData);
@@ -36,6 +39,6 @@ public:
 	void SendScreenshotRequest();
 	void OnScreenshotMsg(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData);
 
-	void SendMouseMsg();
-	void SendKeyboardMsg();
+	void SendMouseMsg(CMouseInputMsgStruct *mm);
+	void SendKeyboardMsg(CKeyboardInputMsgStruct *km);
 };

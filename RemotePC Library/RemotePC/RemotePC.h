@@ -16,6 +16,7 @@ public:
 	CRemotePC();
 	~CRemotePC();
 protected:
+	CLock WriteLock;
 	CThread WorkerThread;
 	CNetManager NetManager;
 protected:	

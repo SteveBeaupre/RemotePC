@@ -13,6 +13,8 @@ COpenGL::COpenGL()
 	ZeroMemory(&Texture, sizeof(TextureStruct));
 	ZeroMemory(&RenderSettings, sizeof(RenderSettingsStruct));
 	
+	RenderSettings.ShowFPS = true;
+	
 }
 
 COpenGL::~COpenGL()
@@ -51,17 +53,42 @@ Siz2 COpenGL::CalcWndSize()
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 
-void COpenGL::SetSettings(bool Stretch, bool ShowFPS)
+void COpenGL::SetStretchedFlag(bool Stretched)
 {
-	RenderSettings.ShowFPS = ShowFPS;
-	RenderSettings.Stretch = Stretch;
+	SettingsThreadLock.Lock();
+	RenderSettings.Stretch = Stretched;
+	SettingsThreadLock.Unlock();
 }
 
 //----------------------------------------------------------------------//
 
-RenderSettingsStruct* COpenGL::GetSettings()
+void COpenGL::SetShowFPSFlag(bool ShowFPS)
 {
-	return &RenderSettings;
+	SettingsThreadLock.Lock();
+	RenderSettings.ShowFPS = ShowFPS;
+	SettingsThreadLock.Unlock();
+}
+
+//----------------------------------------------------------------------//
+
+bool COpenGL::GetStretchedFlag()
+{
+	SettingsThreadLock.Lock();
+	bool Stretched = RenderSettings.Stretch;
+	SettingsThreadLock.Unlock();
+
+	return Stretched;
+}
+
+//----------------------------------------------------------------------//
+
+bool COpenGL::GetShowFPSFlag()
+{
+	SettingsThreadLock.Lock();
+	bool ShowFPS = RenderSettings.ShowFPS;
+	SettingsThreadLock.Unlock();
+
+	return ShowFPS;
 }
 
 //----------------------------------------------------------------------//
@@ -428,7 +455,7 @@ void COpenGL::Render()
 
 	DrawQuad();
 
-	if(RenderSettings.ShowFPS){
+	if(GetShowFPSFlag()){
 		FPSTimer.Tick();
 		DrawFPS();
 	}

@@ -10,8 +10,8 @@
 #include "VortezSDK.h"
 //----------------------------------------------------------------------//
 #include "NetworkManager.h"
+#include "Inputs.h"
 #include "LoginInfo.h"
-#include "RawBuffer.h"
 #include "MsgHeader.h"
 //----------------------------------------------------------------------//
 
@@ -34,8 +34,8 @@ public:
 	virtual void OnScreenshotRequest() = 0;
 	virtual void SendScreenshot(CRawBuffer *pBuffer) = 0;
 
-	virtual void OnMouseMsg() = 0;
-	virtual void OnKeyboardMsg() = 0;
+	virtual void OnMouseMsg(CMouseInputMsgStruct* pMsg) = 0;
+	virtual void OnKeyboardMsg(CKeyboardInputMsgStruct* pMsg) = 0;
 };
 
 class IRemotePCClient : public IRemotePC {
@@ -46,6 +46,6 @@ public:
 	virtual void SendScreenshotRequest() = 0;
 	virtual void OnScreenshotMsg(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData) = 0;
 
-	virtual void SendMouseMsg() = 0;
-	virtual void SendKeyboardMsg() = 0;
+	virtual void SendMouseMsg(CMouseInputMsgStruct *mm) = 0;
+	virtual void SendKeyboardMsg(CKeyboardInputMsgStruct *km) = 0;
 };

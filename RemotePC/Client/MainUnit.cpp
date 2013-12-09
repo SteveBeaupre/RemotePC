@@ -172,6 +172,57 @@ void __fastcall TMainForm::ButtonDisconnectClick(TObject *Sender)
 	pRemotePCClient->Disconnect();
 }
 //---------------------------------------------------------------------------
+void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState Shift, int X, int Y)
+{
+	if(!pRemotePCClient->GetNetManager()->IsConnected())
+		return;
 
+	CMouseInputMsgStruct mm;
 
+	mm.Msg  = MSG_MOUSE_MOVE;
+	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
+
+	pRemotePCClient->SendMouseMsg(&mm);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
+{
+	if(!pRemotePCClient->GetNetManager()->IsConnected())
+		return;
+
+	CMouseInputMsgStruct mm;
+
+	mm.Msg  = pRemotePCClient->GetClientInputs()->EncodeMouseButton(Button, false);
+	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
+
+	pRemotePCClient->SendMouseMsg(&mm);
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
+{
+	if(!pRemotePCClient->GetNetManager()->IsConnected())
+		return;
+
+	CMouseInputMsgStruct mm;
+
+	mm.Msg  = pRemotePCClient->GetClientInputs()->EncodeMouseButton(Button, true);
+	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
+
+	pRemotePCClient->SendMouseMsg(&mm);
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDelta)
+{
+	if(!pRemotePCClient->GetNetManager()->IsConnected())
+		return;
+
+	CMouseInputMsgStruct mm;
+
+	mm.Msg  = MSG_MOUSE_ROLL;
+	mm.Data = WheelDelta;
+
+	pRemotePCClient->SendMouseMsg(&mm);
+}
+//---------------------------------------------------------------------------
 

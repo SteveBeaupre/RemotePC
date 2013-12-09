@@ -70,6 +70,13 @@ __published:	// IDE-managed Components
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 	void __fastcall CheckBoxConnectAsServerClick(TObject *Sender);
+	void __fastcall DesktopViewerMouseMove(TObject *Sender, TShiftState Shift, int X,
+          int Y);
+	void __fastcall DesktopViewerMouseDown(TObject *Sender, TMouseButton Button, TShiftState Shift,
+          int X, int Y);
+	void __fastcall DesktopViewerMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift,
+          int X, int Y);
+	void __fastcall DesktopViewerMouseRoll(TObject *Sender, short WheelDelta);
 private:	// User declarations
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);

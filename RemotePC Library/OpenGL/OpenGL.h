@@ -21,6 +21,7 @@ private:
 
 	TextureStruct Texture;
 	RenderSettingsStruct RenderSettings;
+	CLock SettingsThreadLock;
 private:
 	CGameTimer FPSTimer;
 	CBitmapFonts FPSFont;
@@ -32,8 +33,10 @@ public:
 
 	void SetVSync(int i);
 	
-	void SetSettings(bool Stretch, bool ShowFPS);
-	RenderSettingsStruct* GetSettings();
+	void SetStretchedFlag(bool Stretched);
+	void SetShowFPSFlag(bool ShowFPS);
+	bool GetStretchedFlag();
+	bool GetShowFPSFlag();
 
 	bool Initialize(HWND h);
 	void Shutdown();
