@@ -51,9 +51,9 @@ public:
 	void LoadTexture(BYTE *pTex, UINT w, UINT h, UINT bpp, UINT format);
 	void DeleteTexture();
 
-	void Set2DMode();
+	void Set2DMode(int w, int h);
 
-	void DrawQuad();
+	void DrawQuad(float l, float t, float w, float h);
 
 	void Render();
 };

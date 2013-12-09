@@ -11,10 +11,9 @@ COpenGL::COpenGL()
 	FontTexBaseID = 0;
 
 	ZeroMemory(&Texture, sizeof(TextureStruct));
-	ZeroMemory(&RenderSettings, sizeof(RenderSettingsStruct));
 	
+	RenderSettings.Stretch = false;
 	RenderSettings.ShowFPS = true;
-	
 }
 
 COpenGL::~COpenGL()
@@ -347,60 +346,50 @@ void COpenGL::DeleteTexture()
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 
-void COpenGL::Set2DMode()
+void COpenGL::Set2DMode(int w, int h)
 {
 	if(!IsInitialized())
 		return;
 
-	Pos2 p;
-	p.x = 0;
-	p.y = 0;
-
-	static Siz2 s = CalcWndSize();
-
-	glViewport(p.x, p.y, s.w, s.h);
+	glViewport(0, 0, w, h);
 
 	glMatrixMode(GL_PROJECTION); 
 	glLoadIdentity(); 
-	gluOrtho2D(p.x, s.w, p.y, s.h);
+	gluOrtho2D(0, w, 0, h);
 	glMatrixMode(GL_MODELVIEW); 
 }
 
 //----------------------------------------------------------------------//
 
-void COpenGL::DrawQuad()
+void COpenGL::DrawQuad(float l, float t, float w, float h)
 {
 	if(!IsInitialized())
 		return;
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	static Siz2 s = CalcWndSize();
-
-	float l = 0.0f;
-	float r = (float)s.w;
-	float t = (float)s.h;
-	float b = 0.0f;
+	float r = l+w;
+	float b = t+h;
 
 	if(Texture.ID != 0){
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, Texture.ID);
 
 		glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 1.0f); glVertex2f(l, t);
-			glTexCoord2f(1.0f, 1.0f); glVertex2f(r, t);
-			glTexCoord2f(1.0f, 0.0f); glVertex2f(r, b);
-			glTexCoord2f(0.0f, 0.0f); glVertex2f(l, b);
+			glTexCoord2f(0.0f, 1.0f); glVertex2f(l, b);
+			glTexCoord2f(1.0f, 1.0f); glVertex2f(r, b);
+			glTexCoord2f(1.0f, 0.0f); glVertex2f(r, t);
+			glTexCoord2f(0.0f, 0.0f); glVertex2f(l, t);
 		glEnd();
 	} else {
 		glDisable(GL_TEXTURE_2D);
 
 		glColor3f(0.15f, 0.15f, 0.15f);
 		glBegin(GL_QUADS);
-			glVertex2f(l, t);
-			glVertex2f(r, t);
-			glVertex2f(r, b);
 			glVertex2f(l, b);
+			glVertex2f(r, b);
+			glVertex2f(r, t);
+			glVertex2f(l, t);
 		glEnd();
 		glColor3f(1.0f, 1.0f, 1.0f);
 	}
@@ -414,7 +403,7 @@ void COpenGL::DrawFPS()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glColor4f(0.0f, 0.0f, 0.0f, 0.666f);
 
-	static Siz2 s = CalcWndSize();
+	Siz2 s = CalcWndSize();
 
 	float l = 0.0f;
 	float r = 100.0f;
@@ -451,9 +440,25 @@ void COpenGL::Render()
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
 
-	Set2DMode();
+	Siz2 WndSize = CalcWndSize();
 
-	DrawQuad();
+	if(GetStretchedFlag()){
+		Set2DMode(WndSize.w, WndSize.h);
+		DrawQuad(0.0f, 0.0f, (float)WndSize.w, (float)WndSize.h);
+	} else {
+		int ww = WndSize.w;
+		int wh = WndSize.h;
+		int tw = Texture.Width;
+		int th = Texture.Height;
+
+		// Draw at original size, with scrollsbars if the image dosen't fit
+		Set2DMode(ww < tw ? tw : ww, wh < th ? th : wh);
+
+		int l = tw < ww ? ((ww - tw) / 2) : 0;
+		int t = th < wh ? (wh - th) - ((wh - th) / 2) : wh - th;
+
+		DrawQuad(l, t, tw, th);
+	}
 
 	if(GetShowFPSFlag()){
 		FPSTimer.Tick();

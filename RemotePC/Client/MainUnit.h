@@ -77,6 +77,7 @@ __published:	// IDE-managed Components
 	void __fastcall DesktopViewerMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift,
           int X, int Y);
 	void __fastcall DesktopViewerMouseRoll(TObject *Sender, short WheelDelta);
+	void __fastcall CheckBoxStretchClick(TObject *Sender);
 private:	// User declarations
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);

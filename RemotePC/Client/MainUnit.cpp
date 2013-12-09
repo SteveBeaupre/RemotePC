@@ -225,4 +225,9 @@ void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDe
 	pRemotePCClient->SendMouseMsg(&mm);
 }
 //---------------------------------------------------------------------------
+void __fastcall TMainForm::CheckBoxStretchClick(TObject *Sender)
+{
+	pRemotePCClient->GetOpenGL()->SetStretchedFlag(CheckBoxStretch->Checked);
+}
+//---------------------------------------------------------------------------
 

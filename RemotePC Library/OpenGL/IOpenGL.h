@@ -35,8 +35,6 @@ struct Pix4 {BYTE r,g,b,a;};
 struct Pos2 {int x,y;};
 struct Siz2 {int w,h;};
 
-struct Pln2 {float n,f;};
-
 struct RenderSettingsStruct {
 	bool Stretch;
 	bool ShowFPS;
@@ -78,9 +76,9 @@ public:
 	virtual void DeleteTexture() = 0;
 	virtual void LoadTexture(BYTE *pTex, UINT w, UINT h, UINT bpp, UINT format) = 0;
 
-	virtual void Set2DMode() = 0;
+	virtual void Set2DMode(int w, int h) = 0;
 	
-	virtual void DrawQuad() = 0;
+	virtual void DrawQuad(float l, float t, float w, float h) = 0;
 
 	virtual void Render() = 0;
 };
