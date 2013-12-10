@@ -129,6 +129,10 @@ void CRemotePCClient::SendMouseMsg(CMouseInputMsgStruct *mm)
 
 void CRemotePCClient::SendKeyboardMsg(CKeyboardInputMsgStruct *km)
 {
+	MsgHeaderStruct MsgHeader;
+	MsgHeader.MsgSize = sizeof(CKeyboardInputMsgStruct);
+	MsgHeader.MsgID   = MSG_KB_INPUT_DATA;
 
+	SendMsg(&MsgHeader, km);
 }
 

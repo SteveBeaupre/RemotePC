@@ -25,6 +25,9 @@
 *.exe
 *.bat
 
+*.zip
+*.rar
+
 RemotePC Compiler/
 VortezNetworkEngine/
 Win32/

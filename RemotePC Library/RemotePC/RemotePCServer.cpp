@@ -124,6 +124,6 @@ void CRemotePCServer::OnMouseMsg(CMouseInputMsgStruct* pMsg)
 
 void CRemotePCServer::OnKeyboardMsg(CKeyboardInputMsgStruct* pMsg)
 {
-
+	ServerInputs.ProcessKeyboardInput(pMsg);
 }
 

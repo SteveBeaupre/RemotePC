@@ -15,6 +15,7 @@
 #include "NetworkSpeedViewer.hpp"
 //---------------------------------------------------------------------------
 #include "RemotePCClient.h"
+#include "KbHookDllStub.h"
 #include "UnicodeToChar.h"
 #include "Listbox.h"
 #include "Lang.h"
@@ -81,12 +82,14 @@ __published:	// IDE-managed Components
 	void __fastcall CheckBoxShowFPSClick(TObject *Sender);
 	void __fastcall CheckBoxFullscreenClick(TObject *Sender);
 private:	// User declarations
-	int LangID;
-	bool LogedIn;
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);
 public:		// User declarations
 	__fastcall TMainForm(TComponent* Owner);
+
+	int  LangID;
+	bool LogedIn;
+
 	void __fastcall EnableUI();
 	void __fastcall DisableUI();
 	void __fastcall SwitchToWindowedMode();

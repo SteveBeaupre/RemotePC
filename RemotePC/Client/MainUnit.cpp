@@ -9,6 +9,8 @@
 TMainForm *MainForm;
 //---------------------------------------------------------------------------
 CRemotePCClient *pRemotePCClient = NULL;
+CKbHookDllStub KbHookDllStub;
+void __cdecl OnKeyEvent(DWORD wParam, DWORD lParam);
 //---------------------------------------------------------------------------
 __fastcall TMainForm::TMainForm(TComponent* Owner)
 	: TForm(Owner)
@@ -26,6 +28,12 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	Position = poDesktopCenter;
 	#endif
 
+	if(!KbHookDllStub.Load("KBHook.dll")){
+		Application->Terminate();
+	} else {
+		KbHookDllStub.InstallHook(DesktopViewer->Handle, OnKeyEvent);
+	}
+
 	LangID = REMOTEPC_LANG_ENGLISH;
 	LogedIn = false;
 
@@ -37,10 +45,13 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
 {
+	KbHookDllStub.Free();
+
 	pRemotePCClient->Disconnect();
 
 	SAFE_DELETE_OBJECT(pRemotePCClient);
 	ShutdownWinSock();
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::CheckBoxConnectAsServerClick(TObject *Sender)
@@ -194,7 +205,6 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 
 	if(LogedIn){
 		CMouseInputMsgStruct mm;
-
 		mm.Msg  = MSG_MOUSE_MOVE;
 		mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
 
@@ -209,7 +219,6 @@ void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton 
 		return;
 
 	CMouseInputMsgStruct mm;
-
 	mm.Msg  = pRemotePCClient->GetClientInputs()->EncodeMouseButton(Button, false);
 	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
 
@@ -222,7 +231,6 @@ void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Bu
 		return;
 
 	CMouseInputMsgStruct mm;
-
 	mm.Msg  = pRemotePCClient->GetClientInputs()->EncodeMouseButton(Button, true);
 	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, CheckBoxStretch->Checked);
 
@@ -235,11 +243,31 @@ void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDe
 		return;
 
 	CMouseInputMsgStruct mm;
-
 	mm.Msg  = MSG_MOUSE_ROLL;
 	mm.Data = WheelDelta;
 
 	pRemotePCClient->SendMouseMsg(&mm);
+}
+//---------------------------------------------------------------------------
+void __cdecl OnKeyEvent(DWORD wParam, DWORD lParam)
+{
+	if(!MainForm->LogedIn)
+		return;
+
+	CKeyboardInputMsgStruct km;
+	switch(wParam)
+	{
+	case WM_KEYDOWN:    km.Msg = MSG_KEY_DOWN;     break;
+	case WM_KEYUP:      km.Msg = MSG_KEY_UP;       break;
+	case WM_SYSKEYDOWN: km.Msg = MSG_SYS_KEY_DOWN; break;
+	case WM_SYSKEYUP:   km.Msg = MSG_SYS_KEY_UP;   break;
+	default: return;    // should never happen...
+	}
+
+	KBDLLHOOKSTRUCT *pData = (KBDLLHOOKSTRUCT*)lParam;
+	memcpy(&km.Data, pData, sizeof(KBDLLHOOKSTRUCT));
+
+	pRemotePCClient->SendKeyboardMsg(&km);
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::CheckBoxStretchClick(TObject *Sender)
@@ -247,7 +275,6 @@ void __fastcall TMainForm::CheckBoxStretchClick(TObject *Sender)
 	pRemotePCClient->GetOpenGL()->SetStretchedFlag(CheckBoxStretch->Checked);
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TMainForm::CheckBoxShowFPSClick(TObject *Sender)
 {
 	pRemotePCClient->GetOpenGL()->SetShowFPSFlag(CheckBoxShowFPS->Checked);
