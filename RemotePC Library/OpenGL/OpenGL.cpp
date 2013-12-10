@@ -345,9 +345,9 @@ void COpenGL::LoadTexture(BYTE *pTex, UINT w, UINT h, UINT bpp, UINT format)
 
 			UpdateScrollBars(GetStretchedFlag());
 
-			glTexImage2D(GL_TEXTURE_2D, 0, Texture.BPP, Texture.Width, Texture.Height, 0, Texture.Format, GL_UNSIGNED_BYTE, pTex);
+			glTexImage2D(GL_TEXTURE_2D, 0, bpp, w, h, 0, format, GL_UNSIGNED_BYTE, pTex);
 		} else {
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, Texture.Width, Texture.Height, Texture.Format, GL_UNSIGNED_BYTE, pTex);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, w, h, format, GL_UNSIGNED_BYTE, pTex);
 		}
 	}
 }
