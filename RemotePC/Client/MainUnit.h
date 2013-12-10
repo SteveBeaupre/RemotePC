@@ -81,6 +81,8 @@ __published:	// IDE-managed Components
 	void __fastcall CheckBoxShowFPSClick(TObject *Sender);
 	void __fastcall CheckBoxFullscreenClick(TObject *Sender);
 private:	// User declarations
+	int LangID;
+	bool LogedIn;
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);
 public:		// User declarations

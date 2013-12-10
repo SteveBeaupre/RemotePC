@@ -30,6 +30,7 @@ public:
 
 	void StartThread();
 	void StopThread();
+	void CleanupThread();
 	
 	void ProcessWinsockMessages(LPARAM uMsg);
 

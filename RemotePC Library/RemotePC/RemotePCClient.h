@@ -32,6 +32,7 @@ public:
 	bool InitOpenGL();
 	void ShutdownOpenGL();
 	void RenderTexture();
+	void ClearScreen();
 
 	void SendLoginRequest(char *pUserName, char *pPassword);
 	void OnLoginResult(LoginResultStruct* pLoginResult);

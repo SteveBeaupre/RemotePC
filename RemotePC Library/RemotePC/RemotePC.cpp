@@ -19,15 +19,21 @@ bool CRemotePC::IsConnected()
 	return NetManager.IsConnected();
 }
 
+//----------------------------------------------------------------------//
+
 void CRemotePC::ConnectAsServer(HWND hWnd, WORD port)
 {
 	NetManager.ConnectAsServer(hWnd, port);
 }
 
+//----------------------------------------------------------------------//
+
 void CRemotePC::ConnectAsClient(HWND hWnd, char *hostname, WORD port)
 {
 	NetManager.ConnectAsClient(hWnd, hostname, port);
 }
+
+//----------------------------------------------------------------------//
 
 void CRemotePC::Disconnect()
 {
@@ -78,9 +84,20 @@ void CRemotePC::StartThread()
 	WorkerThread.StartThread(WorkerThreadFunc, this);
 }
 
+//----------------------------------------------------------------------//
+
 void CRemotePC::StopThread()
 {
 	WorkerThread.StopThread();
+}
+
+//----------------------------------------------------------------------//
+
+void CRemotePC::CleanupThread()
+{
+	// Cleanup OpenGL (client only)
+	ClearScreen();
+	ShutdownOpenGL();
 }
 
 //----------------------------------------------------------------------//
@@ -166,28 +183,19 @@ DWORD WINAPI WorkerThreadFunc(void* param)
 					}					
 				
 				}			
-			}/* else {
-				// Render the texture (client only)
-				pRemotePC->RenderTexture();
-			}*/
-
-			// Not to fast :)
-			//Sleep(10);
-		
-		} // while
+			}
+		} 
 	}
 	catch (...)
 	{
 		MessageBoxA(hWnd, "An Error occured in ReadLoop thread.\nPerforming Cleanup.", "Error!", 0);
 		
-		// Cleanup OpenGL (client only)
-		pRemotePC->ShutdownOpenGL();
+		pRemotePC->CleanupThread();
 
 		throw;
 	} 
 
-	// Cleanup OpenGL (client only)
-	pRemotePC->ShutdownOpenGL();
+	pRemotePC->CleanupThread();
 
 	PostMessage(hWnd, ON_READLOOP_MSG, READLOOP_END, 0);
 

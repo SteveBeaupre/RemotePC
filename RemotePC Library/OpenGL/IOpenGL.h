@@ -82,4 +82,5 @@ public:
 	virtual void DrawQuad(float l, float t, float w, float h) = 0;
 
 	virtual void Render() = 0;
+	virtual void RenderEmpty() = 0;
 };

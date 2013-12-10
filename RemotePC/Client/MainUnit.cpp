@@ -7,7 +7,6 @@
 #pragma link "trayicon"
 #pragma resource "*.dfm"
 TMainForm *MainForm;
-int LangID = REMOTEPC_LANG_ENGLISH;
 //---------------------------------------------------------------------------
 CRemotePCClient *pRemotePCClient = NULL;
 //---------------------------------------------------------------------------
@@ -26,6 +25,9 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	#else
 	Position = poDesktopCenter;
 	#endif
+
+	LangID = REMOTEPC_LANG_ENGLISH;
+	LogedIn = false;
 
 	EnableUI();
 	InitializeWinSock();
@@ -99,12 +101,14 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		}
 		break;
 	case ON_DISCONNECTED:
+		LogedIn = false;
 		AddListboxMessageArg(ListBox, "Disconnected");
 		if(pRemotePCClient)
 			pRemotePCClient->StopThread();
 		EnableUI();
 		break;
 	case ON_CONNECTION_LOST:
+		LogedIn = false;
 		AddListboxMessageArg(ListBox, "Connection closed by peer.");
 		EnableUI();
 		break;
@@ -130,8 +134,13 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 	case ON_LOGIN:
 		switch(Message.WParam)
 		{
-		case TRUE:  AddListboxMessageArg(ListBox, "Login Sucessful."); break;
-		case FALSE: AddListboxMessageArg(ListBox, "Login Failed.");    break;
+		case TRUE:
+			AddListboxMessageArg(ListBox, "Login Sucessful.");
+			LogedIn = true;
+			break;
+		case FALSE:
+			AddListboxMessageArg(ListBox, "Login Failed.");
+			break;
 		}
 
 		if(pRemotePCClient && Message.WParam != FALSE)
@@ -183,7 +192,7 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 		SettingsPanel->Visible = X < 3;
 	}
 
-	if(pRemotePCClient->GetNetManager()->IsConnected()){
+	if(LogedIn){
 		CMouseInputMsgStruct mm;
 
 		mm.Msg  = MSG_MOUSE_MOVE;
@@ -196,7 +205,7 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 
 void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-	if(!pRemotePCClient->GetNetManager()->IsConnected())
+	if(!LogedIn)
 		return;
 
 	CMouseInputMsgStruct mm;
@@ -209,7 +218,7 @@ void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton 
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-	if(!pRemotePCClient->GetNetManager()->IsConnected())
+	if(!LogedIn)
 		return;
 
 	CMouseInputMsgStruct mm;
@@ -222,7 +231,7 @@ void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Bu
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDelta)
 {
-	if(!pRemotePCClient->GetNetManager()->IsConnected())
+	if(!LogedIn)
 		return;
 
 	CMouseInputMsgStruct mm;

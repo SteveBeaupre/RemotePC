@@ -23,6 +23,7 @@ public:
 	virtual bool InitOpenGL(){return false;}
 	virtual void ShutdownOpenGL(){}
 	virtual void RenderTexture(){}
+	virtual void ClearScreen(){}
 };
 
 class IRemotePCServer : public IRemotePC {

@@ -58,4 +58,5 @@ public:
 	void DrawQuad(float l, float t, float w, float h);
 
 	void Render();
+	void RenderEmpty();
 };
