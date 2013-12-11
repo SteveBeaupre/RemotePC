@@ -8,6 +8,7 @@
 #pragma comment(lib, "WSOCK32.lib")  //WinSock lib
 #include "Winsock.h"
 //----------------------------------------------------------------------//
+#include "NetStats.h"
 #include "NetLog.h"
 #include "NetErrors.h"
 #include "WinMsg.h"
@@ -35,14 +36,8 @@ protected:
 
 	bool NetIO(DWORD Op, BYTE *buf, int size, int *indx, int MaxPacketSize);
 protected:
-	CNetLog Log;
-protected:
-	CRITICAL_SECTION BPSCritSec;
-	void InitBPSCritSect();
-	void DelBPSCritSect();
-
-	__int64 TotalBytesRecved, TotalBytesSended;
-	void ResetBytesCounters();
+	CNetLog   Log;
+	CNetStats Stats;
 public:
 	///////////////////////////////////////
 	// Mains commands
@@ -56,10 +51,7 @@ public:
 	bool IsConnected(){return m_Connected;}	
 	
 	CNetLog* GetLog(){return &Log;}
-
-	__int64 GetBytesRecved();
-	__int64 GetBytesSended();
-	void GetBytesExchanged(__int64 *pRecved, __int64 *pSended);
+	CNetStats* GetStats(){return &Stats;}
 
 	// Tell us if we can either read or write on the socket
 	bool CanRecv();

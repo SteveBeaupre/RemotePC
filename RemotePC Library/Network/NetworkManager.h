@@ -34,6 +34,7 @@ public:
 	HWND GetHostHWND();
 	SOCKET* GetSocket();
 	CNetLog* GetLog();
+	CNetStats* GetStats();
 
 	bool CanRecv();
 	bool CanSend();

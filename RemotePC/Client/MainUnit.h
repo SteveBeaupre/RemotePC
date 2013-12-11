@@ -16,6 +16,7 @@
 //---------------------------------------------------------------------------
 #include "RemotePCClient.h"
 #include "KbHookDllStub.h"
+#include "CompileDateTimeStamp.h"
 #include "UnicodeToChar.h"
 #include "Listbox.h"
 #include "Lang.h"
@@ -81,6 +82,7 @@ __published:	// IDE-managed Components
 	void __fastcall CheckBoxStretchClick(TObject *Sender);
 	void __fastcall CheckBoxShowFPSClick(TObject *Sender);
 	void __fastcall CheckBoxFullscreenClick(TObject *Sender);
+	void __fastcall NetworkSpeedTimerTimer(TObject *Sender);
 private:	// User declarations
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);

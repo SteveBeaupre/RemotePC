@@ -63,7 +63,6 @@ CNetServer::CNetServer()
 	#endif
 	Log.Create("C:\\Temp\\Logs\\Server Log.txt");
 	#endif
-	InitBPSCritSect();
 	Initialize();
 }
 
@@ -73,7 +72,6 @@ CNetServer::CNetServer()
 CNetServer::~CNetServer()
 {
 	Log.Close();
-	DelBPSCritSect();
 	Disconnect();
 }
 
@@ -86,8 +84,6 @@ void CNetServer::Initialize()
 	SetHWND(NULL);
 	m_Socket = INVALID_SOCKET;
 	m_Connected = false;
-
-	ResetBytesCounters();
 }
 
 //-----------------------------------------------------------------------------
@@ -99,6 +95,8 @@ bool CNetServer::WaitForClient(HWND hHostWnd, short nPort)
 	// Return if we are already connected or trying to...
 	if(WaitThread.IsThreadRunning() || IsConnected())
 		return false;
+
+	Stats.Reset();
 
 	// The Handle of the host App.
 	SetHWND(hHostWnd);
@@ -220,8 +218,6 @@ void CNetServer::Disconnect()
 				
 		// Reset the program's main window handle
 		SetHWND(NULL);
-
-		ResetBytesCounters();
 	}
 }
 
@@ -242,7 +238,6 @@ CNetClient::CNetClient()
 	#endif
 	Log.Create("C:\\Temp\\Logs\\Client Log.txt");
 	#endif
-	InitBPSCritSect();
 	Initialize();
 }
 
@@ -253,7 +248,6 @@ CNetClient::~CNetClient()
 {
 	Log.Close();
 	Disconnect();
-	DelBPSCritSect();
 }
 
 
@@ -269,8 +263,6 @@ void CNetClient::Initialize()
 	m_Connected     = false;
 	m_ConTimeOutLen = 1;
 	m_MaxConAttempt = 1;
-	
-	ResetBytesCounters();
 }
 
 
@@ -283,6 +275,8 @@ bool CNetClient::ConnectToServer(HWND hHostWnd, char *ip, short nPort, int DefTi
 	// Return if we are already connected or trying to...
 	if(ConnectThread.IsThreadRunning() || IsConnected())
 		return false;
+
+	Stats.Reset();
 
 	// 
 	m_ConTimeOutLen = DefTimeOut;
@@ -405,8 +399,6 @@ void CNetClient::Disconnect()
 
 		// Reset the program's main window handle
 		SetHWND(NULL);
-
-		ResetBytesCounters();
 	}
 }
 
@@ -570,62 +562,13 @@ bool CNetBase::NetIO(DWORD Op, BYTE *buf, int bufsize, int *bufindx, int MaxPack
 	
 	Log.Log("%s %d bytes (%d of %d bytes done.)\n", Op == OP_IO_READ ? "recv() read" : "send() sent", res, *bufindx, bufsize);
 	
-	EnterCriticalSection(&BPSCritSec);
 	switch(Op)
 	{
-	case OP_IO_READ : TotalBytesRecved += res; break;
-	case OP_IO_WRITE: TotalBytesSended += res; break;
+	case OP_IO_READ : Stats.IncNumBytesDownloaded(res); break;
+	case OP_IO_WRITE: Stats.IncNumBytesUploaded(res);   break;
 	}
-	LeaveCriticalSection(&BPSCritSec);
 
 	/////////////////////////////////////////////////
 
 	return true;
-}
-
-/*****************************************************************************************/
-/*****************************************************************************************/
-
-void CNetBase::InitBPSCritSect()
-{
-	InitializeCriticalSection(&BPSCritSec);
-}
-
-void CNetBase::DelBPSCritSect()
-{
-	DeleteCriticalSection(&BPSCritSec);
-}
-
-void CNetBase::ResetBytesCounters()
-{
-	EnterCriticalSection(&BPSCritSec);
-	TotalBytesRecved = 0;
-	TotalBytesSended = 0;
-	LeaveCriticalSection(&BPSCritSec);
-}
-
-__int64 CNetBase::GetBytesRecved()
-{
-	EnterCriticalSection(&BPSCritSec);
-	__int64 Res = TotalBytesRecved;
-	LeaveCriticalSection(&BPSCritSec);
-
-	return Res;
-}
-
-__int64 CNetBase::GetBytesSended()
-{
-	EnterCriticalSection(&BPSCritSec);
-	__int64 Res = TotalBytesSended;
-	LeaveCriticalSection(&BPSCritSec);
-
-	return Res;
-}
-
-void CNetBase::GetBytesExchanged(__int64 *pRecved, __int64 *pSended)
-{
-	EnterCriticalSection(&BPSCritSec);
-	*pRecved = TotalBytesRecved;
-	*pSended = TotalBytesSended;
-	LeaveCriticalSection(&BPSCritSec);
 }

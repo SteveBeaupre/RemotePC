@@ -79,6 +79,11 @@ CNetLog* CNetManager::GetLog()
 	return pNetwork->GetLog();
 }
 
+CNetStats* CNetManager::GetStats()
+{
+	return pNetwork->GetStats();
+}
+
 bool CNetManager::CanRecv()
 {
 	return pNetwork->CanRecv();

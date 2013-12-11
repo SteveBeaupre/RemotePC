@@ -18,11 +18,15 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
 	#ifdef _DEBUG
 	Position = poDefault;
-	Left = 35;
+	Left = 15;
 	Top  = 20;
 	#else
 	Position = poDesktopCenter;
 	#endif
+
+	char AppCaption[256];
+	SetCaption("RemotePC Server 2014", AppCaption, 256);
+	Caption = AnsiString(AppCaption);
 
 	EnableUI();
 	InitializeWinSock();

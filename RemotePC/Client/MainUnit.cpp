@@ -28,11 +28,20 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	Position = poDesktopCenter;
 	#endif
 
+	char AppCaption[256];
+	SetCaption("RemotePC Client 2014", AppCaption, 256);
+	Caption = AnsiString(AppCaption);
+
 	if(!KbHookDllStub.Load("KBHook.dll")){
 		Application->Terminate();
 	} else {
 		KbHookDllStub.InstallHook(DesktopViewer->Handle, OnKeyEvent);
 	}
+
+	LabelDLSpeed->Caption = AnsiString("D: 0 Byte");
+	LabelULSpeed->Caption = AnsiString("U: 0 Byte");
+	LabelTotalDownload->Caption = AnsiString("Av: 0.00 Kbp\\s");
+	LabelTotalUpload->Caption   = AnsiString("Av: 0.00 Kbp\\s");
 
 	LangID = REMOTEPC_LANG_ENGLISH;
 	LogedIn = false;
@@ -109,10 +118,12 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 				pRemotePCClient->SendLoginRequest("", Password);
 				pRemotePCClient->StartThread();
 			}
+			NetworkSpeedTimer->Enabled = true;
 		}
 		break;
 	case ON_DISCONNECTED:
 		LogedIn = false;
+		NetworkSpeedTimer->Enabled = false;
 		AddListboxMessageArg(ListBox, "Disconnected");
 		if(pRemotePCClient)
 			pRemotePCClient->StopThread();
@@ -120,6 +131,7 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		break;
 	case ON_CONNECTION_LOST:
 		LogedIn = false;
+		NetworkSpeedTimer->Enabled = false;
 		AddListboxMessageArg(ListBox, "Connection closed by peer.");
 		EnableUI();
 		break;
@@ -315,6 +327,33 @@ void __fastcall TMainForm::SwitchToWindowedMode()
 	MoveWindow(Handle, 520, 20, 820, 538, TRUE);
 
 	ConnectionPanel->Show();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TMainForm::NetworkSpeedTimerTimer(TObject *Sender)
+{
+	CNetStats* pStats = pRemotePCClient->GetNetManager()->GetStats();
+	pStats->UpdateStats();
+
+	char TotDownloaded[256];
+	char AvgDownloaded[256];
+	char TotUploaded[256];
+	char AvgUploaded[256];
+
+	ZeroMemory(TotDownloaded, 256);
+	ZeroMemory(TotUploaded,   256);
+	ZeroMemory(AvgDownloaded, 256);
+	ZeroMemory(AvgUploaded,   256);
+
+	sprintf(TotDownloaded, "D: %s",  pStats->GetTotalDownloaded());
+	sprintf(AvgDownloaded, "Av: %s", pStats->GetAverageDownloadKBPS());
+	sprintf(TotUploaded, "U: %s",    pStats->GetTotalUploaded());
+	sprintf(AvgUploaded, "Av: %s",   pStats->GetAverageUploadKBPS());
+
+	LabelDLSpeed->Caption = AnsiString(TotDownloaded);
+	LabelULSpeed->Caption = AnsiString(TotUploaded);
+	LabelTotalDownload->Caption = AnsiString(AvgDownloaded);
+	LabelTotalUpload->Caption   = AnsiString(AvgUploaded);
 }
 //---------------------------------------------------------------------------
 
