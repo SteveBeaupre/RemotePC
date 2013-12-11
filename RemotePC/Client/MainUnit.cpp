@@ -76,6 +76,8 @@ void __fastcall TMainForm::EnableUI()
 	}
 	ButtonConnect->Enabled = true;
 	ButtonDisconnect->Enabled = false;
+	ButtonPause->Enabled = false;
+	ButtonPause->Caption = "Pause";
 	CheckBoxConnectAsServer->Enabled = true;
 	ComboBoxHostName->Enabled = !CheckBoxConnectAsServer->Checked;
 	EditPort->Enabled = true;
@@ -119,14 +121,15 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 				pRemotePCClient->StartThread();
 			}
 			NetworkSpeedTimer->Enabled = true;
+			ButtonPause->Enabled = true;
 		}
 		break;
 	case ON_DISCONNECTED:
 		LogedIn = false;
 		NetworkSpeedTimer->Enabled = false;
-		AddListboxMessageArg(ListBox, "Disconnected");
 		if(pRemotePCClient)
 			pRemotePCClient->StopThread();
+		AddListboxMessageArg(ListBox, "Disconnected");
 		EnableUI();
 		break;
 	case ON_CONNECTION_LOST:
@@ -215,7 +218,7 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 		SettingsPanel->Visible = X < 3;
 	}
 
-	if(LogedIn){
+	if(LogedIn && !pRemotePCClient->GetThread()->IsThreadPaused()){
 		CMouseInputMsgStruct mm;
 		mm.Msg  = MSG_MOUSE_MOVE;
 		mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
@@ -227,7 +230,7 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 
 void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-	if(!LogedIn)
+	if(!LogedIn  || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
 	CMouseInputMsgStruct mm;
@@ -239,7 +242,7 @@ void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton 
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-	if(!LogedIn)
+	if(!LogedIn  || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
 	CMouseInputMsgStruct mm;
@@ -251,7 +254,7 @@ void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Bu
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDelta)
 {
-	if(!LogedIn)
+	if(!LogedIn  || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
 	CMouseInputMsgStruct mm;
@@ -263,7 +266,7 @@ void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDe
 //---------------------------------------------------------------------------
 void __cdecl OnKeyEvent(DWORD wParam, DWORD lParam)
 {
-	if(!MainForm->LogedIn)
+	if(!MainForm->LogedIn || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
 	CKeyboardInputMsgStruct km;
@@ -354,6 +357,20 @@ void __fastcall TMainForm::NetworkSpeedTimerTimer(TObject *Sender)
 	LabelULSpeed->Caption = AnsiString(TotUploaded);
 	LabelTotalDownload->Caption = AnsiString(AvgDownloaded);
 	LabelTotalUpload->Caption   = AnsiString(AvgUploaded);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TMainForm::ButtonPauseClick(TObject *Sender)
+{
+	if(pRemotePCClient->GetThread()->IsThreadRunning()){
+		if(!pRemotePCClient->GetThread()->IsThreadPaused()){
+			pRemotePCClient->GetThread()->PauseThread();
+			ButtonPause->Caption = "Resume";
+		} else {
+			pRemotePCClient->GetThread()->ResumeThread();
+			ButtonPause->Caption = "Pause";
+		}
+	}
 }
 //---------------------------------------------------------------------------
 

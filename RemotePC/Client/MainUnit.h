@@ -83,6 +83,7 @@ __published:	// IDE-managed Components
 	void __fastcall CheckBoxShowFPSClick(TObject *Sender);
 	void __fastcall CheckBoxFullscreenClick(TObject *Sender);
 	void __fastcall NetworkSpeedTimerTimer(TObject *Sender);
+	void __fastcall ButtonPauseClick(TObject *Sender);
 private:	// User declarations
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);

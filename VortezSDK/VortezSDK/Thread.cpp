@@ -13,9 +13,10 @@ CThread::~CThread()
 
 void CThread::Init()
 {
-	dwThreadID   = 0;
-	hThread      = NULL;
-	hThreadEvent = NULL;
+	dwThreadID = 0;
+	hThread    = NULL;
+	hStopThreadEvent  = NULL;
+	hPauseThreadEvent = NULL;
 }
 
 void CThread::WaitForThread()
@@ -31,11 +32,12 @@ bool CThread::StartThread(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParame
 
 	// Make sure the thread isn't already running...
 	if(!IsThreadRunning()){
-		if(hThreadEvent)
-			CloseHandle(hThreadEvent);
+		if(hStopThreadEvent)
+			CloseHandle(hStopThreadEvent);
 		
 		// Create event to stop the read thread and writing loop
-		hThreadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+		hStopThreadEvent  = CreateEvent(NULL, TRUE, FALSE, NULL);
+		hPauseThreadEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 		// Lauch the thread
 		hThread = CreateThread(NULL, 0, lpStartAddress, lpParameter, 0, &dwThreadID);	
 
@@ -52,13 +54,15 @@ bool CThread::StartThread(LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParame
 void CThread::StopThread()
 {
 	// This will wait for the read thread to terminate, if running
-	SetEvent(hThreadEvent);
+	ResetEvent(hPauseThreadEvent);
+	SetEvent(hStopThreadEvent);
 	WaitForThread();
-	ResetEvent(hThreadEvent);
+	ResetEvent(hStopThreadEvent);
 	
 	// Call CloseHandle() on our handles
 	CloseHandle(hThread);
-	CloseHandle(hThreadEvent);
+	CloseHandle(hStopThreadEvent);
+	CloseHandle(hPauseThreadEvent);
 
 	// Reinitialize our handles
 	Init();
@@ -67,13 +71,34 @@ void CThread::StopThread()
 bool CThread::MustExitThread()
 {
 	// Return true if the even is set
-	return WaitForSingleObject(hThreadEvent, 0) == WAIT_OBJECT_0;
+	return WaitForSingleObject(hStopThreadEvent, 0) == WAIT_OBJECT_0;
 }
 
 bool CThread::IsThreadRunning()
 {
 	// Return true if the thread is running
 	return WaitForSingleObject(hThread, 0) == WAIT_TIMEOUT;
+}
+
+void CThread::PauseThread()
+{
+	if(IsThreadRunning())
+		SetEvent(hPauseThreadEvent);
+}
+
+void CThread::ResumeThread()
+{
+	if(IsThreadRunning())
+		ResetEvent(hPauseThreadEvent);
+}
+
+bool CThread::IsThreadPaused()
+{
+	if(!IsThreadRunning())
+		return false;
+
+	// Return true if the even is set
+	return WaitForSingleObject(hPauseThreadEvent, 0) == WAIT_OBJECT_0;
 }
 
 /*void CThread::Lock()

@@ -15,7 +15,7 @@
 //----------------------------------------------------------------------//
 struct QuadTreeStruct {
 	
-	BYTE NodeType;
+	DWORD NodeType;
 
 	WORD L,T,W,H;
 	
@@ -39,11 +39,10 @@ public:
 	~CQuadTree();
 private:
 	QuadTreeStruct QT;
-	BYTE MaxDepth;
-	
-	BYTE BPP;
+	DWORD MaxDepth;
+	DWORD BPP;
 
-	void InitNode(QuadTreeStruct *pNode, QuadTreeStruct *pParentNode, BYTE Level, WORD l, WORD t, WORD w, WORD h);
+	void InitNode(QuadTreeStruct *pNode, QuadTreeStruct *pParentNode, DWORD Level, WORD l, WORD t, WORD w, WORD h);
 private:
 	BYTE *pBackBuffer;
 	BYTE *pFrontBuffer;
@@ -52,13 +51,13 @@ public:
 	void SetScreenshotBuffers(BYTE *BackBuffer, BYTE *FrontBuffer);
 	void SetUncompressedBuffer(BYTE *UncBuffer);
 public:
-	void InitTree(WORD w, WORD h, BYTE BytesPerPixel, BYTE bMaxDepth);
-	void GenTree(QuadTreeStruct *pNode = NULL, BYTE Level = 0);
-	void KillTree(QuadTreeStruct *pNode = NULL, BYTE Level = 0);
+	void InitTree(WORD w, WORD h, DWORD BytesPerPixel, DWORD dwMaxDepth);
+	void GenTree(QuadTreeStruct *pNode = NULL, DWORD Level = 0);
+	void KillTree(QuadTreeStruct *pNode = NULL, DWORD Level = 0);
 
-	DWORD TrimTree(QuadTreeStruct *pNode = NULL, BYTE Level = 0, DWORD MaxChanged = 0);
-	DWORD CalcOutputBufferSize(QuadTreeStruct *pNode = NULL, BYTE Level = 0, DWORD NodeSize = 0);
-	DWORD ExtractTreeData(QuadTreeStruct *pNode = NULL, BYTE Level = 0, DWORD UncBufferCpt = 0);
+	DWORD TrimTree(QuadTreeStruct *pNode = NULL, DWORD Level = 0, DWORD MaxChanged = 0);
+	DWORD CalcOutputBufferSize(QuadTreeStruct *pNode = NULL, DWORD Level = 0, DWORD NodeSize = 0);
+	DWORD ExtractTreeData(QuadTreeStruct *pNode = NULL, DWORD Level = 0, DWORD UncBufferCpt = 0);
 };
 
 

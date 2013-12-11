@@ -134,6 +134,12 @@ DWORD WINAPI WorkerThreadFunc(void* param)
 			if(pWorkerThread->MustExitThread())
 				break;
 
+			// stop reading the socket if paused
+			if(pWorkerThread->IsThreadPaused()){
+				Sleep(25);
+				continue;
+			}
+
 			// Socket ready to read?
 			if(pNetManager->CanRecv()){
 			

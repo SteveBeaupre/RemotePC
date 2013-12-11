@@ -41,12 +41,12 @@ void CQuadTree::SetUncompressedBuffer(BYTE *UncBuffer)
 //-----------------------------------------------------------------------------
 // Init. the root node 
 //-----------------------------------------------------------------------------
-void CQuadTree::InitTree(WORD w, WORD h, BYTE BytesPerPixel, BYTE bMaxDepth)
+void CQuadTree::InitTree(WORD w, WORD h, DWORD BytesPerPixel, DWORD dwMaxDepth)
 {
 	WORD l = 0;
 	WORD t = 0;
 
-	MaxDepth = bMaxDepth;
+	MaxDepth = dwMaxDepth;
 	if(MaxDepth > 10){MaxDepth = 10;}
 
 	BPP = BytesPerPixel;
@@ -58,7 +58,7 @@ void CQuadTree::InitTree(WORD w, WORD h, BYTE BytesPerPixel, BYTE bMaxDepth)
 //-----------------------------------------------------------------------------
 // Init. a node 
 //-----------------------------------------------------------------------------
-void CQuadTree::InitNode(QuadTreeStruct *pNode, QuadTreeStruct *pParentNode, BYTE Level, WORD l, WORD t, WORD w, WORD h)
+void CQuadTree::InitNode(QuadTreeStruct *pNode, QuadTreeStruct *pParentNode, DWORD Level, WORD l, WORD t, WORD w, WORD h)
 {
 	// Inititialise the node type
 	pNode->NodeType = 0;
@@ -86,7 +86,7 @@ void CQuadTree::InitNode(QuadTreeStruct *pNode, QuadTreeStruct *pParentNode, BYT
 //-----------------------------------------------------------------------------
 // Generate the QuadTree recursively
 //-----------------------------------------------------------------------------
-void CQuadTree::GenTree(QuadTreeStruct *pNode, BYTE Level)
+void CQuadTree::GenTree(QuadTreeStruct *pNode, DWORD Level)
 {
 	// Return if MaxDepth = 0
 	if(MaxDepth == 0){return;}
@@ -124,7 +124,7 @@ void CQuadTree::GenTree(QuadTreeStruct *pNode, BYTE Level)
 //-----------------------------------------------------------------------------
 // Delete a nodes and it's sub nodes
 //-----------------------------------------------------------------------------
-void CQuadTree::KillTree(QuadTreeStruct *pNode, BYTE Level)
+void CQuadTree::KillTree(QuadTreeStruct *pNode, DWORD Level)
 {
 	// Make pNode point to the root node if Level = 0
 	if(Level == 0)
@@ -156,7 +156,7 @@ void CQuadTree::KillTree(QuadTreeStruct *pNode, BYTE Level)
 //-----------------------------------------------------------------------------
 // Analyse all the leafs node and check if the data is the same in the 2 buffers
 //-----------------------------------------------------------------------------
-DWORD CQuadTree::TrimTree(QuadTreeStruct *pNode, BYTE Level, DWORD MaxChanged)
+DWORD CQuadTree::TrimTree(QuadTreeStruct *pNode, DWORD Level, DWORD MaxChanged)
 {
 	int Cpt = 0;
 	DWORD dwChanged = 0;
@@ -237,7 +237,7 @@ DWORD CQuadTree::TrimTree(QuadTreeStruct *pNode, BYTE Level, DWORD MaxChanged)
 //-----------------------------------------------------------------------------
 // Calculate the final size taken by our data
 //-----------------------------------------------------------------------------
-DWORD CQuadTree::CalcOutputBufferSize(QuadTreeStruct *pNode, BYTE Level, DWORD NodeSize)
+DWORD CQuadTree::CalcOutputBufferSize(QuadTreeStruct *pNode, DWORD Level, DWORD NodeSize)
 {
 	// Make pNode point to the root node if Level = 0
 	if(Level == 0)
@@ -266,7 +266,7 @@ DWORD CQuadTree::CalcOutputBufferSize(QuadTreeStruct *pNode, BYTE Level, DWORD N
 //-----------------------------------------------------------------------------
 // Extract the uncompressed data into our buffer
 //-----------------------------------------------------------------------------
-DWORD CQuadTree::ExtractTreeData(QuadTreeStruct *pNode, BYTE Level, DWORD UncBufferCpt)
+DWORD CQuadTree::ExtractTreeData(QuadTreeStruct *pNode, DWORD Level, DWORD UncBufferCpt)
 {
 	// Make pNode point to the root node if Level = 0
 	if(Level == 0)

@@ -41,7 +41,8 @@ public:
 private:
 	DWORD  dwThreadID;
 	HANDLE hThread;
-	HANDLE hThreadEvent;
+	HANDLE hStopThreadEvent;
+	HANDLE hPauseThreadEvent;
 	void Init();
 public:
 	HANDLE _INTERNAL_LINKAGE GetThreadHandle(){return hThread;}
@@ -58,6 +59,10 @@ public:
 	void _INTERNAL_LINKAGE WaitForThread();   // Wait for the thread to finish, blocking the current one (call before closing the program)
 	
 	bool _INTERNAL_LINKAGE MustExitThread();  // Call this inside your thread function (periodically, in a loop) to know if the thread should return and terminate now
+
+	void _INTERNAL_LINKAGE PauseThread();
+	void _INTERNAL_LINKAGE ResumeThread();
+	bool _INTERNAL_LINKAGE IsThreadPaused();
 };
 
 #endif
