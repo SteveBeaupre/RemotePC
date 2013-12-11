@@ -9,6 +9,8 @@
 TMainForm *MainForm;
 //---------------------------------------------------------------------------
 CRemotePCClient *pRemotePCClient = NULL;
+CClientSettings Settings;
+//---------------------------------------------------------------------------
 CKbHookDllStub KbHookDllStub;
 void __cdecl OnKeyEvent(DWORD wParam, DWORD lParam);
 //---------------------------------------------------------------------------
@@ -46,10 +48,11 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	LangID = REMOTEPC_LANG_ENGLISH;
 	LogedIn = false;
 
-	EnableUI();
 	InitializeWinSock();
-
 	pRemotePCClient = new CRemotePCClient();
+
+	LoadSettings();
+	EnableUI();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
@@ -57,10 +60,44 @@ void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
 	KbHookDllStub.Free();
 
 	pRemotePCClient->Disconnect();
+	Sleep(250);
+	Application->ProcessMessages();
 
 	SAFE_DELETE_OBJECT(pRemotePCClient);
 	ShutdownWinSock();
 
+	SaveSettings();
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::LoadSettings()
+{
+	Settings.Load();
+	ClientSettingsStruct *pSettings = Settings.GetSettings();
+
+	ComboBoxHostName->Text = AnsiString(pSettings->ip);
+	EditPort->Text = AnsiString(pSettings->Port);
+	EditPassword->Text = AnsiString(pSettings->pw);
+
+	CheckBoxConnectAsServer->Checked = pSettings->ConnectAsServer;
+	CheckBoxStretch->Checked = pSettings->Stretch;
+	CheckBoxShowFPS->Checked = pSettings->ShowFPS;
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::SaveSettings()
+{
+	ClientSettingsStruct ClientSettings;
+	ZeroMemory(&ClientSettings, sizeof(ClientSettingsStruct));
+
+	ConvertUnicodeToChar(ClientSettings.ip, 16, ComboBoxHostName->Text.c_str());
+	ConvertUnicodeToChar(ClientSettings.pw, 32, EditPassword->Text.c_str());
+	ClientSettings.Port = _wtoi(EditPort->Text.c_str());
+
+	ClientSettings.ConnectAsServer = CheckBoxConnectAsServer->Checked;
+	ClientSettings.Stretch = CheckBoxStretch->Checked;
+	ClientSettings.ShowFPS = CheckBoxShowFPS->Checked;
+
+	Settings.SetSettings(&ClientSettings);
+	Settings.Save();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::CheckBoxConnectAsServerClick(TObject *Sender)
@@ -210,12 +247,16 @@ void __fastcall TMainForm::ButtonConnectClick(TObject *Sender)
 void __fastcall TMainForm::ButtonDisconnectClick(TObject *Sender)
 {
 	pRemotePCClient->Disconnect();
+	if(CheckBoxFullscreen->Checked)
+		CheckBoxFullscreen->Checked = false;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState Shift, int X, int Y)
 {
 	if(CheckBoxFullscreen->Checked){
-		SettingsPanel->Visible = X < 3;
+		bool ShowHiddenStuffs = X < 2;
+		LeftPanel->Visible = ShowHiddenStuffs;
+		ConnectionPanel->Visible = ShowHiddenStuffs;
 	}
 
 	if(LogedIn && !pRemotePCClient->GetThread()->IsThreadPaused()){
@@ -306,9 +347,6 @@ void __fastcall TMainForm::CheckBoxFullscreenClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::SwitchToFullscreenMode()
 {
-	//if(KbHookDll.IsLoaded())
-	//	KbHookDll.RemoveHook();
-
 	int ScrW = Screen->Width;
 	int ScrH = Screen->Height;
 
@@ -316,11 +354,9 @@ void __fastcall TMainForm::SwitchToFullscreenMode()
 	SetWindowLongPtr(Handle, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE);
 	MoveWindow(Handle, 0, 0, ScrW, ScrH, TRUE);
 
-	SettingsPanel->Hide();
+	LeftPanel->Hide();
 	ConnectionPanel->Hide();
-
-	//if(KbHookDll.IsLoaded())
-	//	KbHookDll.InstallHook(DesktopViewer->Handle, OnKeyEvent);
+	ViewerPanel->BevelOuter = bvNone;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::SwitchToWindowedMode()
@@ -329,7 +365,9 @@ void __fastcall TMainForm::SwitchToWindowedMode()
 	BorderStyle = bsSingle;
 	MoveWindow(Handle, 520, 20, 820, 538, TRUE);
 
+	LeftPanel->Show();
 	ConnectionPanel->Show();
+	ViewerPanel->BevelOuter = bvRaised;
 }
 //---------------------------------------------------------------------------
 
@@ -373,4 +411,5 @@ void __fastcall TMainForm::ButtonPauseClick(TObject *Sender)
 	}
 }
 //---------------------------------------------------------------------------
+
 

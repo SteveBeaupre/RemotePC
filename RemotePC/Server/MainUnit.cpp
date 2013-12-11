@@ -7,7 +7,9 @@
 #pragma link "trayicon"
 #pragma resource "*.dfm"
 TMainForm *MainForm;
+//---------------------------------------------------------------------------
 CRemotePCServer *pRemotePCServer = NULL;
+CServerSettings Settings;
 //---------------------------------------------------------------------------
 __fastcall TMainForm::TMainForm(TComponent* Owner)
 	: TForm(Owner)
@@ -28,16 +30,50 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	SetCaption("RemotePC Server 2014", AppCaption, 256);
 	Caption = AnsiString(AppCaption);
 
-	EnableUI();
 	InitializeWinSock();
 	pRemotePCServer = new CRemotePCServer();
+
+	LoadSettings();
+	EnableUI();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
 {
 	pRemotePCServer->Disconnect();
+
 	SAFE_DELETE_OBJECT(pRemotePCServer);
 	ShutdownWinSock();
+
+	SaveSettings();
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::LoadSettings()
+{
+	Settings.Load();
+	ServerSettingsStruct *pSettings = Settings.GetSettings();
+
+	ComboBoxHostName->Text = AnsiString(pSettings->ip);
+	EditPort->Text = AnsiString(pSettings->Port);
+	EditPassword->Text = AnsiString(pSettings->pw);
+
+	CheckBoxConnectAsClient->Checked = pSettings->ConnectAsClient;
+	CheckBoxRemoveWallpaper->Checked = pSettings->RemoveWallpaper;
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::SaveSettings()
+{
+	ServerSettingsStruct ServerSettings;
+	ZeroMemory(&ServerSettings, sizeof(ServerSettingsStruct));
+
+	ConvertUnicodeToChar(ServerSettings.ip, 16, ComboBoxHostName->Text.c_str());
+	ConvertUnicodeToChar(ServerSettings.pw, 32, EditPassword->Text.c_str());
+	ServerSettings.Port = _wtoi(EditPort->Text.c_str());
+
+	ServerSettings.ConnectAsClient = CheckBoxConnectAsClient->Checked;
+	ServerSettings.RemoveWallpaper = CheckBoxRemoveWallpaper->Checked;
+
+	Settings.SetSettings(&ServerSettings);
+	Settings.Save();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::ButtonCloseClick(TObject *Sender)
@@ -60,7 +96,7 @@ void __fastcall TMainForm::EnableUI()
 	ButtonDisconnect->Enabled = false;
 	CheckBoxConnectAsClient->Enabled = true;
 	CheckBoxRemoveWallpaper->Enabled = true;
-	CheckBoxMultithreaded->Enabled = true;
+	//CheckBoxMultithreaded->Enabled = true;
 	ComboBoxHostName->Enabled = CheckBoxConnectAsClient->Checked;
 	EditPort->Enabled = true;
 	EditPassword->Enabled = true;

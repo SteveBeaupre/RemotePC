@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Create a registry key
 ////////////////////////////////////////////////////////////////////////////////////////////////
-void CRegistry::CreateKey(HKEY MainKey, LPCTSTR SubKey)
+void CRegistry::CreateKey(HKEY MainKey, LPCSTR SubKey)
 {
 	HKEY hKey = NULL;
 	DWORD Disposition = 0;
@@ -15,7 +15,7 @@ void CRegistry::CreateKey(HKEY MainKey, LPCTSTR SubKey)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Delete a registry key
 ////////////////////////////////////////////////////////////////////////////////////////////////
-void CRegistry::DeleteKey(HKEY MainKey, LPCTSTR SubKey)
+void CRegistry::DeleteKey(HKEY MainKey, LPCSTR SubKey)
 {
 	RegDeleteKey(MainKey, SubKey);
 }
@@ -23,7 +23,7 @@ void CRegistry::DeleteKey(HKEY MainKey, LPCTSTR SubKey)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Tell if a registry key exist
 ////////////////////////////////////////////////////////////////////////////////////////////////
-bool CRegistry::DoesKeyExist(HKEY MainKey, LPCTSTR SubKey)
+bool CRegistry::DoesKeyExist(HKEY MainKey, LPCSTR SubKey)
 {
 	HKEY hKey = NULL;
 	bool Res = false;
@@ -38,7 +38,7 @@ bool CRegistry::DoesKeyExist(HKEY MainKey, LPCTSTR SubKey)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Get a registry value
 ////////////////////////////////////////////////////////////////////////////////////////////////
-bool CRegistry::GetValue(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value, DWORD Type, void *pBuffer, DWORD *pBufferSize)
+bool CRegistry::GetValue(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, DWORD Type, void *pBuffer, DWORD *pBufferSize)
 {
 	HKEY hKey = NULL;
 	bool Res = false;
@@ -52,7 +52,7 @@ bool CRegistry::GetValue(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value, DWORD Type
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Get a registry value
 ////////////////////////////////////////////////////////////////////////////////////////////////
-UINT CRegistry::GetValueType(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value)
+UINT CRegistry::GetValueType(HKEY MainKey, LPCSTR SubKey, LPCSTR Value)
 {
 	HKEY hKey = NULL;
 	DWORD Type = 0, BufferSize = 0;
@@ -66,7 +66,7 @@ UINT CRegistry::GetValueType(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Set a registry value
 ////////////////////////////////////////////////////////////////////////////////////////////////
-void CRegistry::SetValue(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value, DWORD Type, void *pBuffer, DWORD BufferSize)
+void CRegistry::SetValue(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, DWORD Type, void *pBuffer, DWORD BufferSize)
 {
 	HKEY hKey = NULL;
 	if(this->OpenKey(MainKey, SubKey, &hKey)){
@@ -78,7 +78,7 @@ void CRegistry::SetValue(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value, DWORD Type
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // Delete a registry value
 ////////////////////////////////////////////////////////////////////////////////////////////////
-void CRegistry::DeleteValue(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value)
+void CRegistry::DeleteValue(HKEY MainKey, LPCSTR SubKey, LPCSTR Value)
 {
 	HKEY hKey = NULL;
 	if(this->OpenKey(MainKey, SubKey, &hKey)){
@@ -87,7 +87,7 @@ void CRegistry::DeleteValue(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value)
 	}
 }
 
-bool CRegistry::DoesValueExist(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value)
+bool CRegistry::DoesValueExist(HKEY MainKey, LPCSTR SubKey, LPCSTR Value)
 {
 	HKEY hKey = NULL;
 	DWORD Type = 0, BufferSize = 0;
@@ -99,7 +99,7 @@ bool CRegistry::DoesValueExist(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value)
 	return Res;
 }
 
-bool CRegistry::LoadInteger(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value, void *pBuffer, DWORD DefaultValue)
+bool CRegistry::LoadInteger(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, void *pBuffer, DWORD DefaultValue)
 {
 	DWORD *pData = (DWORD*)pBuffer;
 	*pData = DefaultValue;
@@ -116,12 +116,12 @@ bool CRegistry::LoadInteger(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value, void *p
 	return false;
 }
 
-void CRegistry::SaveInteger(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value, void *pBuffer)
+void CRegistry::SaveInteger(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, void *pBuffer)
 {
 	SetValue(HKEY_CURRENT_USER, SubKey, Value, REG_DWORD, pBuffer, sizeof(DWORD));
 }
 
-bool CRegistry::LoadString(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value, void *pBuffer, int BufSize, char *pDefaultValue)
+bool CRegistry::LoadString(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, void *pBuffer, int BufSize, char *pDefaultValue)
 {
 	char *pData = (char*)pBuffer;
 	if(pDefaultValue)
@@ -139,7 +139,7 @@ bool CRegistry::LoadString(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value, void *pB
 	return false;
 }
 
-void CRegistry::SaveString(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value, void *pBuffer, int BufSize)
+void CRegistry::SaveString(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, void *pBuffer, int BufSize)
 {
 	SetValue(HKEY_CURRENT_USER, SubKey, Value, REG_SZ, pBuffer, BufSize);
 }
@@ -148,9 +148,9 @@ void CRegistry::SaveString(HKEY MainKey, LPCTSTR SubKey, LPCTSTR Value, void *pB
 // Open a registry key (internal only)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef RAD_STUDIO_XE
-bool CRegistry::OpenKey(HKEY MainKey, LPCTSTR SubKey, PHKEY pKey)
+bool CRegistry::OpenKey(HKEY MainKey, LPCSTR SubKey, PHKEY pKey)
 #else
-bool CRegistry::OpenKey(HKEY MainKey, LPCTSTR SubKey, HKEY *pKey)
+bool CRegistry::OpenKey(HKEY MainKey, LPCSTR SubKey, HKEY *pKey)
 #endif
 {
 	return RegOpenKeyEx(MainKey, SubKey, 0L, KEY_ALL_ACCESS, pKey) == ERROR_SUCCESS;

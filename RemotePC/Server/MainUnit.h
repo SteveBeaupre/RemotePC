@@ -13,6 +13,7 @@
 //---------------------------------------------------------------------------
 #include "RemotePCServer.h"
 #include "ServerScreenshotManager.h"
+#include "Settings.h"
 #include "CompileDateTimeStamp.h"
 #include "UnicodeToChar.h"
 #include "Listbox.h"
@@ -58,6 +59,8 @@ protected:
 	void __fastcall WndProc(Messages::TMessage &Message);
 public:		// User declarations
 	__fastcall TMainForm(TComponent* Owner);
+	void __fastcall LoadSettings();
+	void __fastcall SaveSettings();
 	void __fastcall EnableUI();
 	void __fastcall DisableUI();
 };

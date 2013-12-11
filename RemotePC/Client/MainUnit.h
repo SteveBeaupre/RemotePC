@@ -16,6 +16,7 @@
 //---------------------------------------------------------------------------
 #include "RemotePCClient.h"
 #include "KbHookDllStub.h"
+#include "Settings.h"
 #include "CompileDateTimeStamp.h"
 #include "UnicodeToChar.h"
 #include "Listbox.h"
@@ -35,23 +36,6 @@ __published:	// IDE-managed Components
 	TCheckBox *CheckBoxConnectAsServer;
 	TComboBox *ComboBoxHostName;
 	TTimer *NetworkSpeedTimer;
-	TPanel *Panel1;
-	TScrollBox *ScrollBox;
-	TDesktopViewer *DesktopViewer;
-	TPanel *SettingsPanel;
-	TPanel *OptionsPanel;
-	TSplitter *Splitter1;
-	TPanel *NetworkSpeedCaptionPanel;
-	TLabel *LabelULSpeed;
-	TLabel *LabelTotalUpload;
-	TGroupBox *GroupBoxSettings;
-	TCheckBox *CheckBoxStretch;
-	TButton *ButtonPause;
-	TCheckBox *CheckBoxShowCursor;
-	TCheckBox *CheckBoxFullscreen;
-	TCheckBox *CheckBoxShowFPS;
-	TCheckBox *CheckBoxShowSpeedGraph;
-	TListBox *ListBox;
 	TTimer *RenderTimer;
 	TCTrayIcon *CTrayIcon;
 	TImageList *TrayImageList;
@@ -64,9 +48,25 @@ __published:	// IDE-managed Components
 	TMenuItem *N2;
 	TMenuItem *EnglishMenu;
 	TMenuItem *FrenchMenu;
-	TPanel *Panel2;
+	TPanel *LeftPanel;
+	TSplitter *Splitter1;
+	TPanel *ListboxPanel;
+	TListBox *ListBox;
+	TPanel *SettingsPanel;
+	TPanel *UploadPanel;
+	TLabel *LabelULSpeed;
+	TLabel *LabelTotalUpload;
+	TPanel *DownloadPanel;
 	TLabel *LabelDLSpeed;
 	TLabel *LabelTotalDownload;
+	TGroupBox *GroupBoxSettings;
+	TCheckBox *CheckBoxStretch;
+	TButton *ButtonPause;
+	TCheckBox *CheckBoxFullscreen;
+	TCheckBox *CheckBoxShowFPS;
+	TPanel *ViewerPanel;
+	TScrollBox *ScrollBox;
+	TDesktopViewer *DesktopViewer;
 	void __fastcall ButtonConnectClick(TObject *Sender);
 	void __fastcall ButtonDisconnectClick(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
@@ -93,6 +93,8 @@ public:		// User declarations
 	int  LangID;
 	bool LogedIn;
 
+	void __fastcall LoadSettings();
+	void __fastcall SaveSettings();
 	void __fastcall EnableUI();
 	void __fastcall DisableUI();
 	void __fastcall SwitchToWindowedMode();
