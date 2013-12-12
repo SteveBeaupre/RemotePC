@@ -21,6 +21,9 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
+	LangID = REMOTEPC_LANG_ENGLISH;
+	LogedIn = false;
+
 	#ifdef _DEBUG
 	Position = poDefault;
 	Left = 520;
@@ -44,9 +47,6 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	LabelULSpeed->Caption = AnsiString("U: 0 Byte");
 	LabelTotalDownload->Caption = AnsiString("Av: 0.00 Kbp\\s");
 	LabelTotalUpload->Caption   = AnsiString("Av: 0.00 Kbp\\s");
-
-	LangID = REMOTEPC_LANG_ENGLISH;
-	LogedIn = false;
 
 	InitializeWinSock();
 	pRemotePCClient = new CRemotePCClient();
@@ -411,5 +411,35 @@ void __fastcall TMainForm::ButtonPauseClick(TObject *Sender)
 	}
 }
 //---------------------------------------------------------------------------
+void __fastcall TMainForm::SetLanguage(int LanguageID)
+{
+	if(LanguageID >= 0 && LanguageID <= 1){
+		LangID = LanguageID;
+	} else {
+		return;
+	}
 
+	EnglishMenu->Caption = szEnglishMenuCaption[LangID];
+	FrenchMenu->Caption = szFrenchMenuCaption[LangID];
+	ButtonDisconnect->Caption = szButtonDisconnectCaption[LangID];
+	CheckBoxConnectAsServer->Caption = szCheckBoxConnectAsServerCaption[LangID];
+	LabelPassword->Caption = szLabelPasswordCaption[LangID];
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TMainForm::EnglishMenuClick(TObject *Sender)
+{
+	SetLanguage(REMOTEPC_LANG_ENGLISH);
+	EnglishMenu->Checked = true;
+	FrenchMenu->Checked  = false;
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::FrenchMenuClick(TObject *Sender)
+{
+	SetLanguage(REMOTEPC_LANG_FRENCH);
+	EnglishMenu->Checked = false;
+	FrenchMenu->Checked  = true;
+}
+//---------------------------------------------------------------------------
 

@@ -136,6 +136,7 @@ DWORD WINAPI WorkerThreadFunc(void* param)
 
 			// stop reading the socket if paused
 			if(pWorkerThread->IsThreadPaused()){
+				pRemotePC->RenderTexture();
 				Sleep(25);
 				continue;
 			}

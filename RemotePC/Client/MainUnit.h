@@ -84,6 +84,8 @@ __published:	// IDE-managed Components
 	void __fastcall CheckBoxFullscreenClick(TObject *Sender);
 	void __fastcall NetworkSpeedTimerTimer(TObject *Sender);
 	void __fastcall ButtonPauseClick(TObject *Sender);
+	void __fastcall EnglishMenuClick(TObject *Sender);
+	void __fastcall FrenchMenuClick(TObject *Sender);
 private:	// User declarations
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);
@@ -99,6 +101,7 @@ public:		// User declarations
 	void __fastcall DisableUI();
 	void __fastcall SwitchToWindowedMode();
 	void __fastcall SwitchToFullscreenMode();
+	void __fastcall SetLanguage(int LanguageID);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TMainForm *MainForm;

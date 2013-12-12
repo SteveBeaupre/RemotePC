@@ -18,6 +18,8 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
+	LangID = REMOTEPC_LANG_ENGLISH;
+
 	#ifdef _DEBUG
 	Position = poDefault;
 	Left = 15;
@@ -89,8 +91,8 @@ void __fastcall TMainForm::CheckBoxConnectAsClientClick(TObject *Sender)
 void __fastcall TMainForm::EnableUI()
 {
 	switch(CheckBoxConnectAsClient->Checked){
-	case false: ButtonListen->Caption = "Listen..."; break;
-	case true:  ButtonListen->Caption = "Connect";   break;
+	case false: ButtonListen->Caption = szButtonListenCaption[LangID]; break;
+	case true:  ButtonListen->Caption = szButtonListenCaptionModeClient[LangID]; break;
 	}
 	ButtonListen->Enabled = true;
 	ButtonDisconnect->Enabled = false;
@@ -220,6 +222,42 @@ void __fastcall TMainForm::ButtonDisconnectClick(TObject *Sender)
 	pRemotePCServer->Disconnect();
 }
 //---------------------------------------------------------------------------
+void __fastcall TMainForm::SetLanguage(int LanguageID)
+{
+	if(LanguageID >= 0 && LanguageID <= 1){
+		LangID = LanguageID;
+	} else {
+		return;
+	}
 
+	EnglishMenu->Caption = szEnglishMenuCaption[LangID];
+	FrenchMenu->Caption = szFrenchMenuCaption[LangID];
 
+	if(!CheckBoxConnectAsClient->Checked){
+		ButtonListen->Caption = szButtonListenCaption[LangID];
+	} else {
+		ButtonListen->Caption = szButtonListenCaptionModeClient[LangID];
+	}
+	ButtonDisconnect->Caption = szButtonDisconnectCaption[LangID];
+	ButtonClose->Caption = szButtonCloseCaption[LangID];
+
+	CheckBoxConnectAsClient->Caption = szCheckBoxConnectAsClientCaption[LangID];
+	LabelPassword->Caption = szLabelPasswordCaption[LangID];
+	CheckBoxRemoveWallpaper->Caption = szCheckBoxRemoveWallpaperCaption[LangID];
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::EnglishMenuClick(TObject *Sender)
+{
+	SetLanguage(REMOTEPC_LANG_ENGLISH);
+	EnglishMenu->Checked = true;
+	FrenchMenu->Checked  = false;
+}
+//---------------------------------------------------------------------------
+void __fastcall TMainForm::FrenchMenuClick(TObject *Sender)
+{
+	SetLanguage(REMOTEPC_LANG_FRENCH);
+	EnglishMenu->Checked = false;
+	FrenchMenu->Checked  = true;
+}
+//---------------------------------------------------------------------------
 

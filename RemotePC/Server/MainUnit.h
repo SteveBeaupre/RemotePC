@@ -17,6 +17,7 @@
 #include "CompileDateTimeStamp.h"
 #include "UnicodeToChar.h"
 #include "Listbox.h"
+#include "Lang.h"
 //---------------------------------------------------------------------------
 class TMainForm : public TForm
 {
@@ -54,15 +55,21 @@ __published:	// IDE-managed Components
 	void __fastcall ButtonCloseClick(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall CheckBoxConnectAsClientClick(TObject *Sender);
+	void __fastcall EnglishMenuClick(TObject *Sender);
+	void __fastcall FrenchMenuClick(TObject *Sender);
 private:	// User declarations
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);
 public:		// User declarations
 	__fastcall TMainForm(TComponent* Owner);
+
+	int LangID;
+
 	void __fastcall LoadSettings();
 	void __fastcall SaveSettings();
 	void __fastcall EnableUI();
 	void __fastcall DisableUI();
+	void __fastcall SetLanguage(int LanguageID);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TMainForm *MainForm;
