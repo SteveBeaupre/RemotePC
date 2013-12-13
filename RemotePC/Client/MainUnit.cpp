@@ -14,9 +14,20 @@ CClientSettings Settings;
 CKbHookDllStub KbHookDllStub;
 void __cdecl OnKeyEvent(DWORD wParam, DWORD lParam);
 //---------------------------------------------------------------------------
+struct WndCoordsStruct {
+	int l,t,w,h;
+	TWindowState ws;
+};
+WndCoordsStruct WndCoords;
+//---------------------------------------------------------------------------
 __fastcall TMainForm::TMainForm(TComponent* Owner)
 	: TForm(Owner)
 {
+}
+//---------------------------------------------------------------------------
+bool __fastcall TMainForm::IsLoopbackAddress()
+{
+	return ComboBoxHostName->Text == "127.0.0.1" || ComboBoxHostName->Text == "192.168.0.1";
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
@@ -83,8 +94,10 @@ void __fastcall TMainForm::LoadSettings()
 	EditPassword->Text = AnsiString(pSettings->pw);
 
 	CheckBoxConnectAsServer->Checked = pSettings->ConnectAsServer;
-	CheckBoxStretch->Checked = pSettings->Stretch;
 	CheckBoxShowFPS->Checked = pSettings->ShowFPS;
+	CheckBoxStretch->Checked = pSettings->Stretch;
+	pRemotePCClient->GetOpenGL()->SetStretchedFlag(pSettings->Stretch);
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::SaveSettings()
@@ -272,7 +285,7 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 		ConnectionPanel->Visible = ShowHiddenStuffs;
 	}
 
-	if(LogedIn && !pRemotePCClient->GetThread()->IsThreadPaused()){
+	if(LogedIn && !IsLoopbackAddress() &&!pRemotePCClient->GetThread()->IsThreadPaused()){
 		CMouseInputMsgStruct mm;
 		mm.Msg  = MSG_MOUSE_MOVE;
 		mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
@@ -284,7 +297,7 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 
 void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-	if(!LogedIn  || pRemotePCClient->GetThread()->IsThreadPaused())
+	if(!LogedIn || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
 	CMouseInputMsgStruct mm;
@@ -296,7 +309,7 @@ void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton 
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-	if(!LogedIn  || pRemotePCClient->GetThread()->IsThreadPaused())
+	if(!LogedIn  || IsLoopbackAddress() || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
 	CMouseInputMsgStruct mm;
@@ -358,8 +371,25 @@ void __fastcall TMainForm::CheckBoxFullscreenClick(TObject *Sender)
 	}
 }
 //---------------------------------------------------------------------------
+void __fastcall TMainForm::SaveScreenCoordinates()
+{
+	WndCoords.l = this->Left;
+	WndCoords.t = this->Top;
+	WndCoords.w = this->Width;
+	WndCoords.h = this->Height;
+	WndCoords.ws = this->WindowState;
+}
+void __fastcall TMainForm::RestoreScreenCoordinates()
+{
+	MoveWindow(Handle, WndCoords.l, WndCoords.t, WndCoords.w, WndCoords.h, TRUE);
+	this->WindowState = WndCoords.ws;
+	this->BorderStyle = bsSizeable;
+}
+//---------------------------------------------------------------------------
 void __fastcall TMainForm::SwitchToFullscreenMode()
 {
+	SaveScreenCoordinates();
+
 	int ScrW = Screen->Width;
 	int ScrH = Screen->Height;
 
@@ -376,7 +406,7 @@ void __fastcall TMainForm::SwitchToWindowedMode()
 {
 	SetWindowLongPtr(Handle, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
 	BorderStyle = bsSingle;
-	MoveWindow(Handle, 520, 20, 820, 538, TRUE);
+	RestoreScreenCoordinates();
 
 	LeftPanel->Show();
 	ConnectionPanel->Show();

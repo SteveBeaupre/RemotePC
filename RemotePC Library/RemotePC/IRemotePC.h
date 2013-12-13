@@ -24,6 +24,8 @@ public:
 	virtual void ShutdownOpenGL(){}
 	virtual void RenderTexture(){}
 	virtual void ClearScreen(){}
+
+	virtual void WaitForScreenShotThreadToFinish(){}
 };
 
 class IRemotePCServer : public IRemotePC {

@@ -7,6 +7,7 @@ CRemotePCClient::CRemotePCClient()
 
 CRemotePCClient::~CRemotePCClient()
 {
+	OpenGL.Shutdown();
 }
 
 //----------------------------------------------------------------------//

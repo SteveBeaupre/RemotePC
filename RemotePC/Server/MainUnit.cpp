@@ -146,6 +146,9 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		AddListboxMessageArg(ListBox, szOnConnectionEstablished[LangID]);
 		if(pRemotePCServer){
 			pRemotePCServer->Reset();
+			#ifdef MULTITHREAD_SCREENSHOT
+			pRemotePCServer->StartScreenshotThread();
+			#endif
 			pRemotePCServer->StartThread();
 		}
 		break;
@@ -180,7 +183,7 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		switch(Message.WParam)
 		{
 		case TRUE:  AddListboxMessageArg(ListBox, szOnServerLoginSucess[LangID]); break;
-		case FALSE: AddListboxMessageArg(ListBox, szOnServerLoginFailed[LangID]); break;
+		case FALSE:	AddListboxMessageArg(ListBox, szOnServerLoginFailed[LangID]); break;
 		}
 		break;
 	}

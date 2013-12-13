@@ -88,6 +88,8 @@ __published:	// IDE-managed Components
 	void __fastcall FrenchMenuClick(TObject *Sender);
 	void __fastcall CloseMenuClick(TObject *Sender);
 private:	// User declarations
+	void __fastcall SaveScreenCoordinates();
+	void __fastcall RestoreScreenCoordinates();
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);
 public:		// User declarations
@@ -96,6 +98,7 @@ public:		// User declarations
 	int  LangID;
 	bool LogedIn;
 
+	bool __fastcall IsLoopbackAddress();
 	void __fastcall LoadSettings();
 	void __fastcall SaveSettings();
 	void __fastcall EnableUI();

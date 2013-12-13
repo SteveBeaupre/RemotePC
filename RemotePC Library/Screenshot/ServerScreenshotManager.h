@@ -8,12 +8,19 @@
 //----------------------------------------------------------------------//
 #include "Screenshot.h"
 #include "QuadTree.h"
+#include "Thread.h"
 //----------------------------------------------------------------------//
+
+#define MULTITHREAD_SCREENSHOT
+
+DWORD WINAPI ScreenshotThreadFunc(void *params);
 
 class CServerScreenshotManager : IServerScreenshotManager {
 public:
 	CServerScreenshotManager();
 	~CServerScreenshotManager();
+private:
+	CThread ScreenshotTread;
 private:
 	CScreenshot Screenshot[2];
 	CScreenshot *pBackBuffer, *pFrontBuffer;
@@ -32,5 +39,11 @@ public:
 	void Pack();
 	void Compress();
 	
-	CRawBuffer* Take(BOOL bShowCursor);
+	void Take();
+	CRawBuffer* GetCompressedBuffer(){return &CompressedBuffer;}
+
+	bool IsScreenshotThreadedRunning();
+	void WaitForScreenshotThreadToFinish();
+	void StartScreenshotThread();
+	void StopScreenshotThread();
 };

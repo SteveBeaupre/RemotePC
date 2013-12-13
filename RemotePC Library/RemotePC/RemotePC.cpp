@@ -98,6 +98,8 @@ void CRemotePC::CleanupThread()
 	// Cleanup OpenGL (client only)
 	ClearScreen();
 	ShutdownOpenGL();
+	// Wait for screenshot thread to finish (server only)
+	WaitForScreenShotThreadToFinish();
 }
 
 //----------------------------------------------------------------------//

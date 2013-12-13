@@ -28,6 +28,9 @@ public:
 	void OnLoginRequest(LoginInfoStruct *pInfo);
 	void SendLoginResult(bool Succeded);
 	
+	void StartScreenshotThread();
+	void WaitForScreenshotThreadToFinish();
+
 	void OnScreenshotRequest();
 	void SendScreenshot(CRawBuffer *pBuffer);
 

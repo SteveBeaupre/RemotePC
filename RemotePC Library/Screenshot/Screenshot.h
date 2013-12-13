@@ -21,7 +21,7 @@ private:
 	void GetScreenSizeAndPos(HWND hDesktopWnd, int *l, int *t, int *w, int *h);
 public:
 	void Reset();
-	int  Take(BOOL bShowCursor);
+	int  Take();
 	void CreateEmpty(int Width, int Height, int BitsPerPixel);
 
 	int GetWidth(){return Info.Width;}

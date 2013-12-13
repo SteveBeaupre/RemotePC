@@ -72,7 +72,7 @@ void CScreenshot::DrawCursor(HDC hDC)
 #endif
 }
 
-int CScreenshot::Take(BOOL bShowCursor)
+int CScreenshot::Take()
 {
 	CRawBuffer BitmapInfo;
 
@@ -98,8 +98,7 @@ int CScreenshot::Take(BOOL bShowCursor)
 	// Copy the screen image in our bitmap
 	BitBlt(s_hdc, 0,0,w,h, hdc, x,y, SRCCOPY);
 
-	if(bShowCursor)
-		DrawCursor(s_hdc);
+	DrawCursor(s_hdc);
 	
 	ReleaseDC(hDesktopWnd, hdc);
 
