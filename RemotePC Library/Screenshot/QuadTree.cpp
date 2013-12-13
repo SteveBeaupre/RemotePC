@@ -315,3 +315,4 @@ DWORD CQuadTree::ExtractTreeData(QuadTreeStruct *pNode, DWORD Level, DWORD UncBu
 
 	return UncBufferCpt;
 }
+

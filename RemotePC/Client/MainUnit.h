@@ -98,7 +98,7 @@ public:		// User declarations
 	int  LangID;
 	bool LogedIn;
 
-	bool __fastcall IsLoopbackAddress();
+	bool __fastcall IsLoopbackAddress(AnsiString s);
 	void __fastcall LoadSettings();
 	void __fastcall SaveSettings();
 	void __fastcall EnableUI();

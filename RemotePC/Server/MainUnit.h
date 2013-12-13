@@ -66,6 +66,7 @@ public:		// User declarations
 
 	int LangID;
 
+	bool __fastcall IsLoopbackAddress(AnsiString s);
 	void __fastcall LoadSettings();
 	void __fastcall SaveSettings();
 	void __fastcall EnableUI();

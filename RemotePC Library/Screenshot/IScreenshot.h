@@ -45,7 +45,7 @@ struct ServerScreenshotManagerStruct {
 class IScreenshot {
 public:
 	virtual void Reset() = 0;
-	virtual int  Take(BOOL bShowCursor) = 0;
+	virtual int  Take() = 0;
 	virtual void CreateEmpty(int Width, int Height, int BitsPerPixel) = 0;
 	
 	virtual int GetWidth() = 0;

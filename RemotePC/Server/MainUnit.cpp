@@ -17,6 +17,11 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 {
 }
 //---------------------------------------------------------------------------
+bool __fastcall TMainForm::IsLoopbackAddress(AnsiString s)
+{
+	return s == "127.0.0.1" || s == "192.168.0.1";
+}
+//---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
 	#ifdef _DEBUG
@@ -58,7 +63,18 @@ void __fastcall TMainForm::LoadSettings()
 	EnglishMenu->Checked = LangID == REMOTEPC_LANG_ENGLISH;
 	FrenchMenu->Checked  = LangID == REMOTEPC_LANG_FRENCH;
 
-	ComboBoxHostName->Text = AnsiString(pSettings->ip);
+	ComboBoxHostName->Items->Clear();
+	ComboBoxHostName->Items->Add("127.0.0.1");
+	ComboBoxHostName->Items->Add("192.168.0.1");
+	if(IsLoopbackAddress(AnsiString(pSettings->ip))){
+		if(AnsiString(pSettings->ip) == "127.0.0.1")
+			ComboBoxHostName->ItemIndex = 0;
+		else
+			ComboBoxHostName->ItemIndex = 1;
+	} else {
+		ComboBoxHostName->Items->Add(AnsiString(pSettings->ip));
+		ComboBoxHostName->ItemIndex = ComboBoxHostName->Items->Count-1;
+	}
 	EditPort->Text = AnsiString(pSettings->Port);
 	EditPassword->Text = AnsiString(pSettings->pw);
 

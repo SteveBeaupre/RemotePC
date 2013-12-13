@@ -25,9 +25,9 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 {
 }
 //---------------------------------------------------------------------------
-bool __fastcall TMainForm::IsLoopbackAddress()
+bool __fastcall TMainForm::IsLoopbackAddress(AnsiString s)
 {
-	return ComboBoxHostName->Text == "127.0.0.1" || ComboBoxHostName->Text == "192.168.0.1";
+	return s == "127.0.0.1" || s == "192.168.0.1";
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
@@ -89,15 +89,26 @@ void __fastcall TMainForm::LoadSettings()
 	FrenchMenu->Checked  = LangID == REMOTEPC_LANG_FRENCH;
 	SetLanguage(LangID);
 
-	ComboBoxHostName->Text = AnsiString(pSettings->ip);
-	EditPort->Text = AnsiString(pSettings->Port);
+	ComboBoxHostName->Items->Clear();
+	ComboBoxHostName->Items->Add("127.0.0.1");
+	ComboBoxHostName->Items->Add("192.168.0.1");
+	if(IsLoopbackAddress(AnsiString(pSettings->ip))){
+		if(AnsiString(pSettings->ip) == "127.0.0.1")
+			ComboBoxHostName->ItemIndex = 0;
+		else
+			ComboBoxHostName->ItemIndex = 1;
+	} else {
+		ComboBoxHostName->Items->Add(AnsiString(pSettings->ip));
+		ComboBoxHostName->ItemIndex = ComboBoxHostName->Items->Count-1;
+	}
 	EditPassword->Text = AnsiString(pSettings->pw);
+	EditPort->Text = AnsiString(pSettings->Port);
 
 	CheckBoxConnectAsServer->Checked = pSettings->ConnectAsServer;
 	CheckBoxShowFPS->Checked = pSettings->ShowFPS;
 	CheckBoxStretch->Checked = pSettings->Stretch;
 	pRemotePCClient->GetOpenGL()->SetStretchedFlag(pSettings->Stretch);
-
+	pRemotePCClient->GetOpenGL()->SetShowFPSFlag(pSettings->ShowFPS);
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::SaveSettings()
@@ -285,7 +296,7 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 		ConnectionPanel->Visible = ShowHiddenStuffs;
 	}
 
-	if(LogedIn && !IsLoopbackAddress() &&!pRemotePCClient->GetThread()->IsThreadPaused()){
+	if(LogedIn && !IsLoopbackAddress(AnsiString(ComboBoxHostName->Text)) &&!pRemotePCClient->GetThread()->IsThreadPaused()){
 		CMouseInputMsgStruct mm;
 		mm.Msg  = MSG_MOUSE_MOVE;
 		mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
