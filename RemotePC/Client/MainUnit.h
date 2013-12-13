@@ -86,6 +86,7 @@ __published:	// IDE-managed Components
 	void __fastcall ButtonPauseClick(TObject *Sender);
 	void __fastcall EnglishMenuClick(TObject *Sender);
 	void __fastcall FrenchMenuClick(TObject *Sender);
+	void __fastcall CloseMenuClick(TObject *Sender);
 private:	// User declarations
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);

@@ -18,6 +18,10 @@
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 #pragma pack(1)
+struct LanguageSettingsStruct {
+	int LangID;
+};
+//----------------------------------------------------------------------//
 struct ConnectionSettingsStruct {
 	char ip[16];
 	char pw[32];
@@ -26,13 +30,13 @@ struct ConnectionSettingsStruct {
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
-struct ServerSettingsStruct : public ConnectionSettingsStruct {
+struct ServerSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {
 	bool ConnectAsClient;
 	bool RemoveWallpaper;
 	//bool MultithreadScreenshot;
 };
 //----------------------------------------------------------------------//
-struct ClientSettingsStruct : public ConnectionSettingsStruct {
+struct ClientSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {
 	bool ConnectAsServer;
 	bool ShowFPS;
 	bool Stretch;

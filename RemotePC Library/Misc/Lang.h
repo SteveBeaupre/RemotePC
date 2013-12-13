@@ -17,6 +17,8 @@ LPCSTR szButtonListenCaptionModeClient[2]  = {"Connect",    "Connecter"};
 LPCSTR szButtonConnectCaption[2]           = {"Connect",    "Connecter"};
 LPCSTR szButtonConnectCaptionModeServer[2] = {"Listen...",  "Listen..."};
 LPCSTR szButtonDisconnectCaption[2]        = {"Disconnect", "Déconnecter"};
+LPCSTR szButtonPauseCaption1[2]            = {"Pause",      "Pause"};
+LPCSTR szButtonPauseCaption2[2]            = {"Resume",     "Résumer"};
 
 LPCSTR szCheckBoxConnectAsClientCaption[2] = {"Reverse Connection", "Renverser Connection"};
 LPCSTR szCheckBoxConnectAsServerCaption[2] = {"Reverse Connection", "Renverser Connection"};
@@ -42,6 +44,20 @@ LPCSTR szOneInstanceErrMsg[2] = {
 
 /////////////////////////////////////////////////////////////////////////
 
+LPCSTR szOnConnectionThreadStartedAsServer[2] = {"Listening...",                           "En attente de connection..."};
+LPCSTR szOnConnectionThreadStartedAsClient[2] = {"Connecting...",                          "Connection..."};
+LPCSTR szOnConnectionEstablished[2]           = {"Connection established.",                "Connection établie."};
+LPCSTR szOnDisconnect[2]                      = {"Disconnected.",                          "Déconnecter."};
+LPCSTR szOnConnectionLoss[2]                  = {"Connection closed by peer.",             "Connexion fermée Par l'hôte distant."};
+LPCSTR szOnConnectionCanceled[2]              = {"Connection canceled.",                   "Connection cancelée."};
+LPCSTR szOnConnectionFailed[2]                = {"Connection failed. (attempt #%d of %d)", "Connection échouer. (essai #%d of %d)"};
+LPCSTR szOnConnectionTimedOut[2]              = {"Unable to connect to server.",           "Server introuvable."};
+LPCSTR szOnServerLoginSucess[2]                     = {"Peer loged In Sucessfully.",             "Hote indentification réussit."};
+LPCSTR szOnServerLoginFailed[2]                     = {"Peer login failed.",                     "Hote indentification échouer."};
+LPCSTR szOnClientLoginSucess[2]                     = {"Peer loged In Sucessfully.",             "Hote indentification réussit."};
+LPCSTR szOnClientLoginFailed[2]                     = {"Peer login failed.",                     "Hote indentification échouer."};
+
+/*
 LPCSTR szClient_OnConnectionThreadStarted[2] = {"Connecting to %s Port %d...",                                   "Connection a %s Port %d..."};
 LPCSTR szClient_OnConnectionEstablished[2]   = {"Connection Established. (Socket: 0x%8.8X)",                     "Connection réussit. (Socket: 0x%8.8X)"};
 LPCSTR szClient_OnConnectionLoss[2]          = {"Connection Loss. (Socket: 0x%8.8X Error: %d)",                  "Connection perdu. (Socket: 0x%8.8X Error: %d)"};
@@ -64,7 +80,7 @@ LPCSTR szServer_OnClientLoginFailedErr3[2] = {"Client Login Failed (%s Port: %d 
 LPCSTR szServer_OnServerDisconnected[2]    = {"Server Offline.",                                                                     "Server fermé."};
 LPCSTR szServer_OnServerListening[2]       = {"Listening on socket 0x%8.8X...",                                                      "Attendre conn. sur le socket 0x%8.8X..."};
 LPCSTR szServer_OnClientDisconnected[2]    = {"Client Disconnected. (%s Name: \"%s\" ID: %d)",                                       "Client Déconnecter. (%s Name: \"%s\" ID: %d)"};
-
+*/
 
 #endif
 #endif //_REMOTEPC_LANG_H_

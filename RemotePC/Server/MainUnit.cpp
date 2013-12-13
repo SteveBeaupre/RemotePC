@@ -18,8 +18,6 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
-	LangID = REMOTEPC_LANG_ENGLISH;
-
 	#ifdef _DEBUG
 	Position = poDefault;
 	Left = 15;
@@ -54,6 +52,11 @@ void __fastcall TMainForm::LoadSettings()
 	Settings.Load();
 	ServerSettingsStruct *pSettings = Settings.GetSettings();
 
+	LangID = pSettings->LangID;
+	SetLanguage(LangID);
+	EnglishMenu->Checked = LangID == REMOTEPC_LANG_ENGLISH;
+	FrenchMenu->Checked  = LangID == REMOTEPC_LANG_FRENCH;
+
 	ComboBoxHostName->Text = AnsiString(pSettings->ip);
 	EditPort->Text = AnsiString(pSettings->Port);
 	EditPassword->Text = AnsiString(pSettings->pw);
@@ -66,6 +69,8 @@ void __fastcall TMainForm::SaveSettings()
 {
 	ServerSettingsStruct ServerSettings;
 	ZeroMemory(&ServerSettings, sizeof(ServerSettingsStruct));
+
+	ServerSettings.LangID = LangID;
 
 	ConvertUnicodeToChar(ServerSettings.ip, 16, ComboBoxHostName->Text.c_str());
 	ConvertUnicodeToChar(ServerSettings.pw, 32, EditPassword->Text.c_str());
@@ -95,25 +100,31 @@ void __fastcall TMainForm::EnableUI()
 	case true:  ButtonListen->Caption = szButtonListenCaptionModeClient[LangID]; break;
 	}
 	ButtonListen->Enabled = true;
+	ListenMenu->Enabled = true;
 	ButtonDisconnect->Enabled = false;
+	DisconnectMenu->Enabled = false;
 	CheckBoxConnectAsClient->Enabled = true;
 	CheckBoxRemoveWallpaper->Enabled = true;
 	//CheckBoxMultithreaded->Enabled = true;
 	ComboBoxHostName->Enabled = CheckBoxConnectAsClient->Checked;
 	EditPort->Enabled = true;
 	EditPassword->Enabled = true;
+	LanguageMenu->Enabled = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DisableUI()
 {
 	ButtonDisconnect->Enabled = true;
+	DisconnectMenu->Enabled = true;
 	ButtonListen->Enabled = false;
+	ListenMenu->Enabled = false;
 	CheckBoxConnectAsClient->Enabled = false;
 	CheckBoxRemoveWallpaper->Enabled = false;
 	CheckBoxMultithreaded->Enabled = false;
 	ComboBoxHostName->Enabled = false;
 	EditPort->Enabled = false;
 	EditPassword->Enabled = false;
+	LanguageMenu->Enabled = false;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
@@ -126,30 +137,30 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		break;
 	case ON_THREAD_START:
 		if(CheckBoxConnectAsClient->Checked){
-			AddListboxMessageArg(ListBox, "Connecting");
+			AddListboxMessageArg(ListBox, szOnConnectionThreadStartedAsClient[LangID]);
 		} else {
-			AddListboxMessageArg(ListBox, "Listening...");
+			AddListboxMessageArg(ListBox, szOnConnectionThreadStartedAsServer[LangID]);
 		}
 		break;
 	case ON_CONNECTED:
-		AddListboxMessageArg(ListBox, "Connection established!");
+		AddListboxMessageArg(ListBox, szOnConnectionEstablished[LangID]);
 		if(pRemotePCServer){
 			pRemotePCServer->Reset();
 			pRemotePCServer->StartThread();
 		}
 		break;
 	case ON_DISCONNECTED:
-		AddListboxMessageArg(ListBox, "Disconnected");
+		AddListboxMessageArg(ListBox, szOnDisconnect[LangID]);
 		if(pRemotePCServer)
 			pRemotePCServer->StopThread();
 		EnableUI();
 		break;
 	case ON_CONNECTION_LOST:
-		AddListboxMessageArg(ListBox, "Connection closed by peer.");
+		AddListboxMessageArg(ListBox, szOnConnectionLoss[LangID]);
 		EnableUI();
 		break;
 	case ON_CONNECTION_CANCELED:
-		AddListboxMessageArg(ListBox, "Connection Canceled...");
+		AddListboxMessageArg(ListBox, szOnConnectionCanceled[LangID]);
 		EnableUI();
 		break;
 	case ON_CONNECTION_TIMED_OUT:
@@ -157,30 +168,19 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 			int NumAttemp   = Message.WParam;
 			int TotalAttemp = Message.LParam;
 
-			if(NumAttemp < TotalAttemp){
-				AddListboxMessageArg(ListBox, "Attemp #%d Failed... Retrying...", NumAttemp);
-			} else {
-				AddListboxMessageArg(ListBox, "Attemp #%d Failed... Aborting...", NumAttemp);
-				AddListboxMessageArg(ListBox, "Unable to connect to server.");
+			AddListboxMessageArg(ListBox, szOnConnectionFailed[LangID], NumAttemp, TotalAttemp);
+			if(NumAttemp == TotalAttemp){
+				AddListboxMessageArg(ListBox, szOnConnectionTimedOut[LangID]);
 				EnableUI();
 			}
 		}
 		break;
 
-	case MSG_CLIENT_LOGIN_COMPLETED:
-		AddListboxMessageArg(ListBox, "Client Loged In.");
-		break;
-	case MSG_CLIENT_LOGIN_FAILED:
-		AddListboxMessageArg(ListBox, "Client Login Failed. \nClosing Connection.");
-		if(pRemotePCServer)
-			pRemotePCServer->Disconnect();
-		break;
-
 	case ON_LOGIN:
 		switch(Message.WParam)
 		{
-		case TRUE:  AddListboxMessageArg(ListBox, "Client Loged In Sucessfully."); break;
-		case FALSE: AddListboxMessageArg(ListBox, "Client Login Failed...");       break;
+		case TRUE:  AddListboxMessageArg(ListBox, szOnServerLoginSucess[LangID]); break;
+		case FALSE: AddListboxMessageArg(ListBox, szOnServerLoginFailed[LangID]); break;
 		}
 		break;
 	}
