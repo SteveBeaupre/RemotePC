@@ -10,6 +10,7 @@ TMainForm *MainForm;
 //---------------------------------------------------------------------------
 CRemotePCServer *pRemotePCServer = NULL;
 CServerSettings Settings;
+CWallpaper Wallpaper;
 //---------------------------------------------------------------------------
 __fastcall TMainForm::TMainForm(TComponent* Owner)
 	: TForm(Owner)
@@ -110,6 +111,8 @@ void __fastcall TMainForm::EnableUI()
 	EditPort->Enabled = true;
 	EditPassword->Enabled = true;
 	LanguageMenu->Enabled = true;
+	if(CheckBoxRemoveWallpaper->Checked)
+		Wallpaper.RestoreWallpaper();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DisableUI()
@@ -146,6 +149,8 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		AddListboxMessageArg(ListBox, szOnConnectionEstablished[LangID]);
 		if(pRemotePCServer){
 			pRemotePCServer->Reset();
+			if(CheckBoxRemoveWallpaper)
+				Wallpaper.RemoveWallpaper();
 			#ifdef MULTITHREAD_SCREENSHOT
 			pRemotePCServer->StartScreenshotThread();
 			#endif

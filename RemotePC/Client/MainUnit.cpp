@@ -309,7 +309,7 @@ void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton 
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-	if(!LogedIn  || IsLoopbackAddress() || pRemotePCClient->GetThread()->IsThreadPaused())
+	if(!LogedIn  || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
 	CMouseInputMsgStruct mm;

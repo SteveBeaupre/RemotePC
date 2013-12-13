@@ -13,6 +13,7 @@
 //---------------------------------------------------------------------------
 #include "RemotePCServer.h"
 #include "ServerScreenshotManager.h"
+#include "Wallpaper.h"
 #include "Settings.h"
 #include "CompileDateTimeStamp.h"
 #include "UnicodeToChar.h"
