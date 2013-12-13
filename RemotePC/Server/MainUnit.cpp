@@ -64,6 +64,7 @@ void __fastcall TMainForm::LoadSettings()
 
 	CheckBoxConnectAsClient->Checked = pSettings->ConnectAsClient;
 	CheckBoxRemoveWallpaper->Checked = pSettings->RemoveWallpaper;
+	CheckBoxMultithreaded->Checked   = pSettings->MultithreadScreenshot;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::SaveSettings()
@@ -79,6 +80,7 @@ void __fastcall TMainForm::SaveSettings()
 
 	ServerSettings.ConnectAsClient = CheckBoxConnectAsClient->Checked;
 	ServerSettings.RemoveWallpaper = CheckBoxRemoveWallpaper->Checked;
+	ServerSettings.MultithreadScreenshot = CheckBoxMultithreaded->Checked;
 
 	Settings.SetSettings(&ServerSettings);
 	Settings.Save();
@@ -106,7 +108,7 @@ void __fastcall TMainForm::EnableUI()
 	DisconnectMenu->Enabled = false;
 	CheckBoxConnectAsClient->Enabled = true;
 	CheckBoxRemoveWallpaper->Enabled = true;
-	//CheckBoxMultithreaded->Enabled = true;
+	CheckBoxMultithreaded->Enabled = true;
 	ComboBoxHostName->Enabled = CheckBoxConnectAsClient->Checked;
 	EditPort->Enabled = true;
 	EditPassword->Enabled = true;
@@ -148,12 +150,20 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 	case ON_CONNECTED:
 		AddListboxMessageArg(ListBox, szOnConnectionEstablished[LangID]);
 		if(pRemotePCServer){
+			// Reset screenshot related stuffs
 			pRemotePCServer->Reset();
+
+			// Remove the wallpaper
 			if(CheckBoxRemoveWallpaper)
 				Wallpaper.RemoveWallpaper();
-			#ifdef MULTITHREAD_SCREENSHOT
-			pRemotePCServer->StartScreenshotThread();
-			#endif
+
+			// Setup multithreaded screenshot stuffs
+			pRemotePCServer->SetMultiThreadedMode(CheckBoxMultithreaded->Checked);
+			if(CheckBoxMultithreaded->Checked){
+				pRemotePCServer->StartScreenshotThread();
+			}
+
+			// Start the network worker thread
 			pRemotePCServer->StartThread();
 		}
 		break;

@@ -33,7 +33,7 @@ struct ConnectionSettingsStruct {
 struct ServerSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {
 	bool ConnectAsClient;
 	bool RemoveWallpaper;
-	//bool MultithreadScreenshot;
+	bool MultithreadScreenshot;
 };
 //----------------------------------------------------------------------//
 struct ClientSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {

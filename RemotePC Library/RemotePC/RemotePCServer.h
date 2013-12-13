@@ -15,6 +15,7 @@ public:
 	CRemotePCServer();
 	~CRemotePCServer();
 private:
+	bool MultithreadedScreenshot;
 	CLoginInfo LoginInfo;
 	CServerScreenshotManager ScreenshotManager;
 	CServerInputs ServerInputs;
@@ -23,6 +24,8 @@ private:
 public:
 	void Reset();
 	void ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData);
+
+	void SetMultiThreadedMode(bool MultithreadTheScreenshot);
 
 	void SetLoginInfo(char *pUserName, char *pPassword);
 	void OnLoginRequest(LoginInfoStruct *pInfo);

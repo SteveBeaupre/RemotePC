@@ -11,8 +11,6 @@
 #include "Thread.h"
 //----------------------------------------------------------------------//
 
-#define MULTITHREAD_SCREENSHOT
-
 DWORD WINAPI ScreenshotThreadFunc(void *params);
 
 class CServerScreenshotManager : IServerScreenshotManager {

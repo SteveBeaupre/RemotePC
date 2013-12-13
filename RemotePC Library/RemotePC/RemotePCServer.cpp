@@ -7,10 +7,9 @@ CRemotePCServer::CRemotePCServer()
 
 CRemotePCServer::~CRemotePCServer()
 {
-	#ifdef MULTITHREAD_SCREENSHOT
 	// Just make sure the thread is not running before closing
-	ScreenshotManager.WaitForScreenshotThreadToFinish();
-	#endif
+	if(MultithreadedScreenshot)
+		ScreenshotManager.WaitForScreenshotThreadToFinish();
 }
 
 //----------------------------------------------------------------------//
@@ -105,22 +104,22 @@ void CRemotePCServer::OnScreenshotRequest()
 {
 	GetNetManager()->GetLog()->Log("Screenshot Request received\n");
 
-	#ifndef MULTITHREAD_SCREENSHOT
-	// Take screenshot normally
-	ScreenshotManager.Take();
-	CRawBuffer* pBuf = ScreenshotManager.GetCompressedBuffer();
-	SendScreenshot(pBuf);
-	#else
-	// Wait for the thread to finish
-	ScreenshotManager.WaitForScreenshotThreadToFinish();
-	
-	// Send the buffer
-	CRawBuffer* pBuf = ScreenshotManager.GetCompressedBuffer();
-	SendScreenshot(pBuf);
+	if(!MultithreadedScreenshot){
+		// Take screenshot normally
+		ScreenshotManager.Take();
+		CRawBuffer* pBuf = ScreenshotManager.GetCompressedBuffer();
+		SendScreenshot(pBuf);
+	} else {
+		// Wait for the thread to finish
+		ScreenshotManager.WaitForScreenshotThreadToFinish();
+		
+		// Send the buffer
+		CRawBuffer* pBuf = ScreenshotManager.GetCompressedBuffer();
+		SendScreenshot(pBuf);
 
-	// Get the next screenshot in advance
-	ScreenshotManager.StartScreenshotThread();
-	#endif
+		// Get the next screenshot in advance
+		ScreenshotManager.StartScreenshotThread();
+	}
 }
 
 void CRemotePCServer::StartScreenshotThread()
@@ -154,3 +153,7 @@ void CRemotePCServer::OnKeyboardMsg(CKeyboardInputMsgStruct* pMsg)
 	ServerInputs.ProcessKeyboardInput(pMsg);
 }
 
+void CRemotePCServer::SetMultiThreadedMode(bool MultithreadTheScreenshot)
+{
+	MultithreadedScreenshot = MultithreadTheScreenshot;
+}
