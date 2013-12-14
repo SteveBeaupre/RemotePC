@@ -19,6 +19,7 @@
 #include "UnicodeToChar.h"
 #include "Listbox.h"
 #include "Lang.h"
+#include "IP.h"
 //---------------------------------------------------------------------------
 class TMainForm : public TForm
 {

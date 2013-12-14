@@ -13,11 +13,6 @@ CClientSettings Settings;
 //---------------------------------------------------------------------------
 CKbHookDllStub KbHookDllStub;
 void __cdecl OnKeyEvent(DWORD wParam, DWORD lParam);
-//---------------------------------------------------------------------------
-struct WndCoordsStruct {
-	int l,t,w,h;
-	TWindowState ws;
-};
 WndCoordsStruct WndCoords;
 //---------------------------------------------------------------------------
 __fastcall TMainForm::TMainForm(TComponent* Owner)
@@ -263,15 +258,32 @@ void __fastcall TMainForm::ButtonConnectClick(TObject *Sender)
 	char sPort[BufSize];
 	ConvertUnicodeToChar(sPort, BufSize, EditPort->Text.c_str());
 
-	WORD Port = 9966;
+	int Port = 9966;
 	if(strlen(sPort) > 0)
 		Port = atoi(sPort);
+
+	// Port number error handling
+	if(Port > 0x0000FFFF){
+		ShowMessage(AnsiString(szInvalidPortRangeMsg[LangID]));
+		EditPort->Text = "65535";
+		return;
+	} else if(Port < 0){
+		ShowMessage(AnsiString(szInvalidPortRangeMsg[LangID]));
+		EditPort->Text = "0";
+		return;
+	}
 
 	if(!CheckBoxConnectAsServer->Checked){
 
 		const int BufSize = 16;
 		char ip[BufSize];
 		ConvertUnicodeToChar(ip, BufSize, ComboBoxHostName->Text.c_str());
+
+		// IP error handling
+		if(!IsIPValid(ip)){
+			ShowMessage(AnsiString(szInvalidIPMsg[LangID]));
+			return;
+		}
 
 		pRemotePCClient->ConnectAsClient(Handle, ip, Port);
 	} else {
@@ -393,7 +405,7 @@ void __fastcall TMainForm::SaveScreenCoordinates()
 void __fastcall TMainForm::RestoreScreenCoordinates()
 {
 	MoveWindow(Handle, WndCoords.l, WndCoords.t, WndCoords.w, WndCoords.h, TRUE);
-	this->WindowState = WndCoords.ws;
+	this->WindowState = (TWindowState)WndCoords.ws;
 	this->BorderStyle = bsSizeable;
 }
 //---------------------------------------------------------------------------

@@ -24,7 +24,9 @@ void CServerSettings::Load()
 			// If so, load it from the registry
 			DWORD size = sizeof(ServerSettingsStruct);
 			Reg.GetValue(REG_ROOT_KEY, REG_PROG_KEY, "Server", REG_BINARY, &Settings, &size);
-
+			// If the size dosen't match, use default values
+			if(size != sizeof(ServerSettingsStruct))
+				goto CreateValueJmp;
 		} else {
 			goto CreateValueJmp;
 		}
@@ -102,7 +104,9 @@ void CClientSettings::Load()
 			// If so, load it from the registry
 			DWORD size = sizeof(ClientSettingsStruct);
 			Reg.GetValue(REG_ROOT_KEY, REG_PROG_KEY, "Client", REG_BINARY, &Settings, &size);
-
+			// If the size dosen't match, use default values
+			if(size != sizeof(ClientSettingsStruct))
+				goto CreateValueJmp;
 		} else {
 			goto CreateValueJmp;
 		}

@@ -28,6 +28,11 @@ struct ConnectionSettingsStruct {
 	WORD Port;
 };
 //----------------------------------------------------------------------//
+struct WndCoordsStruct {
+	int l,t,w,h;
+	int ws;
+};
+//----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 struct ServerSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {
@@ -37,12 +42,10 @@ struct ServerSettingsStruct : public ConnectionSettingsStruct, public LanguageSe
 };
 //----------------------------------------------------------------------//
 struct ClientSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {
+	WndCoordsStruct WndCoords;
 	bool ConnectAsServer;
 	bool ShowFPS;
 	bool Stretch;
-	//bool Fullscreen;
-	//bool ShowCursor;
-	//bool ShowGraph;
 };
 #pragma pack()
 //----------------------------------------------------------------------//

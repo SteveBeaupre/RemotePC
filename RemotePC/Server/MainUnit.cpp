@@ -233,15 +233,31 @@ void __fastcall TMainForm::ButtonListenClick(TObject *Sender)
 	char sPort[PortBufSize];
 	ConvertUnicodeToChar(sPort, PortBufSize, EditPort->Text.c_str());
 
-	WORD Port = 9966;
+	int Port = 9966;
 	if(strlen(sPort) > 0)
 		Port = atoi(sPort);
+
+	// Port number error handling
+	if(Port > 0x0000FFFF){
+		ShowMessage(AnsiString(szInvalidPortRangeMsg[LangID]));
+		EditPort->Text = "65535";
+		return;
+	} else if(Port < 0){
+		ShowMessage(AnsiString(szInvalidPortRangeMsg[LangID]));
+		EditPort->Text = "0";
+		return;
+	}
 
 	if(CheckBoxConnectAsClient->Checked){
 
 		const int IPBufSize = 16;
 		char ip[IPBufSize];
 		ConvertUnicodeToChar(ip, IPBufSize, ComboBoxHostName->Text.c_str());
+
+		if(!IsIPValid(ip)){
+			ShowMessage(AnsiString(szInvalidIPMsg[LangID]));
+			return;
+		}
 
 		pRemotePCServer->ConnectAsClient(Handle, ip, Port);
 	} else {

@@ -33,6 +33,10 @@ LPCSTR szLabelPasswordCaption[2] = {"Password", "Mot de Passe"};
 
 LPCSTR szLogedInMsg[2] = {"Loged In.", "Log réussit."};
 LPCSTR szWarningMsg[2] = {"Warning", "Attention"};
+LPCSTR szErrorMsg[2]   = {"Error", "Érreur"};
+
+LPCSTR szInvalidPortRangeMsg[2] = {"Invalid Port Range.", "Range du port invalide."};
+LPCSTR szInvalidIPMsg[2] = {"IP Invalid.", "IP Invalide."};
 
 LPCSTR szConnectionRefusedMsg[2] = {"Connection Refused: Invalid Password.", "Connection refusé: Mot de passe invalide."};
 LPCSTR szUnableToStartServerErrMsg[2] = {"Unable to start server...", "Le démarage du server a échouer"};
@@ -52,10 +56,10 @@ LPCSTR szOnConnectionLoss[2]                  = {"Connection closed by peer.",  
 LPCSTR szOnConnectionCanceled[2]              = {"Connection canceled.",                   "Connection cancelée."};
 LPCSTR szOnConnectionFailed[2]                = {"Connection failed. (attempt #%d of %d)", "Connection échouer. (essai #%d of %d)"};
 LPCSTR szOnConnectionTimedOut[2]              = {"Unable to connect to server.",           "Server introuvable."};
-LPCSTR szOnServerLoginSucess[2]                     = {"Peer loged In Sucessfully.",             "Hote indentification réussit."};
-LPCSTR szOnServerLoginFailed[2]                     = {"Peer login failed.",                     "Hote indentification échouer."};
-LPCSTR szOnClientLoginSucess[2]                     = {"Peer loged In Sucessfully.",             "Hote indentification réussit."};
-LPCSTR szOnClientLoginFailed[2]                     = {"Peer login failed.",                     "Hote indentification échouer."};
+LPCSTR szOnServerLoginSucess[2]               = {"Peer loged In Sucessfully.",             "Hote indentification réussit."};
+LPCSTR szOnServerLoginFailed[2]               = {"Peer login failed.",                     "Hote indentification échouer."};
+LPCSTR szOnClientLoginSucess[2]               = {"Peer loged In Sucessfully.",             "Hote indentification réussit."};
+LPCSTR szOnClientLoginFailed[2]               = {"Peer login failed.",                     "Hote indentification échouer."};
 
 /*
 LPCSTR szClient_OnConnectionThreadStarted[2] = {"Connecting to %s Port %d...",                                   "Connection a %s Port %d..."};
