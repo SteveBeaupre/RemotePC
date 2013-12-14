@@ -34,8 +34,6 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	Left = 520;
 	Top  = 20;
 	Width = 820;
-	#else
-	Position = poDesktopCenter;
 	#endif
 
 	char AppCaption[256];
@@ -104,6 +102,22 @@ void __fastcall TMainForm::LoadSettings()
 	CheckBoxStretch->Checked = pSettings->Stretch;
 	pRemotePCClient->GetOpenGL()->SetStretchedFlag(pSettings->Stretch);
 	pRemotePCClient->GetOpenGL()->SetShowFPSFlag(pSettings->ShowFPS);
+
+	this->Position = poDesktopCenter;
+	this->WindowState = (TWindowState)pSettings->WndCoords.ws;
+
+	/*if(pSettings->WndCoords.l == 0 || pSettings->WndCoords.t == 0 || pSettings->WndCoords.w == 0 || pSettings->WndCoords.h == 0){
+		#ifndef _DEBUG
+		this->Position = poDesktopCenter;
+		#endif
+		return;
+	}
+
+	this->Left   = pSettings->WndCoords.l;
+	this->Top    = pSettings->WndCoords.t;
+	this->Width  = pSettings->WndCoords.w;
+	this->Height = pSettings->WndCoords.h;
+	this->WindowState = (TWindowState)pSettings->WndCoords.ws;*/
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::SaveSettings()
@@ -120,6 +134,12 @@ void __fastcall TMainForm::SaveSettings()
 	ClientSettings.ConnectAsServer = CheckBoxConnectAsServer->Checked;
 	ClientSettings.Stretch = CheckBoxStretch->Checked;
 	ClientSettings.ShowFPS = CheckBoxShowFPS->Checked;
+
+	ClientSettings.WndCoords.l = this->Left;
+	ClientSettings.WndCoords.t = this->Top;
+	ClientSettings.WndCoords.w = this->Width;
+	ClientSettings.WndCoords.h = this->Height;
+	ClientSettings.WndCoords.ws = (int)this->WindowState;
 
 	Settings.SetSettings(&ClientSettings);
 	Settings.Save();

@@ -36,6 +36,7 @@ struct WndCoordsStruct {
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 struct ServerSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {
+	WndCoordsStruct WndCoords;
 	bool ConnectAsClient;
 	bool RemoveWallpaper;
 	bool MultithreadScreenshot;

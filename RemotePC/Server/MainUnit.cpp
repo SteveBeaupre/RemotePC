@@ -28,8 +28,6 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	Position = poDefault;
 	Left = 15;
 	Top  = 20;
-	#else
-	Position = poDesktopCenter;
 	#endif
 
 	char AppCaption[256];
@@ -81,6 +79,20 @@ void __fastcall TMainForm::LoadSettings()
 	CheckBoxConnectAsClient->Checked = pSettings->ConnectAsClient;
 	CheckBoxRemoveWallpaper->Checked = pSettings->RemoveWallpaper;
 	CheckBoxMultithreaded->Checked   = pSettings->MultithreadScreenshot;
+
+	this->Position = poDesktopCenter;
+
+	/*if(pSettings->WndCoords.l == 0 || pSettings->WndCoords.t == 0 || pSettings->WndCoords.w == 0 || pSettings->WndCoords.h == 0){
+		#ifndef _DEBUG
+		this->Position = poDesktopCenter;
+		#endif
+		return;
+	}
+
+	this->Left   = pSettings->WndCoords.l;
+	this->Top    = pSettings->WndCoords.t;
+	this->Width  = pSettings->WndCoords.w;
+	this->Height = pSettings->WndCoords.h;*/
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::SaveSettings()
@@ -97,6 +109,12 @@ void __fastcall TMainForm::SaveSettings()
 	ServerSettings.ConnectAsClient = CheckBoxConnectAsClient->Checked;
 	ServerSettings.RemoveWallpaper = CheckBoxRemoveWallpaper->Checked;
 	ServerSettings.MultithreadScreenshot = CheckBoxMultithreaded->Checked;
+
+	ServerSettings.WndCoords.l = this->Left;
+	ServerSettings.WndCoords.t = this->Top;
+	ServerSettings.WndCoords.w = this->Width;
+	ServerSettings.WndCoords.h = this->Height;
+	ServerSettings.WndCoords.ws = 0;
 
 	Settings.SetSettings(&ServerSettings);
 	Settings.Save();
