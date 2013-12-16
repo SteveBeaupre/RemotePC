@@ -106,11 +106,11 @@ bool CRegistry::LoadInteger(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, void *pBu
 
 	DWORD dwSizeOfValue = sizeof(DWORD);
 
-	if(DoesValueExist(HKEY_CURRENT_USER, SubKey, Value)){
-		GetValue(HKEY_CURRENT_USER, SubKey, Value, REG_DWORD, pBuffer, &dwSizeOfValue);
+	if(DoesValueExist(MainKey, SubKey, Value)){
+		GetValue(MainKey, SubKey, Value, REG_DWORD, pBuffer, &dwSizeOfValue);
 		return true;
 	} else {
-		SetValue(HKEY_CURRENT_USER, SubKey, Value, REG_DWORD, pBuffer, dwSizeOfValue);
+		SetValue(MainKey, SubKey, Value, REG_DWORD, pBuffer, dwSizeOfValue);
 	}
 
 	return false;
@@ -118,7 +118,7 @@ bool CRegistry::LoadInteger(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, void *pBu
 
 void CRegistry::SaveInteger(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, void *pBuffer)
 {
-	SetValue(HKEY_CURRENT_USER, SubKey, Value, REG_DWORD, pBuffer, sizeof(DWORD));
+	SetValue(MainKey, SubKey, Value, REG_DWORD, pBuffer, sizeof(DWORD));
 }
 
 bool CRegistry::LoadString(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, void *pBuffer, int BufSize, char *pDefaultValue)
@@ -129,11 +129,11 @@ bool CRegistry::LoadString(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, void *pBuf
 
 	DWORD dwSizeOfValue = BufSize;
 
-	if(DoesValueExist(HKEY_CURRENT_USER, SubKey, Value)){
-		GetValue(HKEY_CURRENT_USER, SubKey, Value, REG_SZ, pBuffer, &dwSizeOfValue);
+	if(DoesValueExist(MainKey, SubKey, Value)){
+		GetValue(MainKey, SubKey, Value, REG_SZ, pBuffer, &dwSizeOfValue);
 		return true;
 	} else {
-		SetValue(HKEY_CURRENT_USER, SubKey, Value, REG_SZ, pBuffer, dwSizeOfValue);
+		SetValue(MainKey, SubKey, Value, REG_SZ, pBuffer, dwSizeOfValue);
 	}
 
 	return false;
@@ -141,7 +141,7 @@ bool CRegistry::LoadString(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, void *pBuf
 
 void CRegistry::SaveString(HKEY MainKey, LPCSTR SubKey, LPCSTR Value, void *pBuffer, int BufSize)
 {
-	SetValue(HKEY_CURRENT_USER, SubKey, Value, REG_SZ, pBuffer, BufSize);
+	SetValue(MainKey, SubKey, Value, REG_SZ, pBuffer, BufSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

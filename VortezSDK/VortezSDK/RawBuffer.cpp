@@ -79,6 +79,30 @@ void CRawBuffer::Resize(UINT NewSize)
 	}
 }
 
+DWORD CRawBuffer::Hash()
+{
+	if(BufSize > 0){
+		CCRC32 crc;
+		return crc.Generate(pBuf, BufSize);
+	}
+
+	return 0;
+}
+
+void CRawBuffer::Encrypt(UINT Key)
+{
+	if(BufSize > 0){
+		CEncryptor Encryptor;
+		Encryptor.Initialize(&Key, sizeof(UINT));
+		Encryptor.Encrypt(pBuf, BufSize);
+	}
+}
+
+void CRawBuffer::Decrypt(UINT Key)
+{
+	Encrypt(Key);
+}
+
 #ifndef COMPILE_FOR_BORLAND
 bool CRawBuffer::Allocate(UINT Size, BOOL EraseBuf)
 #else

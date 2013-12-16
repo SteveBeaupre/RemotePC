@@ -13,6 +13,7 @@ CClientSettings Settings;
 //---------------------------------------------------------------------------
 CKbHookDllStub KbHookDllStub;
 void __cdecl OnKeyEvent(DWORD wParam, DWORD lParam);
+//---------------------------------------------------------------------------
 WndCoordsStruct WndCoords;
 //---------------------------------------------------------------------------
 __fastcall TMainForm::TMainForm(TComponent* Owner)
@@ -269,7 +270,7 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		break;
 	}
 
-	TForm::WndProc(Message); // Default processing for any other message
+	TForm::WndProc(Message);
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::ButtonConnectClick(TObject *Sender)

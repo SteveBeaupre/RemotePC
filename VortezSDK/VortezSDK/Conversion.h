@@ -1,5 +1,4 @@
-#ifndef _CONVERSION_H_
-#define _CONVERSION_H_
+#pragma once
 
 #include "PreProc.h"
 
@@ -21,9 +20,8 @@ UI64          _EXP_FUNC LARGE_INTEGERToUI64(LARGE_INTEGER li);
 UI64 _EXP_FUNC SectorsToBytes(UI64 NumSectors, DWORD SectorSize);
 UI64 _EXP_FUNC BytesToSectors(UI64 NumBytes, DWORD SectorSize);
 
-#ifndef RAD_STUDIO_XE
-DWORD _EXP_FUNC LODWORD(UI64 qword);
-DWORD _EXP_FUNC HIDWORD(UI64 qword);
-#endif
+//#ifndef RAD_STUDIO_XE
+unsigned int _EXP_FUNC GetLoDWORD(UI64 qword);
+unsigned int _EXP_FUNC GetHiDWORD(UI64 qword);
+//#endif
 
-#endif //--_CONVERSION_H_

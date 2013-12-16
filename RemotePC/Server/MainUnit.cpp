@@ -237,7 +237,7 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		break;
 	}
 
-	TForm::WndProc(Message); // Default processing for any other message
+	TForm::WndProc(Message);
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::ButtonListenClick(TObject *Sender)

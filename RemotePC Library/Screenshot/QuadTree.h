@@ -1,14 +1,13 @@
-#ifndef C_QUADTREE_H
-#define C_QUADTREE_H
-#ifdef __cplusplus
-
+#pragma once
+//----------------------------------------------------------------------//
 #include <Windows.h>
 #include <Stdio.h>
 #include "SafeKill.h"
-
+//----------------------------------------------------------------------//
 #define ROOT_NODE    0
 #define LEAF_NODE    1
 #define LINK_NODE    2
+//----------------------------------------------------------------------//
 
 //----------------------------------------------------------------------//
 // The  QuadTreeStruct Structure Def.
@@ -60,6 +59,3 @@ public:
 	DWORD ExtractTreeData(QuadTreeStruct *pNode = NULL, DWORD Level = 0, DWORD UncBufferCpt = 0);
 };
 
-
-#endif
-#endif //C_QUADTREE_H

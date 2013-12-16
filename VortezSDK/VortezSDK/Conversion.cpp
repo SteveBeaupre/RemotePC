@@ -60,13 +60,13 @@ UI64 BytesToSectors(UI64 NumBytes, DWORD SectorSize)
 	return Res;
 }
 
-DWORD LODWORD(UI64 qword)
+unsigned int GetLoDWORD(UI64 qword)
 {
 	DWORD Res = (DWORD)qword;
 	return Res;
 }
 
-DWORD HIDWORD(UI64 qword)
+unsigned int GetHiDWORD(UI64 qword)
 {
 	DWORD Res = (DWORD)(qword >> 32);
 	return Res;

@@ -9,6 +9,8 @@
 
 #include "FileIO.h"
 #include "FileSystem.h"
+#include "CRC32.h"
+#include "Encryptor.h"
 
 #ifdef COMPILE_FOR_BORLAND
 class ARawBuffer {
@@ -54,6 +56,11 @@ public:
 	UINT  _INTERNAL_LINKAGE GetStrBufferSize(UINT Indx = 0);
 	void  _INTERNAL_LINKAGE Resize(UINT NewSize);
 	
+	DWORD Hash();
+
+	void Encrypt(UINT Key);
+	void Decrypt(UINT Key);
+
 #ifndef COMPILE_FOR_BORLAND
 	bool  _INTERNAL_LINKAGE Allocate(UINT Size, BOOL EraseBuf = FALSE);
 	void  _INTERNAL_LINKAGE Erase();
@@ -67,7 +74,6 @@ public:
 
 	void  _INTERNAL_LINKAGE Free(){if(this) delete this;}
 #endif
-
 	bool  _INTERNAL_LINKAGE SaveToFile(char *fname, UINT size = 0);
 	bool  _INTERNAL_LINKAGE LoadFromFile(char *fname);
 };
