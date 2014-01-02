@@ -184,7 +184,9 @@ void __fastcall TMainForm::ButtonMakeClick(TObject *Sender)
 	memcpy(&Header.Version[0], &Version[0], VERSION_SIZE);
 
 	Header.PatchHash = InputBuffer.Hash();
+	InputBuffer.SaveToFile("C:\\Temp\\InputNormal.bin");
 	InputBuffer.Encrypt(0xDEADC0DE);
+	InputBuffer.SaveToFile("C:\\Temp\\InputEncrypted.bin");
 	Header.PatchSize = InputFileSize;
 
 	if(!CheckBoxSplit->Checked){
@@ -198,9 +200,7 @@ void __fastcall TMainForm::ButtonMakeClick(TObject *Sender)
 		case 1: Header.PiecesSize *= 1024;
 		}
 
-		UINT NumFilesToCreate = Header.PatchSize / Header.PiecesSize;
-		if(Header.PatchSize % Header.PiecesSize != 0)
-			NumFilesToCreate++;
+		UINT NumFilesToCreate = CalcNumPieces(Header.PatchSize, Header.PiecesSize);
 
 		char ErrMsg[MAX_PATH];
 		ZeroMemory(ErrMsg, MAX_PATH);
@@ -224,22 +224,22 @@ void __fastcall TMainForm::ButtonMakeClick(TObject *Sender)
 	OutputFile.Close();
 
 	UINT i = 0;
-	UINT j = 0;
+	UINT NameIndx = 0;
 	while(i < InputBuffer.GetSize()){
 
 		char fname[MAX_PATH];
 		ZeroMemory(&fname[0], MAX_PATH);
-		sprintf(fname, "%s.%3.3d", &PatchName[0], j++);
+		sprintf(fname, "%s.%3.3d", &PatchName[0], NameIndx);
 
 		if(OutputFile.OpenForWriting(fname)){
+			UINT NumBytesToWrite = CalcPieceSize(Header.PatchSize, Header.PiecesSize, NameIndx);
 
-			UINT NumBytesToWrite = InputBuffer.GetSize() - i;
-			if(NumBytesToWrite > Header.PiecesSize)
-				NumBytesToWrite = Header.PiecesSize;
+			UINT res = OutputFile.Write(InputBuffer.GetBuffer(i), NumBytesToWrite);
+			if(res != NumBytesToWrite)
+				return;
 
-			int res = OutputFile.Write(InputBuffer.GetBuffer(), NumBytesToWrite);
-
-			i += res;
+			i += NumBytesToWrite;
+			NameIndx++;
 		}
 	}
 

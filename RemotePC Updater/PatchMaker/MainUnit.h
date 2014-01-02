@@ -14,7 +14,7 @@
 #pragma comment(lib, "VortezSDK.lib")
 #include "VortezSDK.h"
 //---------------------------------------------------------------------------
-#include "Version.h"
+#include "VersionNumber.h"
 #include "UnicodeToChar.h"
 #include "CompileDateTimeStamp.h"
 //---------------------------------------------------------------------------

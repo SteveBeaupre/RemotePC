@@ -25,30 +25,6 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 {
 }
 //---------------------------------------------------------------------------
-UINT CalcNumPieces(UINT PatchSize, UINT PiecesSize)
-{
-	if(PatchSize == 0)
-		return 0;
-
-	UINT NumPieces = PatchSize / PiecesSize;
-	if(PatchSize % PiecesSize != 0)
-		NumPieces++;
-
-	return NumPieces;
-}
-//---------------------------------------------------------------------------
-UINT CalcPieceSize(UINT n, UINT PatchSize, UINT PiecesSize)
-{
-	if(PatchSize == 0)
-		return 0;
-
-	UINT PieceSize = PatchSize - (PiecesSize*n);
-	if(PieceSize > PiecesSize)
-		PieceSize = PiecesSize;
-
-	return PieceSize;
-}
-//---------------------------------------------------------------------------
 bool IsValidURLChar(char c)
 {
 	static LPCSTR LegalChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~://?#[]@!$&'()*+,;=";
@@ -146,6 +122,10 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 		sprintf(&szCurrentVer[0], "Current Version: %d.%d.%d", CurrentVerNum.GetHi(), CurrentVerNum.GetMd(), CurrentVerNum.GetLo());
 		ListBox->Items->Add(&szCurrentVer[0]);
 	}
+
+	#ifdef _DEBUG
+    ButtonTest->Visible = true;
+	#endif
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::LBClearMenuClick(TObject *Sender)
@@ -289,7 +269,7 @@ void __fastcall TMainForm::ButtonDownloadUpdatesClick(TObject *Sender)
 
 				AddListboxMessageArg(ListBox, "Downloading part #%d of %d, please wait...", i+1, NumPieces);
 
-				UINT PieceSize = CalcPieceSize(i, pHeader->PatchSize, pHeader->PiecesSize);
+				UINT PieceSize = CalcPieceSize(pHeader->PatchSize, pHeader->PiecesSize, i);
 
 				pOut = PatchBuffer.GetBuffer(j);
 
@@ -311,10 +291,12 @@ void __fastcall TMainForm::ButtonDownloadUpdatesClick(TObject *Sender)
 			}
 		}
 
-		//PatchBuffer.SaveToFile("C:\\Temp\\PatchContent.raw");
-
 		PatchBuffer.Decrypt(0xDEADC0DE);
-		if(PatchBuffer.Hash() != pHeader->PatchHash){
+		PatchBuffer.SaveToFile("C:\\Temp\\PatchContent.raw");
+
+		DWORD BufHash = PatchBuffer.Hash();
+
+		if(BufHash != pHeader->PatchHash){
 			ListBox->Items->Add("Patch corrupted: Invalid hash.");
 			return;
 		} else {
@@ -381,8 +363,73 @@ void __fastcall TMainForm::DoUpdates(CRawBuffer* pPatchBuffer)
 
 void __fastcall TMainForm::ButtonTestClick(TObject *Sender)
 {
+	char FileName[MAX_PATH];
+	ZeroMemory(FileName, MAX_PATH);
+
+	LPCSTR SourceFolder = "C:\\Temp\\patch 1.1";
+	LPCSTR UpdateFileName = "Update";
+
+	sprintf(FileName, "%s\\%s.rpc", SourceFolder, UpdateFileName);
+
+	CFileManager FileManager;
+	int HeaderFileSize = FileManager.GetSize("C:\\Temp\\Update.rpc");
+
 	CRawBuffer UpdateBuffer;
-	UpdateBuffer.LoadFromFile("C:\\Temp\\Patch 1.0.0.rpc");
-	DoUpdates(&UpdateBuffer);
+	UpdateBuffer.Allocate(HeaderFileSize);
+	RPCHeader* pHeader = (RPCHeader*)UpdateBuffer.GetBuffer();
+
+	CFileIO f;
+	if(f.OpenForReading(FileName)){
+		f.Read(UpdateBuffer.GetBuffer(), UpdateBuffer.GetSize());
+		f.Close();
+	}
+
+	//UINT PatchFileSizeFromFile   = FileManager.GetSize("C:\\Temp\\PatchContent.exe");
+	//UINT PatchFileSizeFromHeader = pHeader->PatchSize;
+
+	UINT PatchFileSize = pHeader->PatchSize;
+	/*if(PatchFileSizeFromFile != PatchFileSizeFromHeader)
+		return;*/
+
+	CRawBuffer PatchBuffer(PatchFileSize);
+
+	int NumPieces = CalcNumPieces(pHeader->PatchSize, pHeader->PiecesSize);
+
+	int j = 0;
+	for(int i = 0; i < NumPieces; i++){
+
+		ZeroMemory(FileName, MAX_PATH);
+
+		char PatchName[MAX_PATH];
+		ZeroMemory(PatchName, MAX_PATH);
+		memcpy(&PatchName[0], UpdateBuffer.GetBuffer(sizeof(RPCHeader)), pHeader->PatchNameSize);
+
+		sprintf(FileName, "%s\\%s.%3.3d", SourceFolder, PatchName, i);
+
+		if(f.OpenForReading(FileName)){
+			UINT NumBytesToRead = CalcPieceSize(pHeader->PatchSize, pHeader->PiecesSize, i);
+
+			UINT res = f.Read(PatchBuffer.GetBuffer(j), NumBytesToRead);
+			f.Close();
+
+			if(res != NumBytesToRead)
+				return;
+
+			j += res;
+		} else {
+			return;
+		}
+	}
+
+	PatchBuffer.SaveToFile("C:\\Temp\\OutputEncrypted.bin");
+	PatchBuffer.Decrypt(0xDEADC0DE);
+	PatchBuffer.SaveToFile("C:\\Temp\\OutputDecrypted.bin");
+	UINT PatchHash = PatchBuffer.Hash();
+
+	if(PatchHash == pHeader->PatchHash){
+		DoUpdates(&PatchBuffer);
+	} else {
+		ListBox->Items->Add("Patch corrupted: Invalid hash.");
+	}
 }
 

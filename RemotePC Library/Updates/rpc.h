@@ -21,5 +21,8 @@ struct RPCHeader {
 };
 #pragma pack()
 
+UINT CalcNumPieces(UINT PatchSize, UINT PiecesSize);
+UINT CalcPieceSize(UINT PatchSize, UINT PiecesSize, UINT n);
+
 #endif
 #endif //_RPC_FILE_FORMAT_H_
