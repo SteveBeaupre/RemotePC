@@ -1,16 +1,15 @@
 #include "Screenshot.h"
 
-//-----------------------------------------------------------------------------
-// Constructor
-//-----------------------------------------------------------------------------
 CScreenshot::CScreenshot()
 {
+	// Default bmi header size
+	BMISize = sizeof(BITMAPINFOHEADER) + (256 * sizeof(RGBQUAD));
+	bmi.Allocate(BMISize);
+	lpbi = (BITMAPINFO*)bmi.GetBuffer();
+
 	Reset();
 }
 
-//-----------------------------------------------------------------------------
-// Destructor
-//-----------------------------------------------------------------------------
 CScreenshot::~CScreenshot()
 {
 	Reset();
@@ -31,21 +30,13 @@ void CScreenshot::Reset()
 {
 	ResetInfos();
 	ResetBuffer();
+	bmi.Erase();
 }
 
-void CScreenshot::GetScreenSizeAndPos(HWND hDesktopWnd, int *l, int *t, int *w, int *h)
-{
-	RECT r;
-	GetWindowRect(hDesktopWnd, &r);
+//----------------------------------------------------------------------//
+//----------------------------------------------------------------------//
+//----------------------------------------------------------------------//
 
-	*l = r.left;
-	*t = r.top;
-	*w = r.right  - r.left;
-	*h = r.bottom - r.top;
-}
-//-----------------------------------------------------------------------------
-// Draw the cursor
-//-----------------------------------------------------------------------------
 void CScreenshot::DrawCursor(HDC hDC)
 {
 #ifdef RAD_STUDIO_XE
@@ -72,7 +63,77 @@ void CScreenshot::DrawCursor(HDC hDC)
 #endif
 }
 
-int CScreenshot::Take()
+//----------------------------------------------------------------------//
+
+void CScreenshot::Take(ScrFormat Format)
+{
+	int x,y,w,h;
+	HWND hDesktopWnd = GetScreenInfo(&x,&y,&w,&h);
+
+	// Generate a color palette if in bmi mode
+	int bpp = 32;
+	switch(Format)
+	{
+	case scrf_32: bpp = 32; break;
+	case scrf_16: bpp = 16; break;
+	case scrf_8c: 
+	case scrf_8g: bpp = 8;  break;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////////
+
+	Info.Format = Format;
+	Info.Width  = w;
+	Info.Height = h;
+	Info.NumPixels = w * h;
+	Info.BitsPerPixel  = bpp;
+	Info.BytesPerPixel = bpp / 8;
+	Info.BufferSize = w * h * Info.BytesPerPixel;
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+
+	// Fill it
+	FillBMIHeader(w, h, bpp);
+
+	if(bpp == 8)
+		GenPalette(Format == scrf_8g);
+
+	///////////////////////////////////////////////////////////////////////////////////////
+
+	// Get the desktop windows dc and create one for our bitmap
+	HDC hdc   = GetDC(hDesktopWnd);
+	HDC hdcex = CreateCompatibleDC(hdc);
+
+	// Create the original hbitmap
+	HBITMAP hbmp = CreateCompatibleBitmap(hdc, w,h);
+
+	// Convert the original bitmap and get it's pixels data
+	BYTE *pixels = NULL;
+	HBITMAP hbmpex = CreateDIBSection(hdcex, lpbi, DIB_RGB_COLORS, (void**)&pixels, NULL, 0);
+
+	// Select the modified bitmap and blit the original into it
+	SelectObject(hdcex, hbmpex);
+	BitBlt(hdcex,0,0,w,h, hdc,x,y, SRCCOPY);
+	
+	// Draw the cursor...
+	DrawCursor(hdcex);
+
+	// Copy to buffer
+	Buffer.Allocate(Info.BufferSize, TRUE);
+	memcpy(Buffer.GetBuffer(), pixels, Info.BufferSize);
+
+	///////////////////////////////////////////////////////////////////////////////////////
+
+	// Cleanup
+	DeleteObject(hbmpex);
+	DeleteObject(hbmp);
+	DeleteDC(hdcex);
+	ReleaseDC(hDesktopWnd, hdc);
+}
+
+//----------------------------------------------------------------------//
+
+/*void CScreenshot::Take(ScrFormat Format)
 {
 	CRawBuffer BitmapInfo;
 
@@ -82,10 +143,20 @@ int CScreenshot::Take()
 	int x,y,w,h;
 	GetScreenSizeAndPos(hDesktopWnd, &x, &y, &w, &h);
 
+	Info.Format = Format;
+
 	Info.Width  = w;
 	Info.Height = h;
 	Info.NumPixels = w * h;
-	Info.BitsPerPixel  = 32;
+
+	switch(Format)
+	{
+	case scrf_32: Info.BitsPerPixel = 32; break;
+	case scrf_16: Info.BitsPerPixel = 16; break;
+	case scrf_8c: 
+	case scrf_8g: Info.BitsPerPixel = 8;  break;
+	}
+
 	Info.BytesPerPixel = Info.BitsPerPixel / 8;
 	Info.BufferSize    = Info.NumPixels * Info.BytesPerPixel;
 
@@ -120,12 +191,32 @@ int CScreenshot::Take()
 	// Get information about the screenshot image format
 	GetDIBits(s_hdc, hbmp, 0, h, NULL, lpbi, DIB_RGB_COLORS);
 	lpbi->bmiHeader.biCompression = BI_RGB;
-	// Make sure it's gonna be extracted in 32 bits format
+	// Make sure it's gonna be extracted in the desired bits format
 	lpbi->bmiHeader.biBitCount  = Info.BitsPerPixel;
 	lpbi->bmiHeader.biSizeImage = Buffer.GetSize();
 
-	// Extract the image in 32 bits format
+	// Generate a custom color palette for grayscale mode
+	if(Format == scrf_8g){
+		for(int i = 0; i < 256; i++){
+			lpbi->bmiColors[i].rgbRed = i;
+			lpbi->bmiColors[i].rgbGreen = i;
+			lpbi->bmiColors[i].rgbBlue = i;
+			lpbi->bmiColors[i].rgbReserved = 0;
+		}
+	}
+
+	// Extract the image
 	GetDIBits(s_hdc, hbmp, 0, h, Buffer.GetBuffer(), lpbi, DIB_RGB_COLORS);
+
+	static bool Init = false;
+	if(!Init){
+		char fname[MAX_PATH];
+		ZeroMemory(fname, MAX_PATH);
+		sprintf(fname, "C:\\Temp\\%d-bits screenshot.raw", Info.BitsPerPixel);
+
+		Buffer.SaveToFile(fname);
+		Init = true;
+	}
 
 	// Release the bitmap handles
 	if(SelectObject(s_hdc, hbmp)){
@@ -134,13 +225,93 @@ int CScreenshot::Take()
 	}
 
 	ReleaseDC(hDesktopWnd, hdc);
+}*/
 
-	return Buffer.GetSize();
+//----------------------------------------------------------------------//
+
+void CScreenshot::FillBMIHeader(int w, int h, int bpp)
+{
+	bmi.Erase();
+	lpbi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	lpbi->bmiHeader.biWidth = w;
+	lpbi->bmiHeader.biHeight = h;
+	lpbi->bmiHeader.biPlanes = 1;
+	lpbi->bmiHeader.biBitCount = bpp;
+	lpbi->bmiHeader.biCompression = BI_RGB;
+	lpbi->bmiHeader.biSizeImage = w * h * (bpp / 8);
+	lpbi->bmiHeader.biXPelsPerMeter = 1000000;
+	lpbi->bmiHeader.biYPelsPerMeter = 1000000;
 }
 
-void CScreenshot::CreateEmpty(int Width, int Height, int BitsPerPixel)
+//----------------------------------------------------------------------//
+
+void CScreenshot::GenPalette(bool Grayscale)
 {
-	Info.Width = Width;
+	// 8-bits color palette stuff...
+	int ncols = 256;
+	lpbi->bmiHeader.biClrUsed = ncols;
+	lpbi->bmiHeader.biClrImportant = ncols;
+
+	// Generate the palette
+	switch(Grayscale)
+	{
+	case false: CreateBGR233Palette(ncols);    break;
+	case true:  CreateGrayscalePalette(ncols); break;
+	}
+}
+
+//----------------------------------------------------------------------//
+
+void CScreenshot::CreateGrayscalePalette(int ncols)
+{
+	for(int i = 0; i < ncols; i++){
+		lpbi->bmiColors[i].rgbRed   = i;
+		lpbi->bmiColors[i].rgbGreen = i;
+		lpbi->bmiColors[i].rgbBlue  = i;
+	}
+}
+
+//----------------------------------------------------------------------//
+
+void CScreenshot::CreateBGR233Palette(int ncols)
+{
+	static const BYTE _2_bits_index[4] = {0x00, 0x55, 0xAA, 0xFF};
+	static const BYTE _3_bits_index[8] = {0x00, 0x24, 0x49, 0x6D, 0x92, 0xB6, 0xDB, 0xFF};
+
+	for(int i = 0; i < ncols; i++){
+
+		int ri = (i & 0x07);
+		int gi = (i & 0x38) >> 3;
+		int bi = (i & 0xC0) >> 6;
+
+		lpbi->bmiColors[i].rgbRed   = _3_bits_index[ri];
+		lpbi->bmiColors[i].rgbGreen = _3_bits_index[gi];
+		lpbi->bmiColors[i].rgbBlue  = _2_bits_index[bi];
+	}
+}
+
+//----------------------------------------------------------------------//
+
+HWND CScreenshot::GetScreenInfo(int *x, int *y, int *w, int *h)
+{
+	RECT r;
+	HWND hDesktopWnd = GetDesktopWindow();
+	GetWindowRect(hDesktopWnd, &r);
+
+	*x = r.left;
+	*y = r.top;
+	*w = r.right  - r.left;
+	*h = r.bottom - r.top;
+
+	return hDesktopWnd;
+}
+
+//----------------------------------------------------------------------//
+
+void CScreenshot::CreateEmpty(ScrFormat Format, int Width, int Height, int BitsPerPixel)
+{
+	Info.Format = Format;
+	Info.Width  = Width;
 	Info.Height = Height;
 	Info.NumPixels = Width * Height;
 	Info.BitsPerPixel = BitsPerPixel;

@@ -6,10 +6,17 @@
 #include "Windows.h"
 #include "stdio.h"
 //----------------------------------------------------------------------//
+#include "VortezSDK.h"
 #include "MsgIDs.h"
 //----------------------------------------------------------------------//
 
 #define MAX_LOGIN_INFO_LEN   32
+
+enum LoginResults {
+	NoErrors = 0,
+	InvalidPassword,
+	InvalidAuthorizationCode,
+};
 
 struct LoginInfoStruct {
 	BYTE AuthCode[MAX_LOGIN_INFO_LEN];
@@ -18,7 +25,7 @@ struct LoginInfoStruct {
 };
 
 struct LoginResultStruct {
-	BOOL LogedIn;
+	LoginResults Result;
 	WORD ScrWidth;
 	WORD ScrHeight;
 };
@@ -26,7 +33,7 @@ struct LoginResultStruct {
 class ILoginInfo : public LoginInfoStruct {
 public:
 	virtual void Reset() = 0;
-	virtual bool CompareLoginInfo(LoginInfoStruct *pInfo) = 0;
+	virtual LoginResults CompareLoginInfo(LoginInfoStruct *pInfo) = 0;
 
 	virtual char* GetName() = 0;
 	virtual char* GetPassword() = 0;

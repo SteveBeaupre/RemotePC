@@ -7,16 +7,17 @@
 #include "stdio.h"
 //----------------------------------------------------------------------//
 #include "ILoginInfo.h"
+#include "VersionNumber.h"
 //----------------------------------------------------------------------//
 
 class CLoginInfo : public ILoginInfo {
 public:
 	CLoginInfo();
 private:
-	void SetAuthCode();
+	void GenAuthCode();
 public:
 	void Reset();
-	bool CompareLoginInfo(LoginInfoStruct *pInfo);
+	LoginResults CompareLoginInfo(LoginInfoStruct *pInfo);
 
 	char* GetName();
 	char* GetPassword();

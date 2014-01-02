@@ -15,9 +15,8 @@
 #define REG_PROG_KEY "SOFTWARE\\RemotePC 2014"
 
 //----------------------------------------------------------------------//
-//----------------------------------------------------------------------//
-//----------------------------------------------------------------------//
 #pragma pack(1)
+//----------------------------------------------------------------------//
 struct LanguageSettingsStruct {
 	int LangID;
 };
@@ -34,7 +33,6 @@ struct WndCoordsStruct {
 };
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
-//----------------------------------------------------------------------//
 struct ServerSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {
 	WndCoordsStruct WndCoords;
 	bool ConnectAsClient;
@@ -44,13 +42,13 @@ struct ServerSettingsStruct : public ConnectionSettingsStruct, public LanguageSe
 //----------------------------------------------------------------------//
 struct ClientSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {
 	WndCoordsStruct WndCoords;
+	UINT ColorDepth;
 	bool ConnectAsServer;
 	bool ShowFPS;
 	bool Stretch;
 };
+//----------------------------------------------------------------------//
 #pragma pack()
-//----------------------------------------------------------------------//
-//----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 
 class IRemotePCSettings {

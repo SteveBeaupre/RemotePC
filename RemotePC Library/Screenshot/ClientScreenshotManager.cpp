@@ -23,10 +23,10 @@ void CClientScreenshotManager::Decompress(BYTE *pCompressedBuffer, DWORD Compres
 	CompressedScreenshotInfoStruct CompressionHeader;
 	memcpy(&CompressionHeader, pCompressedBuffer, CompressedHeaderSize);
 
-	int w, h, BPP, UncSize;
+	int w, h, BytesPerPixel, UncSize;
 	w = CompressionHeader.Width;
 	h = CompressionHeader.Height;
-	BPP = CompressionHeader.BitsPerPixel / 8;
+	BytesPerPixel = CompressionHeader.BitsPerPixel / 8;
 	UncSize = CompressionHeader.UncompressedSize;
 
 	UncompressedBuffer.Allocate(UncSize);
@@ -41,16 +41,17 @@ void CClientScreenshotManager::Decompress(BYTE *pCompressedBuffer, DWORD Compres
 		
 		// Check for error
 		if(Res == 0){
-			pInfo->Width   = 0;
-			pInfo->Height  = 0;
-			pInfo->BPP     = 0;
+			pInfo->Width  = 0;
+			pInfo->Height = 0;
+			pInfo->BitsPerPixel = 0;
+			pInfo->Format = scrf_32;
 			pInfo->pBuffer = NULL;
 			return;
 		}
 	}
 	
 	int NumPixels = w * h;
-	int BufSize = NumPixels * BPP;
+	int BufSize = NumPixels * BytesPerPixel;
 
 	if(OpenGLBuffer.GetBufferSize() != (UINT)BufSize)
 		OpenGLBuffer.Allocate(BufSize);
@@ -71,18 +72,19 @@ void CClientScreenshotManager::Decompress(BYTE *pCompressedBuffer, DWORD Compres
 		// Copy and decode the data, line per line
 		for(int CptLines = 0; CptLines < TexInfo.Height; CptLines++){
 
-			DWORD GLIndx = TexInfo.Offset + ((w * BPP) * CptLines);
+			DWORD GLIndx = TexInfo.Offset + ((w * BytesPerPixel) * CptLines);
 
 			// Copy a line of data
-			memcpy(OpenGLBuffer.GetBuffer(GLIndx), UncompressedBuffer.GetBuffer(BufIndx), TexInfo.Width * BPP);		
+			memcpy(OpenGLBuffer.GetBuffer(GLIndx), UncompressedBuffer.GetBuffer(BufIndx), TexInfo.Width * BytesPerPixel);		
 
 			// Update the unc. buffer index
-			BufIndx += TexInfo.Width * BPP;
+			BufIndx += TexInfo.Width * BytesPerPixel;
 		}
 	}
 
-	pInfo->Width   = w;
-	pInfo->Height  = h;
-	pInfo->BPP     = BPP;
+	pInfo->Width  = w;
+	pInfo->Height = h;
+	pInfo->BitsPerPixel = CompressionHeader.BitsPerPixel;
+	pInfo->Format = CompressionHeader.Format;
 	pInfo->pBuffer = &OpenGLBuffer;
 }

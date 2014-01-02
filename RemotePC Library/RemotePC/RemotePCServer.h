@@ -16,6 +16,7 @@ public:
 	~CRemotePCServer();
 private:
 	bool MultithreadedScreenshot;
+private:
 	CLoginInfo LoginInfo;
 	CServerScreenshotManager ScreenshotManager;
 	CServerInputs ServerInputs;
@@ -29,12 +30,12 @@ public:
 
 	void SetLoginInfo(char *pUserName, char *pPassword);
 	void OnLoginRequest(LoginInfoStruct *pInfo);
-	void SendLoginResult(bool Succeded);
+	void SendLoginResult(LoginResults Results);
 	
 	void StartScreenshotThread();
 	void WaitForScreenshotThreadToFinish();
 
-	void OnScreenshotRequest();
+	void OnScreenshotRequest(ScrFormat *pFormat);
 	void SendScreenshot(CRawBuffer *pBuffer);
 
 	void OnMouseMsg(CMouseInputMsgStruct* pMsg);

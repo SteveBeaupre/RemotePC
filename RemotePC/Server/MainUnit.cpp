@@ -147,8 +147,6 @@ void __fastcall TMainForm::EnableUI()
 	EditPort->Enabled = true;
 	EditPassword->Enabled = true;
 	LanguageMenu->Enabled = true;
-	if(CheckBoxRemoveWallpaper->Checked)
-		Wallpaper.RestoreWallpaper();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DisableUI()
@@ -188,8 +186,8 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 			pRemotePCServer->Reset();
 
 			// Remove the wallpaper
-			if(CheckBoxRemoveWallpaper)
-				Wallpaper.RemoveWallpaper();
+			if(CheckBoxRemoveWallpaper->Checked)
+				Wallpaper.Remove();
 
 			// Setup multithreaded screenshot stuffs
 			pRemotePCServer->SetMultiThreadedMode(CheckBoxMultithreaded->Checked);
@@ -205,10 +203,14 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		AddListboxMessageArg(ListBox, szOnDisconnect[LangID]);
 		if(pRemotePCServer)
 			pRemotePCServer->StopThread();
+		if(CheckBoxRemoveWallpaper->Checked)
+			Wallpaper.Restore();
 		EnableUI();
 		break;
 	case ON_CONNECTION_LOST:
 		AddListboxMessageArg(ListBox, szOnConnectionLoss[LangID]);
+		if(CheckBoxRemoveWallpaper->Checked)
+			Wallpaper.Restore();
 		EnableUI();
 		break;
 	case ON_CONNECTION_CANCELED:
@@ -229,10 +231,18 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		break;
 
 	case ON_LOGIN:
-		switch(Message.WParam)
+		switch((LoginResults)Message.LParam)
 		{
-		case TRUE:  AddListboxMessageArg(ListBox, szOnServerLoginSucess[LangID]); break;
-		case FALSE:	AddListboxMessageArg(ListBox, szOnServerLoginFailed[LangID]); break;
+		case NoErrors:
+			AddListboxMessageArg(ListBox, szOnLoginSucess[LangID]);
+			break;
+		case InvalidPassword:
+			AddListboxMessageArg(ListBox, szOnLoginFailedInvPass[LangID]);
+			break;
+		case InvalidAuthorizationCode:
+			AddListboxMessageArg(ListBox, szOnLoginFailedInvAuth[LangID]);
+			AddListboxMessageArg(ListBox, szOnLoginFailedInvAuthTip[LangID]);
+			break;
 		}
 		break;
 	}

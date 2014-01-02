@@ -68,6 +68,7 @@ __published:	// IDE-managed Components
 	TPanel *ViewerPanel;
 	TScrollBox *ScrollBox;
 	TDesktopViewer *DesktopViewer;
+	TComboBox *ComboBoxScrFormat;
 	void __fastcall ButtonConnectClick(TObject *Sender);
 	void __fastcall ButtonDisconnectClick(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
@@ -88,6 +89,7 @@ __published:	// IDE-managed Components
 	void __fastcall EnglishMenuClick(TObject *Sender);
 	void __fastcall FrenchMenuClick(TObject *Sender);
 	void __fastcall CloseMenuClick(TObject *Sender);
+	void __fastcall ComboBoxScrFormatChange(TObject *Sender);
 private:	// User declarations
 	void __fastcall SaveScreenCoordinates();
 	void __fastcall RestoreScreenCoordinates();

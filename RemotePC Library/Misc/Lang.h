@@ -48,18 +48,19 @@ LPCSTR szOneInstanceErrMsg[2] = {
 
 /////////////////////////////////////////////////////////////////////////
 
-LPCSTR szOnConnectionThreadStartedAsServer[2] = {"Listening...",                           "En attente de connection..."};
-LPCSTR szOnConnectionThreadStartedAsClient[2] = {"Connecting...",                          "Connection..."};
-LPCSTR szOnConnectionEstablished[2]           = {"Connection established.",                "Connection établie."};
-LPCSTR szOnDisconnect[2]                      = {"Disconnected.",                          "Déconnecter."};
-LPCSTR szOnConnectionLoss[2]                  = {"Connection closed by peer.",             "Connexion fermée Par l'hôte distant."};
-LPCSTR szOnConnectionCanceled[2]              = {"Connection canceled.",                   "Connection cancelée."};
-LPCSTR szOnConnectionFailed[2]                = {"Connection failed. (attempt #%d of %d)", "Connection échouer. (essai #%d of %d)"};
-LPCSTR szOnConnectionTimedOut[2]              = {"Unable to connect to server.",           "Server introuvable."};
-LPCSTR szOnServerLoginSucess[2]               = {"Peer loged In Sucessfully.",             "Hote indentification réussit."};
-LPCSTR szOnServerLoginFailed[2]               = {"Peer login failed.",                     "Hote indentification échouer."};
-LPCSTR szOnClientLoginSucess[2]               = {"Peer loged In Sucessfully.",             "Hote indentification réussit."};
-LPCSTR szOnClientLoginFailed[2]               = {"Peer login failed.",                     "Hote indentification échouer."};
+LPCSTR szOnConnectionThreadStartedAsServer[2] = {"Listening...",                              "En attente de connection..."};
+LPCSTR szOnConnectionThreadStartedAsClient[2] = {"Connecting...",                             "Connection..."};
+LPCSTR szOnConnectionEstablished[2]           = {"Connection established.",                   "Connection établie."};
+LPCSTR szOnDisconnect[2]                      = {"Disconnected.",                             "Déconnecter."};
+LPCSTR szOnConnectionLoss[2]                  = {"Connection closed by peer.",                "Connexion fermée Par l'hôte distant."};
+LPCSTR szOnConnectionCanceled[2]              = {"Connection canceled.",                      "Connection cancelée."};
+LPCSTR szOnConnectionFailed[2]                = {"Connection failed. (attempt #%d of %d)",    "Connection échouer. (essai #%d of %d)"};
+LPCSTR szOnConnectionTimedOut[2]              = {"Unable to connect to server.",              "Server introuvable."};
+LPCSTR szOnLoginSucess[2]                     = {"User loged In Sucessfully.",                "L'indentification de l'hote réussit."};
+LPCSTR szOnLoginFailedInvPass[2]              = {"User login failed: Invalid Password.",      "L'indentification de l'hote a échouer: Password invalide."};
+LPCSTR szOnLoginFailedInvAuth[2]              = {"User login failed: Incompatible versions.", "L'indentification de l'hote a échouer: Version incompatibles."};
+LPCSTR szOnLoginFailedInvAuthTip[2]           = {"Please download the latest update.",        "Veuiller downloader la derniere version."};
+
 
 /*
 LPCSTR szClient_OnConnectionThreadStarted[2] = {"Connecting to %s Port %d...",                                   "Connection a %s Port %d..."};

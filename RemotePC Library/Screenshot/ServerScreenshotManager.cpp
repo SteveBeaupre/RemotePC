@@ -2,6 +2,7 @@
 
 CServerScreenshotManager::CServerScreenshotManager()
 {
+	SetFormat(scrf_32);
 	Reset();
 }
 
@@ -12,6 +13,13 @@ CServerScreenshotManager::~CServerScreenshotManager()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void CServerScreenshotManager::SetFormat(ScrFormat Format)
+{
+	ScreenshotFormat = Format;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CServerScreenshotManager::SwapBuffers()
@@ -34,24 +42,15 @@ void CServerScreenshotManager::Reset()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-DWORD WINAPI ScreenshotThreadFunc(void *params)
-{
-	CServerScreenshotManager* pScreenshotManager = (CServerScreenshotManager*)params;
-	
-	pScreenshotManager->Take();
-
-	return 0;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void CServerScreenshotManager::Take()
 {
-	pBackBuffer->Take();
+	pBackBuffer->Take(ScreenshotFormat);
+	
 	AdjustFrontBuffer();
 
 	Pack();
 	Compress();
+
 	SwapBuffers();
 }
 
@@ -61,9 +60,16 @@ void CServerScreenshotManager::Take()
 
 void CServerScreenshotManager::AdjustFrontBuffer()
 {
-	// Make sure an empty buffer is allocated if that's the first frame or if the screen size changed
-	if(pFrontBuffer->GetBufferSize() != pBackBuffer->GetBufferSize())
-		pFrontBuffer->CreateEmpty(pBackBuffer->GetWidth(), pBackBuffer->GetHeight(), pBackBuffer->GetBitsPerPixel());
+	int bsize = pBackBuffer->GetBufferSize();
+	int fsize = pFrontBuffer->GetBufferSize();
+
+	if(fsize != bsize){
+		int bWidth  = pBackBuffer->GetWidth();
+		int bHeight = pBackBuffer->GetHeight();
+		int bBPP    = pBackBuffer->GetBitsPerPixel();
+
+		pFrontBuffer->CreateEmpty(GetFormat(), bWidth, bHeight, bBPP);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,13 +111,6 @@ void CServerScreenshotManager::Pack()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int CServerScreenshotManager::EstimateCompressedBufferSize(int UncompressedSize)
-{
-	return (int)(((float)UncompressedSize * 1.1f) + 12.0f);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void CServerScreenshotManager::Compress()
 {
 	// Store the uncompressed size and return 0 if empty
@@ -127,6 +126,7 @@ void CServerScreenshotManager::Compress()
 	CompressedScreenshotInfoStruct CompressionHeader;
 	CompressionHeader.Width  = pBackBuffer->GetWidth();
 	CompressionHeader.Height = pBackBuffer->GetHeight();
+	CompressionHeader.Format = pBackBuffer->GetFormat();
 	CompressionHeader.BitsPerPixel = pBackBuffer->GetBitsPerPixel();
 	CompressionHeader.UncompressedSize = UncompressedSize;
 
@@ -143,10 +143,32 @@ void CServerScreenshotManager::Compress()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+int CServerScreenshotManager::EstimateCompressedBufferSize(int UncompressedSize)
+{
+	return (int)(((float)UncompressedSize * 1.1f) + 12.0f);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+DWORD WINAPI ScreenshotThreadFunc(void *params)
+{
+	CServerScreenshotManager* pScreenshotManager = (CServerScreenshotManager*)params;
+	
+	pScreenshotManager->Take();
+
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 bool CServerScreenshotManager::IsScreenshotThreadedRunning()
 {
 	return ScreenshotTread.IsThreadRunning();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CServerScreenshotManager::WaitForScreenshotThreadToFinish()
 {

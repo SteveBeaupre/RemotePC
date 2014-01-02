@@ -14,6 +14,7 @@
 #include <gl\glu.h>
 #include "glext.h"
 //----------------------------------------------------------------------//
+#include "Screenshot.h"
 #include "BitmapFonts.h"
 #include "Timer.h"
 #include "Lock.h"
@@ -44,10 +45,9 @@ struct RenderSettingsStruct {
 struct TextureStruct {
 	UINT Width;
 	UINT Height;
-	UINT BPP;
+	ScrFormat Format;
 
 	UINT ID;
-	UINT Format;
 
 	UINT BufferSize;
 };
@@ -75,7 +75,7 @@ public:
 
 	virtual void CreateTexture() = 0;
 	virtual void DeleteTexture() = 0;
-	virtual void LoadTexture(BYTE *pTex, UINT w, UINT h, UINT bpp, UINT format) = 0;
+	virtual void LoadTexture(BYTE *pTex, UINT w, UINT h, ScrFormat Format) = 0;
 
 	virtual void Set2DMode(int w, int h) = 0;
 	

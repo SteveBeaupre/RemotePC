@@ -3,6 +3,7 @@
 CRemotePCClient::CRemotePCClient()
 {
 	hRendererWnd = NULL;
+	ScreenshotFormat = scrf_32;
 }
 
 CRemotePCClient::~CRemotePCClient()
@@ -92,7 +93,26 @@ void CRemotePCClient::OnLoginResult(LoginResultStruct* pLoginResult)
 {
 	GetNetManager()->GetLog()->Log("Login result received\n");
 
-	PostMessage(GetHostWnd(), ON_LOGIN, pLoginResult->LogedIn, 0);
+	PostMessage(GetHostWnd(), ON_LOGIN, (BOOL)(pLoginResult->Result == NoErrors), (UINT)pLoginResult->Result);
+}
+
+//----------------------------------------------------------------------//
+
+ScrFormat CRemotePCClient::GetScreenshotFormat()
+{
+	ScrFormat Format;
+	FormatLock.Lock();
+	Format = ScreenshotFormat;
+	FormatLock.Unlock();
+
+	return Format;
+}
+
+void CRemotePCClient::SetScreenshotFormat(ScrFormat Format)
+{
+	FormatLock.Lock();
+	ScreenshotFormat = Format;
+	FormatLock.Unlock();
 }
 
 void CRemotePCClient::SendScreenshotRequest()
@@ -100,10 +120,11 @@ void CRemotePCClient::SendScreenshotRequest()
 	GetNetManager()->GetLog()->Log("Sending Screenshot Request...\n");
 
 	MsgHeaderStruct MsgHeader;
-	MsgHeader.MsgSize = 0;
+	MsgHeader.MsgSize = sizeof(ScreenshotFormat);
 	MsgHeader.MsgID   = MSG_SCREENSHOT_REQUEST;
 
-	SendMsg(&MsgHeader, NULL);
+	ScrFormat Format = GetScreenshotFormat();
+	SendMsg(&MsgHeader, &Format);
 }
 
 void CRemotePCClient::OnScreenshotMsg(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData)
@@ -114,10 +135,12 @@ void CRemotePCClient::OnScreenshotMsg(MsgHeaderStruct *pMsgHeader, BYTE *pMsgDat
 	ScreenshotManager.Decompress(pMsgData, pMsgHeader->MsgSize, &Info);
 
 	if(Info.pBuffer){
-		OpenGL.LoadTexture(Info.pBuffer->GetBuffer(), Info.Width, Info.Height, Info.BPP, Info.BPP == 3 ? GL_BGR : GL_BGRA);
+		OpenGL.LoadTexture(Info.pBuffer->GetBuffer(), Info.Width, Info.Height, Info.Format);
 		SendScreenshotRequest();
 	}	
 }
+
+//----------------------------------------------------------------------//
 
 void CRemotePCClient::SendMouseMsg(CMouseInputMsgStruct *mm)
 {

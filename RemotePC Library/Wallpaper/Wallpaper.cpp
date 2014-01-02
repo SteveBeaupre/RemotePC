@@ -8,15 +8,15 @@ CWallpaper::CWallpaper()
 
 CWallpaper::~CWallpaper()
 {
-	RestoreWallpaper();
+	Restore();
 }
 
-void CWallpaper::RemoveWallpaper()
+void CWallpaper::Remove()
 {
 	if(IsWallpaperRemoved)
 		return;
 
-	// Black colour...
+	// Black color...
 	static const DWORD BlackColor = RGB(0,0,0);
 
 	// Save the current background color
@@ -31,11 +31,10 @@ void CWallpaper::RemoveWallpaper()
 	char nullchar = 0;
 	SystemParametersInfoA(SPI_SETDESKWALLPAPER, 0, &nullchar, 0);
 
-	//Sleep(500);
 	IsWallpaperRemoved = true;
 }
 
-void CWallpaper::RestoreWallpaper()
+void CWallpaper::Restore()
 {
 	if(!IsWallpaperRemoved)
 		return;

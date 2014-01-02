@@ -1,19 +1,22 @@
 #pragma once
 
 #include "stdio.h"
-#include "Version.h"
+#include "VersionNumber.h"
 
 void SetCaption(char *pAppName, char* out, int BufSize)
 {
 	ZeroMemory(out, BufSize);
 
+	char VerNum[64];
+	ZeroMemory(VerNum, 64);
+	sprintf(VerNum, "%s", VERNUM);
+
+	if(VerNum[4] == '0')
+		memset(&VerNum[3], 0, 2);
+
 	#ifdef _DEBUG
-	sprintf(out, "%s (Built the %s at %s)", pAppName, __DATE__, __TIME__);
+	sprintf(out, "%s v%s (Built the %s at %s)", pAppName, VerNum, __DATE__, __TIME__);
 	#else
-	if(AnsiString(VERNUM) == "1.0.0"){
-		sprintf(out, "%s v%s", pAppName, "1.0");
-	} else {
-		sprintf(out, "%s v%s", pAppName, VERNUM);
-	}
+	sprintf(out, "%s v%s", pAppName, VerNum);
 	#endif
 }

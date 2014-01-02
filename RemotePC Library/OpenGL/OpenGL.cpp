@@ -319,35 +319,60 @@ void COpenGL::CreateTexture()
 
 //----------------------------------------------------------------------//
 
-void COpenGL::LoadTexture(BYTE *pTex, UINT w, UINT h, UINT bpp, UINT format)
+void COpenGL::LoadTexture(BYTE *pTex, UINT w, UINT h, ScrFormat Format)
 {
 	if(!IsInitialized())
 		return;
 	
+	int GLType = 0;
+	int GLFormat = 0;
+	int NumElements = 0;
+
+	switch(Format)
+	{
+	case scrf_32: 
+		NumElements = 4;
+		GLFormat = GL_BGRA;
+		GLType   = GL_UNSIGNED_BYTE;
+		break;
+	case scrf_16: 
+		NumElements = 4;
+		GLFormat = GL_BGRA;
+		GLType   = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+		break;
+	case scrf_8c: 
+		NumElements = 3;
+		GLFormat = GL_RGB;
+		GLType   = GL_UNSIGNED_BYTE_2_3_3_REV;
+		break;
+	case scrf_8g: 
+		NumElements = 1;
+		GLFormat = GL_LUMINANCE;
+		GLType   = GL_UNSIGNED_BYTE;
+		break;
+	}
+
 	if(Texture.ID == 0){
 		CreateTexture();
 		goto LoadTexJmp;
-	}
-	
-	if(Texture.ID != 0){
-		glBindTexture(GL_TEXTURE_2D, Texture.ID);
-		
-		if(Texture.Width != w || Texture.Height != h || Texture.BPP != bpp || Texture.Format != format){
+	} else {
+		if(Texture.Width != w || Texture.Height != h || Texture.Format != Format){
 			
 			DeleteTexture();
 			CreateTexture();
 
 			LoadTexJmp:
-			Texture.Width = w;
+			Texture.Width  = w;
 			Texture.Height = h;
-			Texture.BPP = bpp;
-			Texture.Format = format;
+			Texture.Format = Format;
 
 			UpdateScrollBars(GetStretchedFlag());
 
-			glTexImage2D(GL_TEXTURE_2D, 0, bpp, w, h, 0, format, GL_UNSIGNED_BYTE, pTex);
+			glBindTexture(GL_TEXTURE_2D, Texture.ID);
+			glTexImage2D(GL_TEXTURE_2D, 0, NumElements, w, h, 0, GLFormat, GLType, pTex);
 		} else {
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, w, h, format, GL_UNSIGNED_BYTE, pTex);
+			glBindTexture(GL_TEXTURE_2D, Texture.ID);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, w, h, GLFormat, GLType, pTex);
 		}
 	}
 }

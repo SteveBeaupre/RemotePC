@@ -33,7 +33,7 @@ void CRemotePCServer::ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE 
 		OnLoginRequest((LoginInfoStruct*)pMsgData);
 		break;
 	case MSG_SCREENSHOT_REQUEST:
-		OnScreenshotRequest();
+		OnScreenshotRequest((ScrFormat*)pMsgData);
 		break;
 	case MSG_MOUSE_INPUT_DATA:
 		OnMouseMsg((CMouseInputMsgStruct*)pMsgData);
@@ -58,13 +58,17 @@ void CRemotePCServer::OnLoginRequest(LoginInfoStruct *pInfo)
 {
 	GetNetManager()->GetLog()->Log("Login info received\n");
 
-	bool LogedIn = LoginInfo.CompareLoginInfo(pInfo);
-	SendLoginResult(LogedIn);
+	LoginResults res = LoginInfo.CompareLoginInfo(pInfo);
 
-	PostMessage(GetHostWnd(), ON_LOGIN, (BOOL)LogedIn, 0);
+	SendLoginResult(res);
+	
+	bool LogedIn = res == NoErrors;
+	PostMessage(GetHostWnd(), ON_LOGIN, (BOOL)LogedIn, (UINT)res);
 
-	if(!LogedIn)
+	if(!LogedIn){
+		Sleep(1000);
 		NetManager.Disconnect();
+	}
 }
 
 void CRemotePCServer::CalcScreenSize(int *w, int *h)
@@ -77,13 +81,15 @@ void CRemotePCServer::CalcScreenSize(int *w, int *h)
 	*h = r.bottom - r.top;
 }
 
-void CRemotePCServer::SendLoginResult(bool Succeded)
+void CRemotePCServer::SendLoginResult(LoginResults Results)
 {
 	GetNetManager()->GetLog()->Log("Sending Login Info...\n");
 
+	bool Succeded = Results == NoErrors;
+
 	LoginResultStruct LoginResult;
 	ZeroMemory(&LoginResult, sizeof(LoginResultStruct));
-	LoginResult.LogedIn = Succeded != false;
+	LoginResult.Result = Results;
 	
 	if(Succeded){
 		int w,h;
@@ -100,11 +106,16 @@ void CRemotePCServer::SendLoginResult(bool Succeded)
 	SendMsg(&MsgHeader, &LoginResult);
 }
 
-void CRemotePCServer::OnScreenshotRequest()
+//----------------------------------------------------------------------//
+
+void CRemotePCServer::OnScreenshotRequest(ScrFormat *pFormat)
 {
 	GetNetManager()->GetLog()->Log("Screenshot Request received\n");
 
 	if(!MultithreadedScreenshot){
+		// Set the screenshot format
+		ScreenshotManager.SetFormat(*pFormat);
+
 		// Take screenshot normally
 		ScreenshotManager.Take();
 		CRawBuffer* pBuf = ScreenshotManager.GetCompressedBuffer();
@@ -116,6 +127,9 @@ void CRemotePCServer::OnScreenshotRequest()
 		// Send the buffer
 		CRawBuffer* pBuf = ScreenshotManager.GetCompressedBuffer();
 		SendScreenshot(pBuf);
+
+		// Set the screenshot format
+		ScreenshotManager.SetFormat(*pFormat);
 
 		// Get the next screenshot in advance
 		ScreenshotManager.StartScreenshotThread();
@@ -143,6 +157,8 @@ void CRemotePCServer::SendScreenshot(CRawBuffer *pBuffer)
 	SendMsg(&MsgHeader, pBuffer->GetBuffer());
 }
 
+//----------------------------------------------------------------------//
+
 void CRemotePCServer::OnMouseMsg(CMouseInputMsgStruct* pMsg)
 {
 	ServerInputs.ProcessMouseInput(pMsg);
@@ -152,6 +168,8 @@ void CRemotePCServer::OnKeyboardMsg(CKeyboardInputMsgStruct* pMsg)
 {
 	ServerInputs.ProcessKeyboardInput(pMsg);
 }
+
+//----------------------------------------------------------------------//
 
 void CRemotePCServer::SetMultiThreadedMode(bool MultithreadTheScreenshot)
 {

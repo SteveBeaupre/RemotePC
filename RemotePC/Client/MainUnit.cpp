@@ -104,6 +104,8 @@ void __fastcall TMainForm::LoadSettings()
 	pRemotePCClient->GetOpenGL()->SetStretchedFlag(pSettings->Stretch);
 	pRemotePCClient->GetOpenGL()->SetShowFPSFlag(pSettings->ShowFPS);
 
+	ComboBoxScrFormat->ItemIndex = pSettings->ColorDepth;
+
 	this->Position = poDesktopCenter;
 	this->WindowState = (TWindowState)pSettings->WndCoords.ws;
 
@@ -142,6 +144,8 @@ void __fastcall TMainForm::SaveSettings()
 	ClientSettings.WndCoords.h = this->Height;
 	ClientSettings.WndCoords.ws = (int)this->WindowState;
 
+	ClientSettings.ColorDepth = ComboBoxScrFormat->ItemIndex;
+
 	Settings.SetSettings(&ClientSettings);
 	Settings.Save();
 }
@@ -159,9 +163,10 @@ void __fastcall TMainForm::CheckBoxConnectAsServerClick(TObject *Sender)
 void __fastcall TMainForm::EnableUI()
 {
 	switch(CheckBoxConnectAsServer->Checked){
-	case false: ButtonConnect->Caption = szButtonConnectCaption[LangID];   break;
+	case false: ButtonConnect->Caption = szButtonConnectCaption[LangID]; break;
 	case true:  ButtonConnect->Caption = szButtonConnectCaptionModeServer[LangID]; break;
 	}
+
 	ButtonConnect->Enabled = true;
 	ConnectMenu->Enabled = true;
 	ButtonDisconnect->Enabled = false;
@@ -172,6 +177,7 @@ void __fastcall TMainForm::EnableUI()
 	ComboBoxHostName->Enabled = !CheckBoxConnectAsServer->Checked;
 	EditPort->Enabled = true;
 	EditPassword->Enabled = true;
+	ComboBoxScrFormat->Enabled = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DisableUI()
@@ -184,6 +190,7 @@ void __fastcall TMainForm::DisableUI()
 	ComboBoxHostName->Enabled = false;
 	EditPort->Enabled = false;
 	EditPassword->Enabled = false;
+	ComboBoxScrFormat->Enabled = false;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
@@ -248,14 +255,19 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		break;
 
 	case ON_LOGIN:
-		switch(Message.WParam)
+		switch((LoginResults)Message.LParam)
 		{
-		case TRUE:
-			AddListboxMessageArg(ListBox, szOnClientLoginSucess[LangID]);
+		case NoErrors:
+			AddListboxMessageArg(ListBox, szOnLoginSucess[LangID]);
 			LogedIn = true;
 			break;
-		case FALSE:
-			AddListboxMessageArg(ListBox, szOnClientLoginFailed[LangID]);
+
+		case InvalidAuthorizationCode:
+			AddListboxMessageArg(ListBox, szOnLoginFailedInvAuth[LangID]);
+			AddListboxMessageArg(ListBox, szOnLoginFailedInvAuthTip[LangID]);
+			break;
+		case InvalidPassword:
+			AddListboxMessageArg(ListBox, szOnLoginFailedInvPass[LangID]);
 			break;
 		}
 
@@ -527,6 +539,14 @@ void __fastcall TMainForm::FrenchMenuClick(TObject *Sender)
 	SetLanguage(REMOTEPC_LANG_FRENCH);
 	EnglishMenu->Checked = false;
 	FrenchMenu->Checked  = true;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TMainForm::ComboBoxScrFormatChange(TObject *Sender)
+{
+	int n = ComboBoxScrFormat->ItemIndex;
+	if(n >= scrf_32 && n <= scrf_8g)
+		pRemotePCClient->SetScreenshotFormat((ScrFormat)n);
 }
 //---------------------------------------------------------------------------
 

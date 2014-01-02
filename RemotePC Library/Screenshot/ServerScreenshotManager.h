@@ -28,6 +28,8 @@ private:
 
 	CRawBuffer UncompressedBuffer, CompressedBuffer;
 
+	ScrFormat ScreenshotFormat;
+
 	void AdjustFrontBuffer();
 	int  EstimateCompressedBufferSize(int UncompressedSize);
 public:
@@ -39,6 +41,9 @@ public:
 	
 	void Take();
 	CRawBuffer* GetCompressedBuffer(){return &CompressedBuffer;}
+
+	void SetFormat(ScrFormat Format);
+	ScrFormat GetFormat(){return ScreenshotFormat;}
 
 	bool IsScreenshotThreadedRunning();
 	void WaitForScreenshotThreadToFinish();

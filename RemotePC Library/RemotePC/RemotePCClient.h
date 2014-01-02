@@ -16,6 +16,9 @@ public:
 	CRemotePCClient();
 	~CRemotePCClient();
 private:
+	ScrFormat ScreenshotFormat;
+	CLock FormatLock;
+private:
 	HWND hRendererWnd;
 	COpenGL OpenGL;
 	CClientScreenshotManager ScreenshotManager;
@@ -36,7 +39,10 @@ public:
 
 	void SendLoginRequest(char *pUserName, char *pPassword);
 	void OnLoginResult(LoginResultStruct* pLoginResult);
-	
+
+	ScrFormat GetScreenshotFormat();
+	void SetScreenshotFormat(ScrFormat Format);
+
 	void SendScreenshotRequest();
 	void OnScreenshotMsg(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData);
 

@@ -11,6 +11,6 @@ private:
 	bool  IsWallpaperRemoved;
 	DWORD OriginalColor;
 public:
-	void RemoveWallpaper();
-	void RestoreWallpaper();
+	void Remove();
+	void Restore();
 };

@@ -3,6 +3,8 @@
 #include "IOpenGL.h"
 //----------------------------------------------------------------------//
 
+//#define _16_BITS_SCREENSHOT_
+
 class COpenGL : public IOpenGL {
 public:
 	COpenGL();
@@ -26,7 +28,6 @@ private:
 	CGameTimer FPSTimer;
 	CBitmapFonts FPSFont;
 	int FontTexBaseID;
-
 public:
 	HWND GetHWND();
 	Siz2 CalcWndSize();
@@ -50,7 +51,7 @@ public:
 	void DeleteFonts();
 
 	void CreateTexture();
-	void LoadTexture(BYTE *pTex, UINT w, UINT h, UINT bpp, UINT format);
+	void LoadTexture(BYTE *pTex, UINT w, UINT h, ScrFormat Format);
 	void DeleteTexture();
 
 	void Set2DMode(int w, int h);

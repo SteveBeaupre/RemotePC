@@ -6,10 +6,13 @@
 #include "Windows.h"
 #include "stdio.h"
 //----------------------------------------------------------------------//
+#ifdef RAD_STUDIO_XE
 #pragma comment(lib, "VortezSDK.lib")
+#endif
 #include "VortezSDK.h"
 //----------------------------------------------------------------------//
 #include "NetworkManager.h"
+#include "Screenshot.h"
 #include "Inputs.h"
 #include "LoginInfo.h"
 #include "MsgHeader.h"
@@ -32,9 +35,9 @@ class IRemotePCServer : public IRemotePC {
 public:
 	virtual void SetLoginInfo(char *pUserName, char *pPassword) = 0;
 	virtual void OnLoginRequest(LoginInfoStruct *pInfo) = 0;
-	virtual void SendLoginResult(bool Succeded) = 0;
+	virtual void SendLoginResult(LoginResults Results) = 0;
 	
-	virtual void OnScreenshotRequest() = 0;
+	virtual void OnScreenshotRequest(ScrFormat *pFormat) = 0;
 	virtual void SendScreenshot(CRawBuffer *pBuffer) = 0;
 
 	virtual void OnMouseMsg(CMouseInputMsgStruct* pMsg) = 0;

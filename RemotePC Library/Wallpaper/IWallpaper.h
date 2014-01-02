@@ -5,6 +5,6 @@
 //----------------------------------------------------------------------//
 
 class IWallpaper {
-	virtual void RemoveWallpaper()  = 0;
-	virtual void RestoreWallpaper() = 0;
+	virtual void Remove()  = 0;
+	virtual void Restore() = 0;
 };
