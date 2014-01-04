@@ -118,9 +118,28 @@ void CScreenshot::Take(ScrFormat Format)
 	// Draw the cursor...
 	DrawCursor(hdcex);
 
-	// Copy to buffer
+	// Allocate the buffer
 	Buffer.Allocate(Info.BufferSize, TRUE);
-	memcpy(Buffer.GetBuffer(), pixels, Info.BufferSize);
+
+	// Ca;culate line width and number of padding bytes
+	int LineWidth = w * (bpp / 8);
+	int Padding = 4 - (LineWidth % 4);
+	if(Padding == 4)
+		Padding = 0;
+
+	// Copy to buffer
+	if(Padding == 0){
+		memcpy(Buffer.GetBuffer(), pixels, Info.BufferSize);
+	} else {
+		int BufIndx = 0;
+		int PixIndx = 0;
+
+		for(int y = 0; y < h; y++){
+			memcpy(Buffer.GetBuffer(BufIndx), &pixels[PixIndx], LineWidth);
+			BufIndx += LineWidth;
+			PixIndx += LineWidth + Padding;
+		}
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
@@ -130,102 +149,6 @@ void CScreenshot::Take(ScrFormat Format)
 	DeleteDC(hdcex);
 	ReleaseDC(hDesktopWnd, hdc);
 }
-
-//----------------------------------------------------------------------//
-
-/*void CScreenshot::Take(ScrFormat Format)
-{
-	CRawBuffer BitmapInfo;
-
-	HWND hDesktopWnd = GetDesktopWindow();
-	HDC hdc = GetDC(hDesktopWnd);
-
-	int x,y,w,h;
-	GetScreenSizeAndPos(hDesktopWnd, &x, &y, &w, &h);
-
-	Info.Format = Format;
-
-	Info.Width  = w;
-	Info.Height = h;
-	Info.NumPixels = w * h;
-
-	switch(Format)
-	{
-	case scrf_32: Info.BitsPerPixel = 32; break;
-	case scrf_16: Info.BitsPerPixel = 16; break;
-	case scrf_8c: 
-	case scrf_8g: Info.BitsPerPixel = 8;  break;
-	}
-
-	Info.BytesPerPixel = Info.BitsPerPixel / 8;
-	Info.BufferSize    = Info.NumPixels * Info.BytesPerPixel;
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
-	HDC     s_hdc   = CreateCompatibleDC(hdc);
-	HBITMAP hbmp    = CreateCompatibleBitmap(hdc, w,h);
-	HBITMAP ex_hbmp = (HBITMAP)SelectObject(s_hdc, hbmp);
-
-	// Copy the screen image in our bitmap
-	BitBlt(s_hdc, 0,0,w,h, hdc, x,y, SRCCOPY);
-
-	DrawCursor(s_hdc);
-	
-	ReleaseDC(hDesktopWnd, hdc);
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
-	// Allocate the buffer
-	Buffer.Allocate(Info.BufferSize, TRUE);
-
-	// Allocate a BITMAPINFO buffer 
-	static const int BMISize = sizeof(BITMAPINFOHEADER) + 256 * sizeof(RGBQUAD);
-	BitmapInfo.Allocate(BMISize);
-	
-	LPBITMAPINFO lpbi = (LPBITMAPINFO)BitmapInfo.GetBuffer();
-	lpbi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-
-	// De-select our hbmp
-	SelectObject(s_hdc, ex_hbmp);
-
-	// Get information about the screenshot image format
-	GetDIBits(s_hdc, hbmp, 0, h, NULL, lpbi, DIB_RGB_COLORS);
-	lpbi->bmiHeader.biCompression = BI_RGB;
-	// Make sure it's gonna be extracted in the desired bits format
-	lpbi->bmiHeader.biBitCount  = Info.BitsPerPixel;
-	lpbi->bmiHeader.biSizeImage = Buffer.GetSize();
-
-	// Generate a custom color palette for grayscale mode
-	if(Format == scrf_8g){
-		for(int i = 0; i < 256; i++){
-			lpbi->bmiColors[i].rgbRed = i;
-			lpbi->bmiColors[i].rgbGreen = i;
-			lpbi->bmiColors[i].rgbBlue = i;
-			lpbi->bmiColors[i].rgbReserved = 0;
-		}
-	}
-
-	// Extract the image
-	GetDIBits(s_hdc, hbmp, 0, h, Buffer.GetBuffer(), lpbi, DIB_RGB_COLORS);
-
-	static bool Init = false;
-	if(!Init){
-		char fname[MAX_PATH];
-		ZeroMemory(fname, MAX_PATH);
-		sprintf(fname, "C:\\Temp\\%d-bits screenshot.raw", Info.BitsPerPixel);
-
-		Buffer.SaveToFile(fname);
-		Init = true;
-	}
-
-	// Release the bitmap handles
-	if(SelectObject(s_hdc, hbmp)){
-		DeleteObject(hbmp);
-		DeleteDC(s_hdc);
-	}
-
-	ReleaseDC(hDesktopWnd, hdc);
-}*/
 
 //----------------------------------------------------------------------//
 
