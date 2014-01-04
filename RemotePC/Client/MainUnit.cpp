@@ -41,11 +41,8 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	SetCaption("RemotePC Client 2014", AppCaption, 256);
 	Caption = AnsiString(AppCaption);
 
-	if(!KbHookDllStub.Load("KBHook.dll")){
+	if(!KbHookDllStub.Load("KBHook.dll"))
 		Application->Terminate();
-	} else {
-		KbHookDllStub.InstallHook(DesktopViewer->Handle, OnKeyEvent);
-	}
 
 	LabelDLSpeed->Caption = AnsiString("D: 0 Byte");
 	LabelULSpeed->Caption = AnsiString("U: 0 Byte");
@@ -61,11 +58,12 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
 {
-	KbHookDllStub.Free();
 
 	pRemotePCClient->Disconnect();
 	Sleep(250);
 	Application->ProcessMessages();
+
+	KbHookDllStub.Free();
 
 	SAFE_DELETE_OBJECT(pRemotePCClient);
 	ShutdownWinSock();
@@ -177,7 +175,6 @@ void __fastcall TMainForm::EnableUI()
 	ComboBoxHostName->Enabled = !CheckBoxConnectAsServer->Checked;
 	EditPort->Enabled = true;
 	EditPassword->Enabled = true;
-	ComboBoxScrFormat->Enabled = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DisableUI()
@@ -190,7 +187,6 @@ void __fastcall TMainForm::DisableUI()
 	ComboBoxHostName->Enabled = false;
 	EditPort->Enabled = false;
 	EditPassword->Enabled = false;
-	ComboBoxScrFormat->Enabled = false;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
@@ -211,6 +207,8 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 	case ON_CONNECTED:
 		AddListboxMessageArg(ListBox, szOnConnectionEstablished[LangID]);
 		if(pRemotePCClient){
+			KbHookDllStub.InstallHook(DesktopViewer->Handle, OnKeyEvent);
+
 			char Password[32];
 			ConvertUnicodeToChar(Password, 32, EditPassword->Text.c_str());
 			if(pRemotePCClient){
@@ -229,12 +227,14 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		if(pRemotePCClient)
 			pRemotePCClient->StopThread();
 		AddListboxMessageArg(ListBox, szOnDisconnect[LangID]);
+		KbHookDllStub.RemoveHook();
 		EnableUI();
 		break;
 	case ON_CONNECTION_LOST:
 		LogedIn = false;
 		NetworkSpeedTimer->Enabled = false;
 		AddListboxMessageArg(ListBox, szOnConnectionLoss[LangID]);
+		KbHookDllStub.RemoveHook();
 		EnableUI();
 		break;
 	case ON_CONNECTION_CANCELED:
@@ -341,7 +341,9 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 		ConnectionPanel->Visible = ShowHiddenStuffs;
 	}
 
-	if(LogedIn && !IsLoopbackAddress(AnsiString(ComboBoxHostName->Text)) &&!pRemotePCClient->GetThread()->IsThreadPaused()){
+	if(LogedIn && !pRemotePCClient->GetThread()->IsThreadPaused()){
+		DesktopViewer->SetFocus();
+
 		CMouseInputMsgStruct mm;
 		mm.Msg  = MSG_MOUSE_MOVE;
 		mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
@@ -365,7 +367,7 @@ void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton 
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-	if(!LogedIn  || pRemotePCClient->GetThread()->IsThreadPaused())
+	if(!LogedIn || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
 	CMouseInputMsgStruct mm;
@@ -377,7 +379,7 @@ void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Bu
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDelta)
 {
-	if(!LogedIn  || pRemotePCClient->GetThread()->IsThreadPaused())
+	if(!LogedIn || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
 	CMouseInputMsgStruct mm;
