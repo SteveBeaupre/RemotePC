@@ -340,22 +340,25 @@ void __fastcall TMainForm::ButtonCancelClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DoUpdates(CRawBuffer* pPatchBuffer)
 {
-	pPatchBuffer->SaveToFile("Patch.exe");
+	if(pPatchBuffer->GetSize() != 0){
 
-	ListBox->Items->Add("Patching...");
-	ListBox->Update();
-	Sleep(1000);
+		pPatchBuffer->SaveToFile("Patch.exe");
 
-	// lauch the exe and close the program
-	CFileManager FileManager;
-	FileManager.Open("Patch.exe", NULL);
+		ListBox->Items->Add("Patching...");
+		ListBox->Update();
+		Sleep(1000);
 
-	while(FileManager.IsInUse("Patch.exe")){
-		Sleep(2000);
+		// Lauch the exe and close the program
+		CFileManager FileManager;
+		FileManager.Open("Patch.exe", NULL);
+
+		Sleep(1000);
+		// This will auto-delete the file "Patch.exe" when it close
+		FileManager.Open("DelPatch.exe", NULL);
 	}
-	FileManager.Delete("Patch.exe");
-	ListBox->Items->Add("Closing...");
 
+	ListBox->Items->Add("Closing...");
+	Sleep(500);
 	PostQuitMessage(0);
 }
 
@@ -421,9 +424,7 @@ void __fastcall TMainForm::ButtonTestClick(TObject *Sender)
 		}
 	}
 
-	PatchBuffer.SaveToFile("C:\\Temp\\OutputEncrypted.bin");
 	PatchBuffer.Decrypt(0xDEADC0DE);
-	PatchBuffer.SaveToFile("C:\\Temp\\OutputDecrypted.bin");
 	UINT PatchHash = PatchBuffer.Hash();
 
 	if(PatchHash == pHeader->PatchHash){

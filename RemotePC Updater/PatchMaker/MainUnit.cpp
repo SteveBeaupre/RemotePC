@@ -122,11 +122,11 @@ void __fastcall TMainForm::ButtonMakeClick(TObject *Sender)
 	ConvertUnicodeToChar(&InputFileName[0],  MAX_PATH, EditInputFileName->Text.c_str());
 
 	if(strlen(&Version[0]) != 5){
-		ShowMessage("Error: Invalid version number. (x.x.x)");
+		ShowMessage("Error: Invalid version number.");
 		return;
 	}
 
-	if(strlen(&PatchName[0]) == 0){
+	/*if(strlen(&PatchName[0]) == 0){
 		ShowMessage("Error: You must enter a patch file name.");
 		return;
 	}
@@ -134,7 +134,7 @@ void __fastcall TMainForm::ButtonMakeClick(TObject *Sender)
 	if(strlen(&InputFileName[0]) == 0){
 		ShowMessage("Error: You must enter an input file name.");
 		return;
-	}
+	}*/
 
 	//////////////////////////////////////////////////////////////////////////////////////
 
@@ -184,9 +184,7 @@ void __fastcall TMainForm::ButtonMakeClick(TObject *Sender)
 	memcpy(&Header.Version[0], &Version[0], VERSION_SIZE);
 
 	Header.PatchHash = InputBuffer.Hash();
-	InputBuffer.SaveToFile("C:\\Temp\\InputNormal.bin");
 	InputBuffer.Encrypt(0xDEADC0DE);
-	InputBuffer.SaveToFile("C:\\Temp\\InputEncrypted.bin");
 	Header.PatchSize = InputFileSize;
 
 	if(!CheckBoxSplit->Checked){
@@ -202,14 +200,17 @@ void __fastcall TMainForm::ButtonMakeClick(TObject *Sender)
 
 		UINT NumFilesToCreate = CalcNumPieces(Header.PatchSize, Header.PiecesSize);
 
-		char ErrMsg[MAX_PATH];
-		ZeroMemory(ErrMsg, MAX_PATH);
-		sprintf(ErrMsg, "Warning: %d files will be created.\nContinue?", NumFilesToCreate);
+		if(NumFilesToCreate > 0){
+			char ErrMsg[MAX_PATH];
+			ZeroMemory(ErrMsg, MAX_PATH);
+			sprintf(ErrMsg, "Warning: %d files will be created.\nContinue?", NumFilesToCreate);
 
-		if(MessageBoxA(Handle, ErrMsg, "Warning.", MB_YESNOCANCEL) != ID_YES){
-			return;
+			if(MessageBoxA(Handle, ErrMsg, "Warning.", MB_YESNOCANCEL) != ID_YES){
+				return;
+			}
 		}
 	}
+
 	Header.PatchNameSize = strlen(&PatchName[0]);
 
 	Gauge->MaxValue = sizeof(RPCHeader) + Header.PatchNameSize + InputBuffer.GetSize();
