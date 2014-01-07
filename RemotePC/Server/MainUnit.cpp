@@ -339,3 +339,4 @@ void __fastcall TMainForm::FrenchMenuClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+

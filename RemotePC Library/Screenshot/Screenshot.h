@@ -6,8 +6,6 @@
 #include "IScreenshot.h"
 //----------------------------------------------------------------------//
 
-//#define _16_BITS_SCREENSHOT_
-
 class CScreenshot : public IScreenshot, private ScreenshotStruct { 
 public:
 	CScreenshot();
@@ -17,18 +15,22 @@ private:
 	CRawBuffer bmi;
 	BITMAPINFO *lpbi;
 private:
-	CWinVersion WinVer;
+	CWinVersion   WinVer;
+	CBitmapHelper BitmapHelper;
+
 	void DrawCursor(HDC hDC);
-	void GetScreenSize(int *w, int *h);
+	HWND GetScreenInfo(int *x, int *y, int *w, int *h);
 
 	void ResetInfos();
 	void ResetBuffer();
 
 	void FillBMIHeader(int w, int h, int bpp);
-	void GenPalette(bool Grayscale);
-	void CreateGrayscalePalette(int ncols);
-	void CreateBGR233Palette(int ncols);
-	HWND GetScreenInfo(int *x, int *y, int *w, int *h);
+	
+	void Gen8BitsPalette(bool Grayscale);
+	void Gen8bitsBGR233Palette();
+	void Gen8bitsGrayscalePalette();
+	void Gen4bitsGrayscalePalette();
+	void Gen1bitsGrayscalePalette();
 public:
 	void Reset();
 	void Take(ScrFormat Format);
@@ -38,7 +40,6 @@ public:
 	int GetHeight(){return Info.Height;}
 	int GetNumPixels(){return Info.NumPixels;}
 	int GetBitsPerPixel(){return Info.BitsPerPixel;}
-	int GetBytesPerPixel(){return Info.BytesPerPixel;}
 	int GetBufferSize(){return Info.BufferSize;}
 
 	ScrFormat GetFormat(){return Info.Format;}

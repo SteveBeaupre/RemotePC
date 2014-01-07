@@ -10,6 +10,7 @@
 #include "FreeImage.h"
 //----------------------------------------------------------------------//
 #include "VortezSDK.h"
+#include "BitmapHelper.h"
 //----------------------------------------------------------------------//
 
 enum ScrFormat {
@@ -17,6 +18,8 @@ enum ScrFormat {
 	scrf_16, 
 	scrf_8c, 
 	scrf_8g, 
+	scrf_4, 
+	scrf_1, 
 };
 
 struct ScreenshotInfoStruct {
@@ -24,7 +27,6 @@ struct ScreenshotInfoStruct {
 	int Height;
 	int NumPixels;
 	int BitsPerPixel;
-	int BytesPerPixel;
 	ScrFormat Format;
 	int BufferSize;
 };
@@ -57,7 +59,6 @@ public:
 	virtual int GetHeight() = 0;
 	virtual int GetNumPixels() = 0;
 	virtual int GetBitsPerPixel() = 0;
-	virtual int GetBytesPerPixel() = 0;
 	virtual int GetBufferSize() = 0;
 	
 	virtual ScrFormat GetFormat() = 0;

@@ -19,6 +19,7 @@ public:
 	~CServerScreenshotManager();
 private:
 	CThread ScreenshotTread;
+	CBitmapHelper BitmapHelper;
 private:
 	CScreenshot Screenshot[2];
 	CScreenshot *pBackBuffer, *pFrontBuffer;

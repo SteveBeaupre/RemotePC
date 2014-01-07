@@ -8,6 +8,10 @@
 #pragma resource "*.dfm"
 TMainForm *MainForm;
 //---------------------------------------------------------------------------
+#ifdef _DEBUG
+#define DISABLE_MOUSE_INPUTS
+#endif
+//---------------------------------------------------------------------------
 CRemotePCClient *pRemotePCClient = NULL;
 CClientSettings Settings;
 //---------------------------------------------------------------------------
@@ -306,6 +310,8 @@ void __fastcall TMainForm::ButtonConnectClick(TObject *Sender)
 		return;
 	}
 
+	ComboBoxScrFormat->OnChange(this);
+
 	if(!CheckBoxConnectAsServer->Checked){
 
 		const int BufSize = 16;
@@ -341,6 +347,7 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 		ConnectionPanel->Visible = ShowHiddenStuffs;
 	}
 
+	#ifndef DISABLE_MOUSE_INPUTS
 	if(LogedIn && !pRemotePCClient->GetThread()->IsThreadPaused()){
 		DesktopViewer->SetFocus();
 
@@ -350,6 +357,7 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 
 		pRemotePCClient->SendMouseMsg(&mm);
 	}
+	#endif
 }
 //---------------------------------------------------------------------------
 
@@ -358,11 +366,13 @@ void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton 
 	if(!LogedIn || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
+	#ifndef DISABLE_MOUSE_INPUTS
 	CMouseInputMsgStruct mm;
 	mm.Msg  = pRemotePCClient->GetClientInputs()->EncodeMouseButton(Button, false);
 	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
 
 	pRemotePCClient->SendMouseMsg(&mm);
+	#endif
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
@@ -370,11 +380,13 @@ void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Bu
 	if(!LogedIn || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
+	#ifndef DISABLE_MOUSE_INPUTS
 	CMouseInputMsgStruct mm;
 	mm.Msg  = pRemotePCClient->GetClientInputs()->EncodeMouseButton(Button, true);
 	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, CheckBoxStretch->Checked);
 
 	pRemotePCClient->SendMouseMsg(&mm);
+	#endif
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDelta)
@@ -382,11 +394,13 @@ void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDe
 	if(!LogedIn || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
+	#ifndef DISABLE_MOUSE_INPUTS
 	CMouseInputMsgStruct mm;
 	mm.Msg  = MSG_MOUSE_ROLL;
 	mm.Data = WheelDelta;
 
 	pRemotePCClient->SendMouseMsg(&mm);
+	#endif
 }
 //---------------------------------------------------------------------------
 void __cdecl OnKeyEvent(DWORD wParam, DWORD lParam)
@@ -528,7 +542,6 @@ void __fastcall TMainForm::SetLanguage(int LanguageID)
 }
 //---------------------------------------------------------------------------
 
-
 void __fastcall TMainForm::EnglishMenuClick(TObject *Sender)
 {
 	SetLanguage(REMOTEPC_LANG_ENGLISH);
@@ -547,8 +560,10 @@ void __fastcall TMainForm::FrenchMenuClick(TObject *Sender)
 void __fastcall TMainForm::ComboBoxScrFormatChange(TObject *Sender)
 {
 	int n = ComboBoxScrFormat->ItemIndex;
-	if(n >= scrf_32 && n <= scrf_8g)
-		pRemotePCClient->SetScreenshotFormat((ScrFormat)n);
+	if(n < scrf_32){n = scrf_32;}
+	if(n > scrf_1){n = scrf_1;}
+
+	pRemotePCClient->SetScreenshotFormat((ScrFormat)n);
 }
 //---------------------------------------------------------------------------
 

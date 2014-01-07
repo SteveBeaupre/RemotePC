@@ -3,8 +3,6 @@
 #include "IOpenGL.h"
 //----------------------------------------------------------------------//
 
-//#define _16_BITS_SCREENSHOT_
-
 class COpenGL : public IOpenGL {
 public:
 	COpenGL();

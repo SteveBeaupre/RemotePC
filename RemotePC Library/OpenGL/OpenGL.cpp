@@ -235,7 +235,7 @@ bool COpenGL::Initialize(HWND h)
 	glEnable(GL_TEXTURE_2D);  // Enable texture mapping
 	glDisable(GL_CULL_FACE);  // Disable face culling
 	///////////////////////////////////////////////////////////////////////////////////////////
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Enable textures of any width to be loaded
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	///////////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Enable vsync, if supported
@@ -312,8 +312,8 @@ void COpenGL::CreateTexture()
 		glGenTextures(1, &Texture.ID);
 		glBindTexture(GL_TEXTURE_2D, Texture.ID);
 		// Tell OpenGL the quality of our texture map.
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 }
 
@@ -326,29 +326,45 @@ void COpenGL::LoadTexture(BYTE *pTex, UINT w, UINT h, ScrFormat Format)
 	
 	int GLType = 0;
 	int GLFormat = 0;
-	int NumElements = 0;
+	int GLIntFormat = 0;
 
 	switch(Format)
 	{
 	case scrf_32: 
-		NumElements = 4;
+		GLIntFormat = 4;
 		GLFormat = GL_BGRA;
 		GLType   = GL_UNSIGNED_BYTE;
 		break;
 	case scrf_16: 
-		NumElements = 4;
+		GLIntFormat = 4;
 		GLFormat = GL_BGRA;
 		GLType   = GL_UNSIGNED_SHORT_1_5_5_5_REV;
 		break;
 	case scrf_8c: 
-		NumElements = 3;
+		GLIntFormat = 3;
 		GLFormat = GL_RGB;
 		GLType   = GL_UNSIGNED_BYTE_2_3_3_REV;
 		break;
 	case scrf_8g: 
-		NumElements = 1;
+	case scrf_4:
+		GLIntFormat = 1;
 		GLFormat = GL_LUMINANCE;
 		GLType   = GL_UNSIGNED_BYTE;
+		break;
+	case scrf_1: 
+		{
+			static const int numcols = 2;
+			static const float index[numcols] = {0.0f, 1.0f};
+
+			glPixelMapfv(GL_PIXEL_MAP_I_TO_R, numcols, index);
+			glPixelMapfv(GL_PIXEL_MAP_I_TO_G, numcols, index);
+			glPixelMapfv(GL_PIXEL_MAP_I_TO_B, numcols, index);
+			glPixelMapfv(GL_PIXEL_MAP_I_TO_A, numcols, index);
+		}
+
+		GLIntFormat = 1;
+		GLFormat = GL_COLOR_INDEX;
+		GLType   = GL_BITMAP;
 		break;
 	}
 
@@ -369,7 +385,7 @@ void COpenGL::LoadTexture(BYTE *pTex, UINT w, UINT h, ScrFormat Format)
 			UpdateScrollBars(GetStretchedFlag());
 
 			glBindTexture(GL_TEXTURE_2D, Texture.ID);
-			glTexImage2D(GL_TEXTURE_2D, 0, NumElements, w, h, 0, GLFormat, GLType, pTex);
+			glTexImage2D(GL_TEXTURE_2D, 0, GLIntFormat, w, h, 0, GLFormat, GLType, pTex);
 		} else {
 			glBindTexture(GL_TEXTURE_2D, Texture.ID);
 			glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, w, h, GLFormat, GLType, pTex);

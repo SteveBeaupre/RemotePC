@@ -84,13 +84,16 @@ void CServerScreenshotManager::Pack()
 	
 	WORD w   = pBackBuffer->GetWidth();
 	WORD h   = pBackBuffer->GetHeight();
-	BYTE bpp = pBackBuffer->GetBytesPerPixel();
+	BYTE bpp = pBackBuffer->GetBitsPerPixel();
 
 	// Generate the full tree
 	CQuadTree QuadTree;
 
 	QuadTree.SetScreenshotBuffers(pFront, pBack);
-	QuadTree.InitTree(w, h, bpp, MaxDepth);
+
+	int Pitch = BitmapHelper.CalcPitchSize(w, h, bpp);
+
+	QuadTree.InitTree(Pitch, h, MaxDepth);
 	
 	QuadTree.GenTree();
 	QuadTree.TrimTree();
@@ -106,7 +109,7 @@ void CServerScreenshotManager::Pack()
 	QuadTree.ExtractTreeData();
 
 	// we're done with the tree
-	QuadTree.KillTree();
+	QuadTree.DelTree();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

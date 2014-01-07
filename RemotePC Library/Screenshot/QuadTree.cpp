@@ -5,308 +5,281 @@ CQuadTree::CQuadTree()
 	pBackBuffer  = NULL;
 	pFrontBuffer = NULL;
 	pUncBuffer   = NULL;
-
+		
 	MaxDepth = 0;
-	BPP = 0;
+
+	NumLines  = 0;
+	LinePitch = 0;
+
+	InitNode(&QT, NULL, 0,0,0);
 }
 
 CQuadTree::~CQuadTree()
 {
-	KillTree(&QT, 0);
+	DelTree();
 }
 
-//-----------------------------------------------------------------------------
-// Set the screenshot buffers pointers
-//-----------------------------------------------------------------------------
 void CQuadTree::SetScreenshotBuffers(BYTE *BackBuffer, BYTE *FrontBuffer)
 {
 	pBackBuffer  = BackBuffer;
 	pFrontBuffer = FrontBuffer;
 }
 
-//-----------------------------------------------------------------------------
-// Set the buffers pointers
-//-----------------------------------------------------------------------------
 void CQuadTree::SetUncompressedBuffer(BYTE *UncBuffer)
 {
 	pUncBuffer = UncBuffer;
 }
 
-//-----------------------------------------------------------------------------
-// Init. the root node 
-//-----------------------------------------------------------------------------
-void CQuadTree::InitTree(WORD w, WORD h, DWORD BytesPerPixel, DWORD dwMaxDepth)
-{
-	WORD l = 0;
-	WORD t = 0;
-
-	MaxDepth = dwMaxDepth;
-	if(MaxDepth > 10){MaxDepth = 10;}
-
-	BPP = BytesPerPixel;
-	if(BPP < 1){BPP = 3;}
-
-	InitNode(&QT, NULL, 0, l, t, w, h);
-}
-
-//-----------------------------------------------------------------------------
-// Init. a node 
-//-----------------------------------------------------------------------------
-void CQuadTree::InitNode(QuadTreeStruct *pNode, QuadTreeStruct *pParentNode, DWORD Level, WORD l, WORD t, WORD w, WORD h)
+void CQuadTree::InitNode(QuadTreeStruct *pNode, QuadTreeStruct *pParentNode, int BlockStart, int BlockWidth, int BlockHeight, int Level)
 {
 	// Inititialise the node type
-	pNode->NodeType = 0;
-	// Inititialise the node
-	if(Level == 0)
-		pNode->NodeType = ROOT_NODE;
-	else if(Level == MaxDepth)
-		pNode->NodeType = LEAF_NODE;
-	else
-		pNode->NodeType = LINK_NODE;
-
-	// Inititialise the dimension variables of that node
-	pNode->L = l;
-	pNode->T = t;
-	pNode->W = w;
-	pNode->H = h;
-
+	if(Level == 0){
+		pNode->NodeType = RootNode;
+	} else if(Level == MaxDepth){
+		pNode->NodeType = LeafNode;
+	} else {
+		pNode->NodeType = LinkNode;
+	}
+	
+	// Inititialise the node's data
+	pNode->BlockInfo.BlockStart  = BlockStart;
+	pNode->BlockInfo.BlockWidth  = BlockWidth;
+	pNode->BlockInfo.BlockHeight = BlockHeight;
+	
 	// Setup a pointer to the parent node
 	pNode->Parent = pParentNode;
-	// Initialise the childs nodes to NULL 
-	for(int Cpt = 0; Cpt < 4; Cpt++)
-		pNode->Child[Cpt] = NULL;
+	// Initialise the childs nodes to NULL
+	for(int i = 0; i < 4; i++)
+		pNode->Child[i] = NULL;
 }
 
-//-----------------------------------------------------------------------------
-// Generate the QuadTree recursively
-//-----------------------------------------------------------------------------
-void CQuadTree::GenTree(QuadTreeStruct *pNode, DWORD Level)
+void CQuadTree::InitTree(int Pitch, int nLines, int Depth)
 {
+	MaxDepth = Depth;
+	if(MaxDepth > 8)
+		MaxDepth = 8;
+	
+	NumLines  = nLines;
+	LinePitch = Pitch;
+	
+	InitNode(&QT, NULL, 0, Pitch, nLines);
+}
+
+void CQuadTree::GenTree(QuadTreeStruct *pNode, int Level)
+{
+	int i = 0;
+
 	// Return if MaxDepth = 0
 	if(MaxDepth == 0){return;}
-
+	
 	// Make pNode point to the root node if Level = 0
 	if(Level == 0)
 		pNode = &QT;
-
-	// Allocate memory for the new nodes
-	pNode->Child[0] = new QuadTreeStruct;
-	pNode->Child[1] = new QuadTreeStruct;
-	pNode->Child[2] = new QuadTreeStruct;
-	pNode->Child[3] = new QuadTreeStruct;
-
-	// Divide our width and heigh by 2
-	WORD W = pNode->W >> 1;
-	WORD H = pNode->H >> 1;
 	
-	WORD OffsetW = (pNode->W & 0x0001);
-	WORD OffsetH = (pNode->H & 0x0001);
+	// Allocate memory for the new nodes
+	for(i = 0; i < 4; i++)
+		pNode->Child[i] = new QuadTreeStruct;
+	
+	// Divide our block width and heigh by 2
+	int wDiv2 = pNode->BlockInfo.BlockWidth  / 2;
+	int hDiv2 = pNode->BlockInfo.BlockHeight / 2;
+
+	// Add +1 to odd width and height parts
+	bool IsWOdd = pNode->BlockInfo.BlockWidth  % 2 > 0;
+	bool IsHOdd = pNode->BlockInfo.BlockHeight % 2 > 0;
+
+	int bw[4];
+	int bh[4];
+
+	for(i = 0; i < 4; i++){
+		bw[i] = wDiv2;
+		bh[i] = hDiv2;
+	}
+
+	if(IsWOdd){
+		bw[1]++;
+		bw[2]++;
+	}
+	if(IsHOdd){
+		bh[2]++;
+		bh[3]++;
+	}
+
+	// Calculate buffer offset
+	int bs = pNode->BlockInfo.BlockStart;
+	int bsOffsetW = wDiv2;
+	int bsOffsetH = (LinePitch * hDiv2);
+	
+	int o[4];
+	o[0] = bs;
+	o[1] = bs + bsOffsetW;
+	o[2] = bs + bsOffsetW + bsOffsetH;
+	o[3] = bs + bsOffsetH;
 
 	// Initialize Them
-	InitNode(pNode->Child[0], pNode, Level+1, pNode->L,     pNode->T,     W,           H);
-	InitNode(pNode->Child[1], pNode, Level+1, pNode->L + W, pNode->T,     W + OffsetW, H);
-	InitNode(pNode->Child[2], pNode, Level+1, pNode->L + W, pNode->T + H, W + OffsetW, H + OffsetH);
-	InitNode(pNode->Child[3], pNode, Level+1, pNode->L,     pNode->T + H, W,           H + OffsetH);
-
+	for(i = 0; i < 4; i++)
+		InitNode(pNode->Child[i], pNode, o[i], bw[i], bh[i], Level+1);
+	
 	// Generate more childs nodes recursively
 	if(Level+1 < MaxDepth){
-		for(int Cpt = 0; Cpt < 4; Cpt++)
-			GenTree(pNode->Child[Cpt], Level+1);
+		for(i = 0; i < 4; i++)
+			GenTree(pNode->Child[i], Level+1);
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Delete a nodes and it's sub nodes
-//-----------------------------------------------------------------------------
-void CQuadTree::KillTree(QuadTreeStruct *pNode, DWORD Level)
+void CQuadTree::DelTree(QuadTreeStruct *pNode, int Level)
 {
 	// Make pNode point to the root node if Level = 0
 	if(Level == 0)
 		pNode = &QT;
-
+	
 	// Kill the sub-nodes recursively
 	if(Level < MaxDepth){
 		// Loop through all the child nodes
-		for(int Cpt = 3; Cpt >= 0; Cpt--){
-
+		for(int i = 3; i >= 0; i--){
+			
 			// Skip this node if it is already NULL
-			if(pNode->Child[Cpt] == NULL){continue;}
-
+			if(pNode->Child[i] == NULL){continue;}
+			
 			// Delete this child node and all is sub nodes recursively...
-			KillTree(pNode->Child[Cpt], Level+1);
-
+			DelTree(pNode->Child[i], Level+1);
+			
 			// Set this child node pointer to NULL
-			pNode->Child[Cpt] = NULL;
+			pNode->Child[i] = NULL;
 		}
 	}
-
+	
 	if(pNode != &QT){
 		SAFE_DELETE_OBJECT(pNode);
 	} else {
-		InitNode(&QT, NULL, 0, 0, 0, 0, 0);
+		InitNode(&QT, NULL, 0,0,0);
 	}
 }
 
-//-----------------------------------------------------------------------------
-// Analyse all the leafs node and check if the data is the same in the 2 buffers
-//-----------------------------------------------------------------------------
-DWORD CQuadTree::TrimTree(QuadTreeStruct *pNode, DWORD Level, DWORD MaxChanged)
+int CQuadTree::TrimTree(QuadTreeStruct *pNode, int MaxChanged, int Level)
 {
-	int Cpt = 0;
-	DWORD dwChanged = 0;
+	int i = 0;
+	int dwChanged = 0;
 	
 	// Make pNode point to the root node if Level = 0
 	if(Level == 0){
 		pNode = &QT;
-
+		
 		MaxChanged = 1;
-		for(DWORD Cpt = 0; Cpt < MaxDepth; Cpt++)
-			MaxChanged <<= 2;
+		for(i = 0; i < MaxDepth; i++)
+			MaxChanged *= 4;
 	} else {
-		MaxChanged >>= 2;
+		MaxChanged /= 4;
 	}
-
+	
 	// Analyse the sub-nodes recursively
 	if(Level < MaxDepth){
-
+		
 		// Analyse a sub node
-		for(Cpt = 0; Cpt < 4; Cpt++){
-			DWORD NumChanged = TrimTree(pNode->Child[Cpt], Level+1, MaxChanged);
+		for(i = 0; i < 4; i++){
+			
+			int NumChanged = TrimTree(pNode->Child[i], MaxChanged, Level+1);
+			
 			switch(NumChanged)
 			{
-			case 0:  SAFE_DELETE_OBJECT(pNode->Child[Cpt]); break; // Delete the node if there is no change...
-			default: dwChanged += NumChanged; break;   // Accumulate the number of changed childs node in dwChanged...
+			case 0:  SAFE_DELETE_OBJECT(pNode->Child[i]); break; // Delete the node if there is no change...
+			default: dwChanged += NumChanged; break; // Accumulate the number of changed childs node in dwChanged...
 			}
 		}
-
-		//  If none or all of the childs nodes tested for this node have changed
+		
+		// If none or all of the childs nodes tested for this node have changed
 		if(dwChanged == 0 || dwChanged == MaxChanged){
-
+			
 			// Change only the root node status if all the node have changed
-			if(pNode->NodeType == ROOT_NODE){
+			if(pNode->NodeType == RootNode){
 				if(dwChanged == MaxChanged)
-					pNode->NodeType = LEAF_NODE;
-			} else 
-				pNode->NodeType = LEAF_NODE;
+					pNode->NodeType = LeafNode;
+			} else
+				pNode->NodeType = LeafNode;
 			
 			// Delete all the nodes childs nodes if they've all changed
 			if(dwChanged == MaxChanged){
-				for(Cpt = 0; Cpt < 4; Cpt++){
-					SAFE_DELETE_OBJECT(pNode->Child[Cpt]);
+				for(i = 0; i < 4; i++){
+					SAFE_DELETE_OBJECT(pNode->Child[i]);
 				}
 			}
 		}
-
-	} else {
-		// Get the region info to scan
-		DWORD NodeLineOffset  = pNode->L * BPP;
-		DWORD NodeLineWidth   = pNode->W * BPP;
-		DWORD BufferLineWidth = QT.W * BPP;
 		
-		// Find the offset in our image buffer to start with
-		DWORD BufferIndx = (BufferLineWidth * pNode->T) + NodeLineOffset;
+	} else {
 
-		// This will tell us if we've found a change
-		BOOL HaveChanged = FALSE;
+		int Offset = pNode->BlockInfo.BlockStart;
 
-		// Check if the data is the same or not, lines per lines
-		Cpt = 0;
-		while(Cpt < pNode->H){
-
-			HaveChanged = memcmp(&pBackBuffer[BufferIndx], &pFrontBuffer[BufferIndx], NodeLineWidth);
-			
-			if(HaveChanged){
+		for(i = 0; i < pNode->BlockInfo.BlockHeight; i++){
+		
+			if(memcmp(&pBackBuffer[Offset], &pFrontBuffer[Offset], pNode->BlockInfo.BlockWidth) != 0){
 				dwChanged = 1;
 				break;
 			}
-
-			BufferIndx += BufferLineWidth;
-			Cpt++;
+		
+			Offset += LinePitch;
 		}
-	}
 
+	}
+	
 	return dwChanged;
 }
 
-//-----------------------------------------------------------------------------
-// Calculate the final size taken by our data
-//-----------------------------------------------------------------------------
-DWORD CQuadTree::CalcOutputBufferSize(QuadTreeStruct *pNode, DWORD Level, DWORD NodeSize)
+int CQuadTree::ExtractTreeData(QuadTreeStruct *pNode, int OutputBufferIndx, int Level)
 {
 	// Make pNode point to the root node if Level = 0
 	if(Level == 0)
 		pNode = &QT;
-
+	
 	// Recurse the nodes
 	if(Level < MaxDepth){
-		for(int Cpt = 0; Cpt < 4; Cpt++){
-			if(pNode->Child[Cpt] != NULL)
-				NodeSize = CalcOutputBufferSize(pNode->Child[Cpt], Level+1, NodeSize);
+		for(int i = 0; i < 4; i++){
+			if(pNode->Child[i] != NULL)
+				OutputBufferIndx = ExtractTreeData(pNode->Child[i], OutputBufferIndx, Level+1);
 		}
 	}
-
+	
 	// Save a block of memory in the buffer
-	if(pNode->NodeType & LEAF_NODE){
-
-		DWORD NodeLineWidth = pNode->W * BPP;
+	if(pNode->NodeType & LeafNode){
 		
-		NodeSize += sizeof(DWORD) * 2; 
-		NodeSize += NodeLineWidth * pNode->H;
+		// Find the offset in our image buffer to start with
+		int InputBufferIndx = pNode->BlockInfo.BlockStart;
+
+		// Copy the block header
+		memcpy(&pUncBuffer[OutputBufferIndx], &pNode->BlockInfo, sizeof(BlockInfoStruct));
+		OutputBufferIndx += sizeof(BlockInfoStruct);
+		
+		// Copy the data into our uncompressed buffer
+		for(int i = 0; i < pNode->BlockInfo.BlockHeight; i++){	
+			
+			memcpy(&pUncBuffer[OutputBufferIndx], &pFrontBuffer[InputBufferIndx], pNode->BlockInfo.BlockWidth);
+			
+			InputBufferIndx  += LinePitch;
+			OutputBufferIndx += pNode->BlockInfo.BlockWidth;
+		}
+	}
+	
+	return OutputBufferIndx;
+}
+
+int CQuadTree::CalcOutputBufferSize(QuadTreeStruct *pNode, int NodeSize, int Level)
+{
+	// Make pNode point to the root node if Level = 0
+	if(Level == 0)
+		pNode = &QT;
+	
+	// Recurse the nodes
+	if(Level < MaxDepth){
+		for(int i = 0; i < 4; i++){
+			if(pNode->Child[i] != NULL)
+				NodeSize = CalcOutputBufferSize(pNode->Child[i], NodeSize, Level+1);
+		}
+	}
+	
+	// Accum. the space taken by this node
+	if(pNode->NodeType & LeafNode){
+		NodeSize += sizeof(BlockInfoStruct);
+		NodeSize += pNode->BlockInfo.BlockWidth * pNode->BlockInfo.BlockHeight;
 	}
 
 	return NodeSize;
 }
-
-//-----------------------------------------------------------------------------
-// Extract the uncompressed data into our buffer
-//-----------------------------------------------------------------------------
-DWORD CQuadTree::ExtractTreeData(QuadTreeStruct *pNode, DWORD Level, DWORD UncBufferCpt)
-{
-	// Make pNode point to the root node if Level = 0
-	if(Level == 0)
-		pNode = &QT;
-
-	// Recurse the nodes
-	if(Level < MaxDepth){
-		for(int Cpt = 0; Cpt < 4; Cpt++){
-			if(pNode->Child[Cpt] != NULL)
-				UncBufferCpt = ExtractTreeData(pNode->Child[Cpt], Level+1, UncBufferCpt);
-		}
-	}
-
-	// Save a block of memory in the buffer
-	if(pNode->NodeType & LEAF_NODE){
-
-		// Get the region info to copy
-		DWORD BufferLineWidth = QT.W     * BPP;
-		DWORD NodeLineOffset  = pNode->L * BPP;
-		DWORD NodeLineWidth   = pNode->W * BPP;
-
-		// Find the offset in our image buffer to start with
-		DWORD BufferIndx = (BufferLineWidth * pNode->T) + NodeLineOffset;
-	
-		// Write the origin of the data block
-		memcpy(&pUncBuffer[UncBufferCpt], &BufferIndx, sizeof(DWORD));
-		UncBufferCpt += sizeof(DWORD);
-		
-		// Write the size of the data block
-		memcpy(&pUncBuffer[UncBufferCpt], &pNode->W, sizeof(WORD));
-		UncBufferCpt += sizeof(WORD);
-		memcpy(&pUncBuffer[UncBufferCpt], &pNode->H, sizeof(WORD));
-		UncBufferCpt += sizeof(WORD);
-
-		// Copy the data into our uncompressed buffer
-		int Cpt = 0;
-		while(Cpt < pNode->H){
-
-			memcpy(&pUncBuffer[UncBufferCpt], &pFrontBuffer[BufferIndx], NodeLineWidth);
-			UncBufferCpt += NodeLineWidth;
-
-			BufferIndx += BufferLineWidth;
-			Cpt++;
-		}
-	}
-
-	return UncBufferCpt;
-}
-

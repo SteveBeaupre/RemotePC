@@ -70,7 +70,8 @@ void CScreenshot::Take(ScrFormat Format)
 	int x,y,w,h;
 	HWND hDesktopWnd = GetScreenInfo(&x,&y,&w,&h);
 
-	// Generate a color palette if in bmi mode
+	///////////////////////////////////////////////////////////////////////////////////////
+
 	int bpp = 32;
 	switch(Format)
 	{
@@ -78,6 +79,8 @@ void CScreenshot::Take(ScrFormat Format)
 	case scrf_16: bpp = 16; break;
 	case scrf_8c: 
 	case scrf_8g: bpp = 8;  break;
+	case scrf_4:  bpp = 4;  break;
+	case scrf_1:  bpp = 1;  break;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////
@@ -86,17 +89,22 @@ void CScreenshot::Take(ScrFormat Format)
 	Info.Width  = w;
 	Info.Height = h;
 	Info.NumPixels = w * h;
-	Info.BitsPerPixel  = bpp;
-	Info.BytesPerPixel = bpp / 8;
-	Info.BufferSize = w * h * Info.BytesPerPixel;
+	Info.BitsPerPixel = bpp;
+	Info.BufferSize = BitmapHelper.CalcBufferSize(w, h, bpp);
 	
 	///////////////////////////////////////////////////////////////////////////////////////
 
-	// Fill it
+	// Fill the bmi header
 	FillBMIHeader(w, h, bpp);
 
-	if(bpp == 8)
-		GenPalette(Format == scrf_8g);
+	// Gen low color depth bitmap's palette
+	switch(bpp)
+	{
+	case 8: Gen8BitsPalette(Format == scrf_8g); break;
+	case 4: Gen4bitsGrayscalePalette(); break;
+	case 1: Gen1bitsGrayscalePalette(); break;
+	}
+		
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
@@ -120,26 +128,7 @@ void CScreenshot::Take(ScrFormat Format)
 
 	// Allocate the buffer
 	Buffer.Allocate(Info.BufferSize, TRUE);
-
-	// Ca;culate line width and number of padding bytes
-	int LineWidth = w * (bpp / 8);
-	int Padding = 4 - (LineWidth % 4);
-	if(Padding == 4)
-		Padding = 0;
-
-	// Copy to buffer
-	if(Padding == 0){
-		memcpy(Buffer.GetBuffer(), pixels, Info.BufferSize);
-	} else {
-		int BufIndx = 0;
-		int PixIndx = 0;
-
-		for(int y = 0; y < h; y++){
-			memcpy(Buffer.GetBuffer(BufIndx), &pixels[PixIndx], LineWidth);
-			BufIndx += LineWidth;
-			PixIndx += LineWidth + Padding;
-		}
-	}
+	memcpy(Buffer.GetBuffer(), pixels, Info.BufferSize);
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
@@ -161,32 +150,32 @@ void CScreenshot::FillBMIHeader(int w, int h, int bpp)
 	lpbi->bmiHeader.biPlanes = 1;
 	lpbi->bmiHeader.biBitCount = bpp;
 	lpbi->bmiHeader.biCompression = BI_RGB;
-	lpbi->bmiHeader.biSizeImage = w * h * (bpp / 8);
+	lpbi->bmiHeader.biSizeImage = BitmapHelper.CalcBufferSize(w, h, bpp);
 	lpbi->bmiHeader.biXPelsPerMeter = 1000000;
 	lpbi->bmiHeader.biYPelsPerMeter = 1000000;
 }
 
 //----------------------------------------------------------------------//
 
-void CScreenshot::GenPalette(bool Grayscale)
+void CScreenshot::Gen8BitsPalette(bool Grayscale)
 {
-	// 8-bits color palette stuff...
-	int ncols = 256;
+	static const int ncols = 256;
 	lpbi->bmiHeader.biClrUsed = ncols;
 	lpbi->bmiHeader.biClrImportant = ncols;
 
 	// Generate the palette
 	switch(Grayscale)
 	{
-	case false: CreateBGR233Palette(ncols);    break;
-	case true:  CreateGrayscalePalette(ncols); break;
+	case false: Gen8bitsBGR233Palette();    break;
+	case true:  Gen8bitsGrayscalePalette(); break;
 	}
 }
 
 //----------------------------------------------------------------------//
 
-void CScreenshot::CreateGrayscalePalette(int ncols)
+void CScreenshot::Gen8bitsGrayscalePalette()
 {
+	static const int ncols = 256;
 	for(int i = 0; i < ncols; i++){
 		lpbi->bmiColors[i].rgbRed   = i;
 		lpbi->bmiColors[i].rgbGreen = i;
@@ -196,8 +185,9 @@ void CScreenshot::CreateGrayscalePalette(int ncols)
 
 //----------------------------------------------------------------------//
 
-void CScreenshot::CreateBGR233Palette(int ncols)
+void CScreenshot::Gen8bitsBGR233Palette()
 {
+	static const int ncols = 256;
 	static const BYTE _2_bits_index[4] = {0x00, 0x55, 0xAA, 0xFF};
 	static const BYTE _3_bits_index[8] = {0x00, 0x24, 0x49, 0x6D, 0x92, 0xB6, 0xDB, 0xFF};
 
@@ -210,6 +200,38 @@ void CScreenshot::CreateBGR233Palette(int ncols)
 		lpbi->bmiColors[i].rgbRed   = _3_bits_index[ri];
 		lpbi->bmiColors[i].rgbGreen = _3_bits_index[gi];
 		lpbi->bmiColors[i].rgbBlue  = _2_bits_index[bi];
+	}
+}
+
+//---------------------------------------------------------------------------
+
+void CScreenshot::Gen4bitsGrayscalePalette()
+{
+	static const int ncols = 16;
+	lpbi->bmiHeader.biClrUsed = ncols;
+	lpbi->bmiHeader.biClrImportant = ncols;
+
+	BYTE _4_bits_index[16] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
+
+	for(int i = 0; i < ncols; i++){
+		lpbi->bmiColors[i].rgbRed   = _4_bits_index[i];
+		lpbi->bmiColors[i].rgbGreen = _4_bits_index[i];
+		lpbi->bmiColors[i].rgbBlue  = _4_bits_index[i];
+	}
+}
+
+//---------------------------------------------------------------------------
+
+void CScreenshot::Gen1bitsGrayscalePalette()
+{
+	static const int ncols = 2;
+	lpbi->bmiHeader.biClrUsed = ncols;
+	lpbi->bmiHeader.biClrImportant = ncols;
+
+	for(int i = 0; i < ncols; i++){
+		lpbi->bmiColors[i].rgbRed   = i == 0 ? 0 : 255;
+		lpbi->bmiColors[i].rgbGreen = i == 0 ? 0 : 255;
+		lpbi->bmiColors[i].rgbBlue  = i == 0 ? 0 : 255;
 	}
 }
 
@@ -238,8 +260,7 @@ void CScreenshot::CreateEmpty(ScrFormat Format, int Width, int Height, int BitsP
 	Info.Height = Height;
 	Info.NumPixels = Width * Height;
 	Info.BitsPerPixel = BitsPerPixel;
-	Info.BytesPerPixel = Info.BitsPerPixel / 8;
-	Info.BufferSize = Info.NumPixels * Info.BytesPerPixel;
+	Info.BufferSize = BitmapHelper.CalcBufferSize(Width, Height, BitsPerPixel);
 	Buffer.Allocate(Info.BufferSize, TRUE);
 }
 

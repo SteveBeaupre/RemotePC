@@ -15,7 +15,8 @@ public:
 	CClientScreenshotManager();
 	~CClientScreenshotManager();
 private:
-	CRawBuffer UncompressedBuffer, OpenGLBuffer;
+	CBitmapHelper BitmapHelper;
+	CRawBuffer UncompressedBuffer, OpenGLBuffer, ConvertedBuffer;
 public:
 	void Reset();
 	void Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize, DecompressedScreenshotInfoStruct* pInfo);

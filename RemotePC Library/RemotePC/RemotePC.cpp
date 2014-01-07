@@ -197,7 +197,7 @@ DWORD WINAPI WorkerThreadFunc(void* param)
 	}
 	catch (...)
 	{
-		MessageBoxA(hWnd, "An Error occured in ReadLoop thread.\nPerforming Cleanup.", "Error!", 0);
+		//MessageBoxA(hWnd, "An Error occured in ReadLoop thread.\nPerforming Cleanup.", "Error!", 0);
 		
 		pRemotePC->CleanupThread();
 

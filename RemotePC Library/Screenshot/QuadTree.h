@@ -2,31 +2,28 @@
 //----------------------------------------------------------------------//
 #include <Windows.h>
 #include <Stdio.h>
+//----------------------------------------------------------------------//
 #include "SafeKill.h"
 //----------------------------------------------------------------------//
-#define ROOT_NODE    0
-#define LEAF_NODE    1
-#define LINK_NODE    2
-//----------------------------------------------------------------------//
 
-//----------------------------------------------------------------------//
-// The  QuadTreeStruct Structure Def.
-//----------------------------------------------------------------------//
-struct QuadTreeStruct {
-	
-	DWORD NodeType;
-
-	WORD L,T,W,H;
-	
-	struct QuadTreeStruct *Parent;	
-	struct QuadTreeStruct *Child[4];
-
+enum QTNodeType {
+	RootNode = 0, 
+	LinkNode, 
+	LeafNode, 
 };
 
-struct CQuadTexInfo {
-	DWORD Offset;
-	WORD  Width;
-	WORD  Height;
+struct BlockInfoStruct {
+	int BlockStart;
+	int BlockWidth;
+	int BlockHeight;
+};
+
+struct QuadTreeStruct {
+	QTNodeType NodeType;
+	BlockInfoStruct BlockInfo;
+
+	struct QuadTreeStruct *Parent;	
+	struct QuadTreeStruct *Child[4];
 };
 
 //----------------------------------------------------------------------//
@@ -38,24 +35,28 @@ public:
 	~CQuadTree();
 private:
 	QuadTreeStruct QT;
-	DWORD MaxDepth;
-	DWORD BPP;
+	
+	int MaxDepth;
 
-	void InitNode(QuadTreeStruct *pNode, QuadTreeStruct *pParentNode, DWORD Level, WORD l, WORD t, WORD w, WORD h);
-private:
+	int NumLines;
+	int LinePitch;
+
 	BYTE *pBackBuffer;
 	BYTE *pFrontBuffer;
 	BYTE *pUncBuffer;
+
+	void InitNode(QuadTreeStruct *pNode, QuadTreeStruct *pParentNode, int BlockStart, int BlockWidth, int BlockHeight, int Level = 0);
 public:
+	void InitTree(int Pitch, int nLines, int Depth = 4);
+	void GenTree(QuadTreeStruct *pNode = NULL, int Level = 0);
+	void DelTree(QuadTreeStruct *pNode = NULL, int Level = 0);
+
+	int TrimTree(QuadTreeStruct *pNode = NULL, int MaxChanged = 0, int Level = 0);
+
+	int ExtractTreeData(QuadTreeStruct *pNode = NULL, int OutputBufferIndx = 0, int Level = 0);
+	int CalcOutputBufferSize(QuadTreeStruct *pNode = NULL, int NodeSize = 0, int Level = 0);
+	
 	void SetScreenshotBuffers(BYTE *BackBuffer, BYTE *FrontBuffer);
 	void SetUncompressedBuffer(BYTE *UncBuffer);
-public:
-	void InitTree(WORD w, WORD h, DWORD BytesPerPixel, DWORD dwMaxDepth);
-	void GenTree(QuadTreeStruct *pNode = NULL, DWORD Level = 0);
-	void KillTree(QuadTreeStruct *pNode = NULL, DWORD Level = 0);
-
-	DWORD TrimTree(QuadTreeStruct *pNode = NULL, DWORD Level = 0, DWORD MaxChanged = 0);
-	DWORD CalcOutputBufferSize(QuadTreeStruct *pNode = NULL, DWORD Level = 0, DWORD NodeSize = 0);
-	DWORD ExtractTreeData(QuadTreeStruct *pNode = NULL, DWORD Level = 0, DWORD UncBufferCpt = 0);
 };
 
