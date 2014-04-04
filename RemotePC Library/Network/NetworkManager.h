@@ -9,8 +9,10 @@
 #include "INetwork.h"
 #include "NetEngine.h"
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
-class CNetManager : public INetManager {
+class EXP_FUNC CNetManager : public INetManager {
 public:
 	CNetManager();
 	~CNetManager();

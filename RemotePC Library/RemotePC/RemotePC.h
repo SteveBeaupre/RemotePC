@@ -8,10 +8,12 @@
 //----------------------------------------------------------------------//
 #include "IRemotePC.h"
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
 DWORD WINAPI WorkerThreadFunc(void* param);
 
-class CRemotePC : public IRemotePC {
+class EXP_FUNC CRemotePC : public IRemotePC {
 public:
 	CRemotePC();
 	~CRemotePC();

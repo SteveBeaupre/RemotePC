@@ -48,10 +48,9 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	if(!KbHookDllStub.Load("KBHook.dll"))
 		Application->Terminate();
 
-	LabelDLSpeed->Caption = AnsiString("D: 0 Byte");
-	LabelULSpeed->Caption = AnsiString("U: 0 Byte");
-	LabelTotalDownload->Caption = AnsiString("Av: 0.00 Kbp\\s");
-	LabelTotalUpload->Caption   = AnsiString("Av: 0.00 Kbp\\s");
+	StatusBar->Panels->Items[0]->Text = "Disconnected.";
+	StatusBar->Panels->Items[1]->Text = "D: 0 Byte  T: 0.00 Kbp\\s";
+	StatusBar->Panels->Items[2]->Text = "U: 0 Byte  T: 0.00 Kbp\\s";
 
 	InitializeWinSock();
 	pRemotePCClient = new CRemotePCClient();
@@ -193,6 +192,26 @@ void __fastcall TMainForm::DisableUI()
 	EditPassword->Enabled = false;
 }
 //---------------------------------------------------------------------------
+void TMainForm::AddListboxMessageArg(const char *fmt, ...)
+{
+	if(fmt == NULL)
+		return;
+
+	const int BufSize = 2048;
+
+	char TextBuf[BufSize];
+	char *pTxt = &TextBuf[0];
+	ZeroMemory(pTxt, BufSize);
+
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(pTxt, BufSize, fmt, ap);
+	va_end(ap);
+
+	ListBoxLog->Items->Add(pTxt);
+	StatusBar->Panels->Items[0]->Text = pTxt;
+}
+//---------------------------------------------------------------------------
 void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 {
 	switch(Message.Msg)
@@ -203,13 +222,13 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		break;
 	case ON_THREAD_START:
 		if(!CheckBoxConnectAsServer->Checked){
-			AddListboxMessageArg(ListBox, szOnConnectionThreadStartedAsClient[LangID]);
+			AddListboxMessageArg(szOnConnectionThreadStartedAsClient[LangID]);
 		} else {
-			AddListboxMessageArg(ListBox, szOnConnectionThreadStartedAsServer[LangID]);
+			AddListboxMessageArg(szOnConnectionThreadStartedAsServer[LangID]);
 		}
 		break;
 	case ON_CONNECTED:
-		AddListboxMessageArg(ListBox, szOnConnectionEstablished[LangID]);
+		AddListboxMessageArg(szOnConnectionEstablished[LangID]);
 		if(pRemotePCClient){
 			KbHookDllStub.InstallHook(DesktopViewer->Handle, OnKeyEvent);
 
@@ -230,19 +249,19 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		NetworkSpeedTimer->Enabled = false;
 		if(pRemotePCClient)
 			pRemotePCClient->StopThread();
-		AddListboxMessageArg(ListBox, szOnDisconnect[LangID]);
+		AddListboxMessageArg(szOnDisconnect[LangID]);
 		KbHookDllStub.RemoveHook();
 		EnableUI();
 		break;
 	case ON_CONNECTION_LOST:
 		LogedIn = false;
 		NetworkSpeedTimer->Enabled = false;
-		AddListboxMessageArg(ListBox, szOnConnectionLoss[LangID]);
+		AddListboxMessageArg(szOnConnectionLoss[LangID]);
 		KbHookDllStub.RemoveHook();
 		EnableUI();
 		break;
 	case ON_CONNECTION_CANCELED:
-		AddListboxMessageArg(ListBox, szOnConnectionCanceled[LangID]);
+		AddListboxMessageArg(szOnConnectionCanceled[LangID]);
 		EnableUI();
 		break;
 	case ON_CONNECTION_TIMED_OUT:
@@ -250,9 +269,9 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 			int NumAttemp   = Message.WParam;
 			int TotalAttemp = Message.LParam;
 
-			AddListboxMessageArg(ListBox, szOnConnectionFailed[LangID], NumAttemp, TotalAttemp);
+			AddListboxMessageArg(szOnConnectionFailed[LangID], NumAttemp, TotalAttemp);
 			if(NumAttemp == TotalAttemp){
-				AddListboxMessageArg(ListBox, szOnConnectionTimedOut[LangID]);
+				AddListboxMessageArg(szOnConnectionTimedOut[LangID]);
 				EnableUI();
 			}
 		}
@@ -262,16 +281,16 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		switch((LoginResults)Message.LParam)
 		{
 		case NoErrors:
-			AddListboxMessageArg(ListBox, szOnLoginSucess[LangID]);
+			AddListboxMessageArg(szOnLoginSucess[LangID]);
 			LogedIn = true;
 			break;
 
 		case InvalidAuthorizationCode:
-			AddListboxMessageArg(ListBox, szOnLoginFailedInvAuth[LangID]);
-			AddListboxMessageArg(ListBox, szOnLoginFailedInvAuthTip[LangID]);
+			AddListboxMessageArg(szOnLoginFailedInvAuth[LangID]);
+			AddListboxMessageArg(szOnLoginFailedInvAuthTip[LangID]);
 			break;
 		case InvalidPassword:
-			AddListboxMessageArg(ListBox, szOnLoginFailedInvPass[LangID]);
+			AddListboxMessageArg(szOnLoginFailedInvPass[LangID]);
 			break;
 		}
 
@@ -445,10 +464,10 @@ void __fastcall TMainForm::CheckBoxFullscreenClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::SaveScreenCoordinates()
 {
-	WndCoords.l = this->Left;
-	WndCoords.t = this->Top;
-	WndCoords.w = this->Width;
-	WndCoords.h = this->Height;
+	WndCoords.l  = this->Left;
+	WndCoords.t  = this->Top;
+	WndCoords.w  = this->Width;
+	WndCoords.h  = this->Height;
 	WndCoords.ws = this->WindowState;
 }
 void __fastcall TMainForm::RestoreScreenCoordinates()
@@ -491,25 +510,21 @@ void __fastcall TMainForm::NetworkSpeedTimerTimer(TObject *Sender)
 	CNetStats* pStats = pRemotePCClient->GetNetManager()->GetStats();
 	pStats->UpdateStats();
 
-	char TotDownloaded[256];
-	char AvgDownloaded[256];
-	char TotUploaded[256];
-	char AvgUploaded[256];
+	char* TD = pStats->GetTotalDownloaded();
+	char* TU = pStats->GetTotalUploaded();
+	char* AD = pStats->GetAverageDownloadKBPS();
+	char* AU = pStats->GetAverageUploadKBPS();
 
-	ZeroMemory(TotDownloaded, 256);
-	ZeroMemory(TotUploaded,   256);
-	ZeroMemory(AvgDownloaded, 256);
-	ZeroMemory(AvgUploaded,   256);
+	char Tot[256];
+	char Avg[256];
+	ZeroMemory(Tot, 256);
+	ZeroMemory(Avg, 256);
 
-	sprintf(TotDownloaded, "D: %s",  pStats->GetTotalDownloaded());
-	sprintf(AvgDownloaded, "Av: %s", pStats->GetAverageDownloadKBPS());
-	sprintf(TotUploaded, "U: %s",    pStats->GetTotalUploaded());
-	sprintf(AvgUploaded, "Av: %s",   pStats->GetAverageUploadKBPS());
+	sprintf(Tot, "D: %s Byte  T: %s", AD, TD);
+	sprintf(Avg, "U: %s Byte  T: %s", AU, TU);
 
-	LabelDLSpeed->Caption = AnsiString(TotDownloaded);
-	LabelULSpeed->Caption = AnsiString(TotUploaded);
-	LabelTotalDownload->Caption = AnsiString(AvgDownloaded);
-	LabelTotalUpload->Caption   = AnsiString(AvgUploaded);
+	StatusBar->Panels->Items[1]->Text = AnsiString(Tot);
+	StatusBar->Panels->Items[2]->Text = AnsiString(Avg);
 }
 //---------------------------------------------------------------------------
 
@@ -544,19 +559,14 @@ void __fastcall TMainForm::SetLanguage(int LanguageID)
 
 void __fastcall TMainForm::EnglishMenuClick(TObject *Sender)
 {
-	SetLanguage(REMOTEPC_LANG_ENGLISH);
-	EnglishMenu->Checked = true;
-	FrenchMenu->Checked  = false;
+	TMenuItem* it = dynamic_cast<TMenuItem*>(Sender);
+	if (it != 0){
+		SetLanguage(it->Tag);
+		EnglishMenu->Checked = it->Tag == 0;
+		FrenchMenu->Checked  = it->Tag == 1;
+	}
 }
 //---------------------------------------------------------------------------
-void __fastcall TMainForm::FrenchMenuClick(TObject *Sender)
-{
-	SetLanguage(REMOTEPC_LANG_FRENCH);
-	EnglishMenu->Checked = false;
-	FrenchMenu->Checked  = true;
-}
-//---------------------------------------------------------------------------
-
 void __fastcall TMainForm::ComboBoxScrFormatChange(TObject *Sender)
 {
 	int n = ComboBoxScrFormat->ItemIndex;
@@ -566,4 +576,5 @@ void __fastcall TMainForm::ComboBoxScrFormatChange(TObject *Sender)
 	pRemotePCClient->SetScreenshotFormat((ScrFormat)n);
 }
 //---------------------------------------------------------------------------
+
 

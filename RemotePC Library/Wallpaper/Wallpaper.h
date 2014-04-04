@@ -2,8 +2,10 @@
 //----------------------------------------------------------------------//
 #include <IWallpaper.h>
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
-class CWallpaper : public IWallpaper{
+class EXP_FUNC CWallpaper : public IWallpaper{
 public:
 	CWallpaper();
 	~CWallpaper();

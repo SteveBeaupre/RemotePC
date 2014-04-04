@@ -9,19 +9,21 @@
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.ImgList.hpp>
 #include <Vcl.Menus.hpp>
+#include <Vcl.ComCtrls.hpp>
 #include "trayicon.h"
 //---------------------------------------------------------------------------
 #include "DesktopViewer.hpp"
 #include "NetworkSpeedViewer.hpp"
 //---------------------------------------------------------------------------
-#include "RemotePCClient.h"
+/*#include "RemotePCClient.h"
 #include "KbHookDllStub.h"
 #include "Settings.h"
 #include "CompileDateTimeStamp.h"
 #include "UnicodeToChar.h"
-#include "Listbox.h"
 #include "Lang.h"
-#include "IP.h"
+#include "IP.h"*/
+#pragma comment(lib, "RemotePCLib.lib")
+#include "RemotePCLib.h"
 //---------------------------------------------------------------------------
 class TMainForm : public TForm
 {
@@ -52,14 +54,7 @@ __published:	// IDE-managed Components
 	TPanel *LeftPanel;
 	TSplitter *Splitter1;
 	TPanel *ListboxPanel;
-	TListBox *ListBox;
 	TPanel *SettingsPanel;
-	TPanel *UploadPanel;
-	TLabel *LabelULSpeed;
-	TLabel *LabelTotalUpload;
-	TPanel *DownloadPanel;
-	TLabel *LabelDLSpeed;
-	TLabel *LabelTotalDownload;
 	TGroupBox *GroupBoxSettings;
 	TCheckBox *CheckBoxStretch;
 	TButton *ButtonPause;
@@ -69,6 +64,9 @@ __published:	// IDE-managed Components
 	TScrollBox *ScrollBox;
 	TDesktopViewer *DesktopViewer;
 	TComboBox *ComboBoxScrFormat;
+	TStatusBar *StatusBar;
+	TTabControl *TabControl1;
+	TListBox *ListBoxLog;
 	void __fastcall ButtonConnectClick(TObject *Sender);
 	void __fastcall ButtonDisconnectClick(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
@@ -87,7 +85,6 @@ __published:	// IDE-managed Components
 	void __fastcall NetworkSpeedTimerTimer(TObject *Sender);
 	void __fastcall ButtonPauseClick(TObject *Sender);
 	void __fastcall EnglishMenuClick(TObject *Sender);
-	void __fastcall FrenchMenuClick(TObject *Sender);
 	void __fastcall CloseMenuClick(TObject *Sender);
 	void __fastcall ComboBoxScrFormatChange(TObject *Sender);
 private:	// User declarations
@@ -101,6 +98,7 @@ public:		// User declarations
 	int  LangID;
 	bool LogedIn;
 
+	void AddListboxMessageArg(const char *fmt, ...);
 	bool __fastcall IsLoopbackAddress(AnsiString s);
 	void __fastcall LoadSettings();
 	void __fastcall SaveSettings();

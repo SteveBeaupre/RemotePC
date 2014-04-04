@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------
-
 #include <vcl.h>
 #pragma hdrstop
 #include <tchar.h>
@@ -14,8 +13,8 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 	{
 		Application->Initialize();
 		Application->MainFormOnTaskBar = true;
-		TStyleManager::TrySetStyle("Charcoal Dark Slate");
 		Application->CreateForm(__classid(TMainForm), &MainForm);
+		TStyleManager::TrySetStyle("Charcoal Dark Slate");
 		Application->Run();
 	}
 	catch (Exception &exception)

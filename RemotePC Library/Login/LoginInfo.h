@@ -9,8 +9,10 @@
 #include "ILoginInfo.h"
 #include "VersionNumber.h"
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
-class CLoginInfo : public ILoginInfo {
+class EXP_FUNC CLoginInfo : public ILoginInfo {
 public:
 	CLoginInfo();
 private:

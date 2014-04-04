@@ -1,6 +1,4 @@
-#ifndef _REMOTEPC_LANG_H_
-#define _REMOTEPC_LANG_H_
-#ifdef __cplusplus
+#pragma once
 
 #define REMOTEPC_LANG_ENGLISH  0
 #define REMOTEPC_LANG_FRENCH   1
@@ -86,10 +84,6 @@ LPCSTR szServer_OnServerDisconnected[2]    = {"Server Offline.",                
 LPCSTR szServer_OnServerListening[2]       = {"Listening on socket 0x%8.8X...",                                                      "Attendre conn. sur le socket 0x%8.8X..."};
 LPCSTR szServer_OnClientDisconnected[2]    = {"Client Disconnected. (%s Name: \"%s\" ID: %d)",                                       "Client Déconnecter. (%s Name: \"%s\" ID: %d)"};
 */
-
-#endif
-#endif //_REMOTEPC_LANG_H_
-
 
 
 

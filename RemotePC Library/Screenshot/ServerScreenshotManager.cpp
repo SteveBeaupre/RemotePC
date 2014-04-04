@@ -68,7 +68,7 @@ void CServerScreenshotManager::AdjustFrontBuffer()
 		int bHeight = pBackBuffer->GetHeight();
 		int bBPP    = pBackBuffer->GetBitsPerPixel();
 
-		pFrontBuffer->CreateEmpty(GetFormat(), bWidth, bHeight, bBPP);
+		pFrontBuffer->CreateEmptyFrame(GetFormat(), bWidth, bHeight, bBPP);
 	}
 }
 

@@ -10,10 +10,12 @@
 #include "QuadTree.h"
 #include "Thread.h"
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
 DWORD WINAPI ScreenshotThreadFunc(void *params);
 
-class CServerScreenshotManager : IServerScreenshotManager {
+class EXP_FUNC CServerScreenshotManager : IServerScreenshotManager {
 public:
 	CServerScreenshotManager();
 	~CServerScreenshotManager();

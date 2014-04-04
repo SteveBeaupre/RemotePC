@@ -2,13 +2,28 @@
 
 CRemotePCClient::CRemotePCClient()
 {
+	#ifndef FAKE_OPENGL
+	#ifndef EMULATE_OPENGL
+	pOpenGL = new COpenGL;
+	#endif
+	#endif
+
+	#ifdef FAKE_OPENGL
+	pOpenGL = new CFakeOpenGL;
+	#endif
+
+	#ifdef EMULATE_OPENGL
+	pOpenGL = new COpenGLEmulator;
+	#endif
+
 	hRendererWnd = NULL;
 	ScreenshotFormat = scrf_32;
 }
 
 CRemotePCClient::~CRemotePCClient()
 {
-	OpenGL.Shutdown();
+	pOpenGL->Shutdown();
+	SAFE_DELETE_OBJECT(pOpenGL);
 }
 
 //----------------------------------------------------------------------//
@@ -52,22 +67,22 @@ bool CRemotePCClient::InitOpenGL()
 	if(!hRendererWnd)
 		return false;
 
-	return OpenGL.Initialize(hRendererWnd);
+	return pOpenGL->Initialize(hRendererWnd);
 }
 
 void CRemotePCClient::ShutdownOpenGL()
 {
-	OpenGL.Shutdown();
+	pOpenGL->Shutdown();
 }
 
 void CRemotePCClient::RenderTexture()
 {
-	OpenGL.Render();
+	pOpenGL->Render();
 }
 
 void CRemotePCClient::ClearScreen()
 {
-	OpenGL.RenderEmpty();
+	pOpenGL->RenderEmpty();
 }
 
 //----------------------------------------------------------------------//
@@ -135,7 +150,7 @@ void CRemotePCClient::OnScreenshotMsg(MsgHeaderStruct *pMsgHeader, BYTE *pMsgDat
 	ScreenshotManager.Decompress(pMsgData, pMsgHeader->MsgSize, &Info);
 
 	if(Info.pBuffer){
-		OpenGL.LoadTexture(Info.pBuffer->GetBuffer(), Info.Width, Info.Height, Info.Format);
+		pOpenGL->LoadTexture(Info.pBuffer->GetBuffer(), Info.Width, Info.Height, Info.Format);
 		SendScreenshotRequest();
 	}	
 }

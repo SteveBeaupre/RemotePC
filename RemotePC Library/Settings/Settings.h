@@ -8,8 +8,10 @@
 //----------------------------------------------------------------------//
 #include "ISettings.h"
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
-class CServerSettings : public IRemotePCSettings {
+class EXP_FUNC CServerSettings : public IRemotePCSettings {
 public:
 	CServerSettings();
 private:
@@ -22,7 +24,7 @@ public:
 	void SetSettings(ServerSettingsStruct *pSettings);
 };
 
-class CClientSettings : public IRemotePCSettings {
+class EXP_FUNC CClientSettings : public IRemotePCSettings {
 public:
 	CClientSettings();
 private:

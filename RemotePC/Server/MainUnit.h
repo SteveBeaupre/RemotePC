@@ -10,8 +10,9 @@
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.ImgList.hpp>
 #include <Vcl.Menus.hpp>
+#include <Vcl.ComCtrls.hpp>
 //---------------------------------------------------------------------------
-#include "RemotePCServer.h"
+/*#include "RemotePCServer.h"
 #include "ServerScreenshotManager.h"
 #include "Wallpaper.h"
 #include "Settings.h"
@@ -19,7 +20,9 @@
 #include "UnicodeToChar.h"
 #include "Listbox.h"
 #include "Lang.h"
-#include "IP.h"
+#include "IP.h"*/
+#pragma comment(lib, "RemotePCLib.lib")
+#include "RemotePCLib.h"
 //---------------------------------------------------------------------------
 class TMainForm : public TForm
 {
@@ -51,6 +54,8 @@ __published:	// IDE-managed Components
 	TMenuItem *EnglishMenu;
 	TMenuItem *FrenchMenu;
 	TCheckBox *CheckBoxMultithreaded;
+	TStatusBar *StatusBar;
+	TTimer *NetworkSpeedTimer;
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 	void __fastcall ButtonListenClick(TObject *Sender);
 	void __fastcall ButtonDisconnectClick(TObject *Sender);
@@ -59,6 +64,7 @@ __published:	// IDE-managed Components
 	void __fastcall CheckBoxConnectAsClientClick(TObject *Sender);
 	void __fastcall EnglishMenuClick(TObject *Sender);
 	void __fastcall FrenchMenuClick(TObject *Sender);
+	void __fastcall NetworkSpeedTimerTimer(TObject *Sender);
 private:	// User declarations
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);
@@ -67,6 +73,7 @@ public:		// User declarations
 
 	int LangID;
 
+	void AddListboxMessageArg(const char *fmt, ...);
 	bool __fastcall IsLoopbackAddress(AnsiString s);
 	void __fastcall LoadSettings();
 	void __fastcall SaveSettings();

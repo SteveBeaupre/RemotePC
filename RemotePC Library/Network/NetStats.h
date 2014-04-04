@@ -1,16 +1,16 @@
-#ifndef _NET_STATS_H_
-#define _NET_STATS_H_
-#ifdef __cplusplus
+#pragma once
 //----------------------------------------------------------------------//
 #include "Windows.h"
 #include "stdio.h"
 //----------------------------------------------------------------------//
 #include "VortezSDK.h"
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
 #define NETSTATS_TEXT_BUF_SIZE  1024
 
-struct CNetStatsStruct {
+struct EXP_FUNC CNetStatsStruct {
 	__int64 d,ld,u,lu;
 	float ad, au;
 
@@ -20,7 +20,7 @@ struct CNetStatsStruct {
 	char szAverageUploadKBPS[NETSTATS_TEXT_BUF_SIZE];
 };
 
-class CNetStats {
+class EXP_FUNC CNetStats {
 public:
 	CNetStats();
 private:
@@ -48,6 +48,3 @@ public:
 	char* GetAverageDownloadKBPS(){return &Stats.szAverageDownloadKBPS[0];}
 	char* GetAverageUploadKBPS(){return &Stats.szAverageUploadKBPS[0];}
 };
-
-#endif
-#endif //--_NET_STATS_H_

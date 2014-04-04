@@ -1,12 +1,12 @@
-#ifndef _NET_LOG_H_
-#define _NET_LOG_H_
-#ifdef __cplusplus
+#pragma once
 //----------------------------------------------------------------------//
 #include "Windows.h"
 #include "stdio.h"
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
-class CNetLog {
+class EXP_FUNC CNetLog {
 public:
 	CNetLog();
 	~CNetLog();
@@ -24,6 +24,3 @@ public:
 	void Log(const char *fmt, ...);
 	void Close();
 };
-
-#endif
-#endif //--_NET_LOG_H_

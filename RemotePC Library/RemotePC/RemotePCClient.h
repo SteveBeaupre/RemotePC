@@ -8,10 +8,27 @@
 //----------------------------------------------------------------------//
 #include "RemotePC.h"
 #include "ClientScreenshotManager.h"
+//----------------------------------------------------------------------//
+#define EMULATE_OPENGL
+
+#ifndef FAKE_OPENGL
+#ifndef EMULATE_OPENGL
 #include "OpenGL.h"
+#endif
+#endif
+
+#ifdef FAKE_OPENGL
+#include "FakeOpenGL.h"
+#endif
+
+#ifdef EMULATE_OPENGL
+#include "OpenGLEmulator.h"
+#endif
+//----------------------------------------------------------------------//
+#include "..\\Preproc.h"
 //----------------------------------------------------------------------//
 
-class CRemotePCClient : public CRemotePC, public IRemotePCClient {
+class EXP_FUNC CRemotePCClient : public CRemotePC, public IRemotePCClient {
 public:
 	CRemotePCClient();
 	~CRemotePCClient();
@@ -19,12 +36,13 @@ private:
 	ScrFormat ScreenshotFormat;
 	CLock FormatLock;
 private:
+	IOpenGL* pOpenGL;
+private:
 	HWND hRendererWnd;
-	COpenGL OpenGL;
 	CClientScreenshotManager ScreenshotManager;
 	CClientInputs ClientInputs;
 public:
-	COpenGL* GetOpenGL(){return &OpenGL;}
+	IOpenGL* GetOpenGL(){return pOpenGL;}
 	CClientScreenshotManager* GetScreenshotManager(){return &ScreenshotManager;}
 	CClientInputs* GetClientInputs(){return &ClientInputs;}
 

@@ -52,21 +52,25 @@ struct TextureStruct {
 	UINT BufferSize;
 };
 
+struct OpenGLImgDim {
+	float ww, wh, tw, th;
+	float l, t;
+	int vw, vh;
+};
+
 class IOpenGL {
 public:
+	virtual bool Initialize(HWND h) = 0;
+	virtual void Shutdown() = 0;
+	virtual bool IsInitialized() = 0;
+
 	virtual HWND GetHWND() = 0;
 	virtual Siz2 CalcWndSize() = 0;
 
-	virtual void SetVSync(int i) = 0;
-	
 	virtual void SetStretchedFlag(bool Stretched) = 0;
 	virtual void SetShowFPSFlag(bool ShowFPS) = 0;
 	virtual bool GetStretchedFlag() = 0;
 	virtual bool GetShowFPSFlag() = 0;
-
-	virtual bool Initialize(HWND h) = 0;
-	virtual void Shutdown() = 0;
-	virtual bool IsInitialized() = 0;
 
 	virtual TextureStruct* GetTexture() = 0;
 
@@ -76,10 +80,6 @@ public:
 	virtual void CreateTexture() = 0;
 	virtual void DeleteTexture() = 0;
 	virtual void LoadTexture(BYTE *pTex, UINT w, UINT h, ScrFormat Format) = 0;
-
-	virtual void Set2DMode(int w, int h) = 0;
-	
-	virtual void DrawQuad(float l, float t, float w, float h) = 0;
 
 	virtual void Render() = 0;
 	virtual void RenderEmpty() = 0;

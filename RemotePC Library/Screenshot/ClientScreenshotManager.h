@@ -9,8 +9,10 @@
 #include "Screenshot.h"
 #include "QuadTree.h"
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
-class CClientScreenshotManager : IClientScreenshotManager {
+class EXP_FUNC CClientScreenshotManager : IClientScreenshotManager {
 public:
 	CClientScreenshotManager();
 	~CClientScreenshotManager();

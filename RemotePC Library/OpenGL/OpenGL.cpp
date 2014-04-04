@@ -68,6 +68,8 @@ void COpenGL::UpdateScrollBars(bool Stretched)
 	}
 }
 
+//----------------------------------------------------------------------//
+
 void COpenGL::SetStretchedFlag(bool Stretched)
 {
 	SettingsThreadLock.Lock();
@@ -196,6 +198,13 @@ bool COpenGL::SetupPixelFormatDescriptor(HDC hdc)
 
 //----------------------------------------------------------------------//
 
+void COpenGL::InitOpenGL()
+{
+
+}
+
+//----------------------------------------------------------------------//
+
 bool COpenGL::Initialize(HWND h)
 {
 	// Return false if we're already initialized
@@ -319,37 +328,30 @@ void COpenGL::CreateTexture()
 
 //----------------------------------------------------------------------//
 
-void COpenGL::LoadTexture(BYTE *pTex, UINT w, UINT h, ScrFormat Format)
+void COpenGL::SetFormat(ScrFormat Format, int *pGLType, int *pGLFormat, int *pGLIntFormat)
 {
-	if(!IsInitialized())
-		return;
-	
-	int GLType = 0;
-	int GLFormat = 0;
-	int GLIntFormat = 0;
-
 	switch(Format)
 	{
 	case scrf_32: 
-		GLIntFormat = 4;
-		GLFormat = GL_BGRA;
-		GLType   = GL_UNSIGNED_BYTE;
+		*pGLIntFormat = 4;
+		*pGLFormat = GL_BGRA;
+		*pGLType   = GL_UNSIGNED_BYTE;
 		break;
 	case scrf_16: 
-		GLIntFormat = 4;
-		GLFormat = GL_BGRA;
-		GLType   = GL_UNSIGNED_SHORT_1_5_5_5_REV;
+		*pGLIntFormat = 4;
+		*pGLFormat = GL_BGRA;
+		*pGLType   = GL_UNSIGNED_SHORT_1_5_5_5_REV;
 		break;
 	case scrf_8c: 
-		GLIntFormat = 3;
-		GLFormat = GL_RGB;
-		GLType   = GL_UNSIGNED_BYTE_2_3_3_REV;
+		*pGLIntFormat = 3;
+		*pGLFormat = GL_RGB;
+		*pGLType   = GL_UNSIGNED_BYTE_2_3_3_REV;
 		break;
 	case scrf_8g: 
 	case scrf_4:
-		GLIntFormat = 1;
-		GLFormat = GL_LUMINANCE;
-		GLType   = GL_UNSIGNED_BYTE;
+		*pGLIntFormat = 1;
+		*pGLFormat = GL_LUMINANCE;
+		*pGLType   = GL_UNSIGNED_BYTE;
 		break;
 	case scrf_1: 
 		{
@@ -362,11 +364,25 @@ void COpenGL::LoadTexture(BYTE *pTex, UINT w, UINT h, ScrFormat Format)
 			glPixelMapfv(GL_PIXEL_MAP_I_TO_A, numcols, index);
 		}
 
-		GLIntFormat = 1;
-		GLFormat = GL_COLOR_INDEX;
-		GLType   = GL_BITMAP;
+		*pGLIntFormat = 1;
+		*pGLFormat = GL_COLOR_INDEX;
+		*pGLType   = GL_BITMAP;
+
 		break;
 	}
+}
+
+//----------------------------------------------------------------------//
+
+void COpenGL::LoadTexture(BYTE *pTex, UINT w, UINT h, ScrFormat Format)
+{
+	if(!IsInitialized())
+		return;
+	
+	int GLType = 0;
+	int GLFormat = 0;
+	int GLIntFormat = 0;
+	SetFormat(Format, &GLType, &GLFormat, &GLIntFormat);
 
 	if(Texture.ID == 0){
 		CreateTexture();
@@ -407,26 +423,23 @@ void COpenGL::DeleteTexture()
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 
-void COpenGL::Set2DMode(int w, int h)
+inline void COpenGL::SetVertex(float x, float y)
 {
-	if(!IsInitialized())
-		return;
+	glVertex2f(x, y);
+}
 
-	glViewport(0, 0, w, h);
+//----------------------------------------------------------------------//
 
-	glMatrixMode(GL_PROJECTION); 
-	glLoadIdentity(); 
-	gluOrtho2D(0, w, 0, h);
-	glMatrixMode(GL_MODELVIEW); 
+inline void COpenGL::SetVertex(float x, float y, float tx, float ty)
+{
+	glTexCoord2f(tx, ty);
+	glVertex2f(x, y);
 }
 
 //----------------------------------------------------------------------//
 
 void COpenGL::DrawQuad(float l, float t, float w, float h)
 {
-	if(!IsInitialized())
-		return;
-
 	glColor3f(1.0f, 1.0f, 1.0f);
 
 	float r = l+w;
@@ -437,20 +450,20 @@ void COpenGL::DrawQuad(float l, float t, float w, float h)
 		glBindTexture(GL_TEXTURE_2D, Texture.ID);
 
 		glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 1.0f); glVertex2f(l, b);
-			glTexCoord2f(1.0f, 1.0f); glVertex2f(r, b);
-			glTexCoord2f(1.0f, 0.0f); glVertex2f(r, t);
-			glTexCoord2f(0.0f, 0.0f); glVertex2f(l, t);
+			SetVertex(l, b, 0.0f, 1.0f);
+			SetVertex(r, b, 1.0f, 1.0f);
+			SetVertex(r, t, 1.0f, 0.0f);
+			SetVertex(l, t, 0.0f, 0.0f);
 		glEnd();
 	} else {
 		glDisable(GL_TEXTURE_2D);
 
 		glColor3f(0.15f, 0.15f, 0.15f);
 		glBegin(GL_QUADS);
-			glVertex2f(l, b);
-			glVertex2f(r, b);
-			glVertex2f(r, t);
-			glVertex2f(l, t);
+			SetVertex(l, b);
+			SetVertex(r, b);
+			SetVertex(r, t);
+			SetVertex(l, t);
 		glEnd();
 		glColor3f(1.0f, 1.0f, 1.0f);
 	}
@@ -474,10 +487,10 @@ void COpenGL::DrawFPS()
 	glDisable(GL_TEXTURE_2D);
 
 	glBegin(GL_QUADS);
-		glVertex2f(l, t);
-		glVertex2f(r, t);
-		glVertex2f(r, b);
-		glVertex2f(l, b);
+		SetVertex(l, t);
+		SetVertex(r, t);
+		SetVertex(r, b);
+		SetVertex(l, b);
 	glEnd();
 
 	glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
@@ -488,7 +501,35 @@ void COpenGL::DrawFPS()
 }
 
 //----------------------------------------------------------------------//
+
+OpenGLImgDim COpenGL::CalcImgDimentions(Siz2 WndSize)
+{
+	OpenGLImgDim dim;
+	dim.ww = (float)WndSize.w;
+	dim.wh = (float)WndSize.h;
+	dim.tw = (float)Texture.Width;
+	dim.th = (float)Texture.Height;
+
+	dim.l = dim.tw < dim.ww ? ((dim.ww - dim.tw) / 2.0f) : 0.0f;
+	dim.t = dim.th < dim.wh ? (dim.wh - dim.th) - ((dim.wh - dim.th) / 2.0f) : dim.wh - dim.th;
+	dim.vw = (int)(dim.ww < dim.tw ? dim.tw : dim.ww);
+	dim.vh = (int)(dim.wh < dim.th ? dim.th : dim.wh);
+
+	return dim;
+}
+
 //----------------------------------------------------------------------//
+
+void COpenGL::Set2DMode(int w, int h)
+{
+	glViewport(0, 0, w, h);
+
+	glMatrixMode(GL_PROJECTION); 
+	glLoadIdentity(); 
+	gluOrtho2D(0, w, 0, h);
+	glMatrixMode(GL_MODELVIEW); 
+}
+
 //----------------------------------------------------------------------//
 
 void COpenGL::Render()
@@ -506,18 +547,11 @@ void COpenGL::Render()
 	Siz2 WndSize = CalcWndSize();
 
 	if(!GetStretchedFlag()){
-		float ww = (float)WndSize.w;
-		float wh = (float)WndSize.h;
-		float tw = (float)Texture.Width;
-		float th = (float)Texture.Height;
+		
+		OpenGLImgDim dim = CalcImgDimentions(WndSize);
 
-		float l = tw < ww ? ((ww - tw) / 2.0f) : 0.0f;
-		float t = th < wh ? (wh - th) - ((wh - th) / 2.0f) : wh - th;
-		int vw = (int)(ww < tw ? tw : ww);
-		int vh = (int)(wh < th ? th : wh);
-
-		Set2DMode(vw, vh);
-		DrawQuad(l, t, tw, th);
+		Set2DMode(dim.vw, dim.vh);
+		DrawQuad(dim.l, dim.t, dim.tw, dim.th);
 	} else {
 		Set2DMode(WndSize.w, WndSize.h);
 		DrawQuad(0.0f, 0.0f, (float)WndSize.w, (float)WndSize.h);

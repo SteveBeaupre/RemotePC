@@ -1,6 +1,4 @@
-#ifndef _CNETENGINE_H_
-#define _CNETENGINE_H_
-#ifdef __cplusplus
+#pragma once
 //----------------------------------------------------------------------//
 #include <Windows.h>
 #include <stdio.h>
@@ -15,12 +13,14 @@
 //----------------------------------------------------------------------//
 #include "Thread.h"
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
 #define NO_LOG
 
-bool IsWinSockInitialized();
-bool InitializeWinSock();
-void ShutdownWinSock();
+bool EXP_FUNC IsWinSockInitialized();
+bool EXP_FUNC InitializeWinSock();
+void EXP_FUNC ShutdownWinSock();
 
 DWORD WINAPI ConnectToServerThread(void *param);
 DWORD WINAPI WaitForClientThread(void *param);
@@ -28,7 +28,7 @@ DWORD WINAPI WaitForClientThread(void *param);
 //----------------------------------------------------------------------//
 //-------------------CNetBaseEngine Class Definition--------------------//
 //----------------------------------------------------------------------//
-class CNetBase { 
+class EXP_FUNC CNetBase {
 protected:
 	HWND   m_hWnd;
 	SOCKET m_Socket;        
@@ -67,7 +67,7 @@ public:
 //----------------------------------------------------------------------//
 //---------------------CNetServer Class Definition----------------------//
 //----------------------------------------------------------------------//
-class CNetServer : public CNetBase {
+class EXP_FUNC CNetServer : public CNetBase {
 public:
 	CNetServer();
 	~CNetServer();
@@ -85,7 +85,7 @@ public:
 //----------------------------------------------------------------------//
 //---------------------CNetClient Class Definition----------------------//
 //----------------------------------------------------------------------//
-class CNetClient : public CNetBase {
+class EXP_FUNC CNetClient : public CNetBase {
 public:
 	CNetClient();
 	~CNetClient();
@@ -109,9 +109,3 @@ public:
 	// Disconnect from the Network
 	void Disconnect();
 };
-
-
-//----------------------------------------------------------------------//
-
-#endif
-#endif //_CNETENGINE_H_

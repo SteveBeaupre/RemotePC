@@ -5,8 +5,10 @@
 //----------------------------------------------------------------------//
 #include "IScreenshot.h"
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
-class CScreenshot : public IScreenshot, private ScreenshotStruct { 
+class EXP_FUNC CScreenshot : public IScreenshot, private ScreenshotStruct {
 public:
 	CScreenshot();
 	~CScreenshot();
@@ -18,14 +20,15 @@ private:
 	CWinVersion   WinVer;
 	CBitmapHelper BitmapHelper;
 
-	void DrawCursor(HDC hDC);
+	void DrawScreenCursor(HDC hDC);
+	void TakeScreenshot(HWND hDesktopWnd, int x, int y, int w, int h);
 	HWND GetScreenInfo(int *x, int *y, int *w, int *h);
 
-	void ResetInfos();
-	void ResetBuffer();
-
+	int  GetBitsPerPixels(ScrFormat Format);
+	void FillScreenshotInfo(ScrFormat Format, int w, int h, int bpp);
 	void FillBMIHeader(int w, int h, int bpp);
 	
+	void GenPalette(ScrFormat Format, int bpp);
 	void Gen8BitsPalette(bool Grayscale);
 	void Gen8bitsBGR233Palette();
 	void Gen8bitsGrayscalePalette();
@@ -34,7 +37,7 @@ private:
 public:
 	void Reset();
 	void Take(ScrFormat Format);
-	void CreateEmpty(ScrFormat Format, int Width, int Height, int BitsPerPixel);
+	void CreateEmptyFrame(ScrFormat Format, int w, int h, int bpp);
 
 	int GetWidth(){return Info.Width;}
 	int GetHeight(){return Info.Height;}

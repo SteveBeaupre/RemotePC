@@ -1,9 +1,8 @@
-#ifndef _RPC_FILE_FORMAT_H_
-#define _RPC_FILE_FORMAT_H_
-#ifdef __cplusplus
-
+#pragma once
+//----------------------------------------------------------------------//
 #include "Windows.h"
 #include "stdio.h"
+//----------------------------------------------------------------------//
 
 #define SIGNATURE_SIZE	16
 #define VERSION_SIZE	8
@@ -23,6 +22,3 @@ struct RPCHeader {
 
 UINT CalcNumPieces(UINT PatchSize, UINT PiecesSize);
 UINT CalcPieceSize(UINT PatchSize, UINT PiecesSize, UINT n);
-
-#endif
-#endif //_RPC_FILE_FORMAT_H_

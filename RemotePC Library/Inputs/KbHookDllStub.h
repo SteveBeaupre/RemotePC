@@ -1,15 +1,15 @@
-#ifndef _KEYBOARD_HOOK_DLL_STUB_H_
-#define _KEYBOARD_HOOK_DLL_STUB_H_
-#ifdef __cplusplus
-
+#pragma once
+//----------------------------------------------------------------------//
 #include <Windows.h>
 #include <stdio.h>
+//----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
 typedef BOOL (WINAPI* PFNINSTALLHOOK)(HWND ViewerWnd, void *pKeyEventFunc);
 typedef void (WINAPI* PFNREMOVEHOOK)();
 
-
-class CKbHookDllStub {
+class EXP_FUNC CKbHookDllStub {
 public:
 	CKbHookDllStub();
 	~CKbHookDllStub();
@@ -25,6 +25,3 @@ public:
 	bool Load(char *fname);
 	void Free();
 };
-
-#endif
-#endif //_KEYBOARD_HOOK_DLL_STUB_H_

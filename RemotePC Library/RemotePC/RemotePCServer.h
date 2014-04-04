@@ -9,8 +9,10 @@
 #include "RemotePC.h"
 #include "ServerScreenshotManager.h"
 //----------------------------------------------------------------------//
+#include "..\\Preproc.h"
+//----------------------------------------------------------------------//
 
-class CRemotePCServer : public CRemotePC, public IRemotePCServer {
+class EXP_FUNC CRemotePCServer : public CRemotePC, public IRemotePCServer {
 public:
 	CRemotePCServer();
 	~CRemotePCServer();
