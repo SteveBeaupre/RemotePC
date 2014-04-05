@@ -32,7 +32,6 @@ private:
 	void DrawQuad(int l, int t, int w, int h);
 	int  GetBitsPerPixels(ScrFormat Format);
 	OpenGLImgDim CalcImgDimentions(Siz2 WndSize);
-	void SetPanelColor(HDC hDC, BYTE r = 0, BYTE g = 0, BYTE b = 0);
 private:
 	void GenPalette(ScrFormat Format, int bpp);
 	void Gen8BitsPalette(bool Grayscale);

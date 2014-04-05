@@ -15,6 +15,10 @@ TMainForm *MainForm;
 CRemotePCClient *pRemotePCClient = NULL;
 CClientSettings Settings;
 //---------------------------------------------------------------------------
+#ifdef EMULATE_OPENGL
+TColor PanelBackColor = clBlackl
+#endif
+//---------------------------------------------------------------------------
 CKbHookDllStub KbHookDllStub;
 void __cdecl OnKeyEvent(DWORD wParam, DWORD lParam);
 //---------------------------------------------------------------------------
@@ -33,6 +37,11 @@ bool __fastcall TMainForm::IsLoopbackAddress(AnsiString s)
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
 	LogedIn = false;
+
+	#ifdef EMULATE_OPENGL
+	DWORD dwColor = 0x00262626;
+	memcpy(&PanelBackColor, &dwColor, sizeof(DWORD));
+	#endif
 
 	#ifdef _DEBUG
 	Position = poDefault;
@@ -243,7 +252,7 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 			NetworkSpeedTimer->Enabled = true;
 			ButtonPause->Enabled = true;
 			#ifdef EMULATE_OPENGL
-			DesktopViewer->Color = clDkGray;
+			DesktopViewer->Color = PanelBackColor;
 			#endif
 		}
 		break;
