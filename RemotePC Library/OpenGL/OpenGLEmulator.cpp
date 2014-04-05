@@ -423,10 +423,20 @@ void COpenGLEmulator::DrawQuad(int l, int t, int w, int h)
 	// Createa device context
 	HDC hdcex = CreateCompatibleDC(hdc);
 
+	/*HBRUSH NewBrush = CreateSolidBrush(RGB(255, 0, 0));
+	HBRUSH OldBrush = (HBRUSH)SelectObject(hdcex, NewBrush);
+	Rectangle(hdcex, 0, 0, WndSize.w, WndSize.h);
+
+	BYTE Alpha = 0x26;
+	SetPanelColor(hdc, 255, 0, 0);*/
+
 	// Select the bitmap and draw it (on the panel)
 	SelectObject(hdcex, hbitmap);
-	StretchBlt(hdc, 0,0, WndSize.w, WndSize.h, hdcex, 0, h-1, w, -h, SRCCOPY);
 
+	StretchBlt(hdc, l, (h+t)-1, w, -h, hdcex, 0, 0, Texture.Width, Texture.Height, SRCCOPY);
+
+	//SelectObject(hdcex, OldBrush);
+	//DeleteObject(NewBrush);
 	DeleteDC(hdcex);
 }
 
@@ -450,9 +460,25 @@ OpenGLImgDim COpenGLEmulator::CalcImgDimentions(Siz2 WndSize)
 
 //----------------------------------------------------------------------//
 
+// Flicker... :(
+void COpenGLEmulator::SetPanelColor(HDC hDC, BYTE r, BYTE g, BYTE b)
+{
+	Siz2 WndSize = CalcWndSize();
+	HBRUSH NewBrush = CreateSolidBrush(RGB(r, g, b));
+
+	SelectObject(hDC, NewBrush);
+	Rectangle(hDC, 0, 0, WndSize.w, WndSize.h);
+	DeleteObject(NewBrush);
+}
+
+//----------------------------------------------------------------------//
+
 void COpenGLEmulator::RenderEmpty()
 {
-	// Draw the panel black
+	if(!IsInitialized())
+		return;
+
+	SetPanelColor(hdc, 0, 0, 0);
 }
 
 //----------------------------------------------------------------------//
@@ -462,8 +488,8 @@ void COpenGLEmulator::Render()
 	if(!IsInitialized())
 		return;
 
-	// Draw the panel black like this
-	//glClearColor(0.15f, 0.15f, 0.15f, 0.0f);
+	//BYTE Alpha = (BYTE)(0.15f * 255.0f);
+	//SetPanelColor(Alpha, Alpha, Alpha);
 
 	Siz2 WndSize = CalcWndSize();
 

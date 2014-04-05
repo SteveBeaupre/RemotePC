@@ -21,10 +21,10 @@ struct CKeyboardInputMsgStruct {
 
 class IClientInputs {
 public:
-	virtual DWORD EncodeMousePosition(int x, int y, int w, int h, int ImgW, int ImgH, bool Stretched) = 0;
-	virtual BYTE  EncodeMouseButton(UINT Button, bool up) = 0;
-	virtual BYTE  EncodeKeyboardMsg(DWORD wParam) = 0;
-	virtual bool  IsValidMouseRange(int val, int max) = 0;
+	virtual bool EncodeMousePosition(int x, int y, int w, int h, int ImgW, int ImgH, bool Stretched, DWORD *res) = 0;
+	virtual BYTE EncodeMouseButton(UINT Button, bool up) = 0;
+	virtual BYTE EncodeKeyboardMsg(DWORD wParam) = 0;
+	virtual bool IsValidMouseRange(int val, int max) = 0;
 };
 
 class IServerInputs {

@@ -2,38 +2,42 @@
 
 //----------------------------------------------------------------------//
 
-DWORD CClientInputs::EncodeMousePosition(int x, int y, int w, int h, int ImgW, int ImgH, bool Stretched)
+void CClientInputs::EncodeStretchedCoordinates(int n, int s, DWORD *res)
 {
-	DWORD res, xabs, yabs;
+	*res = (DWORD)(((float)n / (float)(s-1)) * 0xFFFF);
+}
 
-	if(Stretched){
-
-		xabs = (DWORD)(((float)x / (float)(w-1)) * 0xFFFF);
-		yabs = (DWORD)(((float)y / (float)(h-1)) * 0xFFFF);
-
-		res = (yabs << 16) + xabs;
+bool CClientInputs::EncodeNonStretchedCoordinates(int n, int s, int ts, DWORD *res)
+{
+	if(ts >= s){
+		*res = (DWORD)(((float)n / (float)(s-1)) * 0xFFFF);
 	} else {
+		int real = n - ((s - ts) / 2);
+		if(real < 0 || real >= ts)
+			return false;
 
-		if(ImgW >= w){
-			xabs = (DWORD)(((float)x / (float)(w-1)) * 0xFFFF);
-		} else {
-			int realx = x - ((w - ImgW) / 2);
-			if(!IsValidMouseRange(realx, ImgW)){return false;}
-			xabs = (DWORD)(((float)realx / (float)(ImgW-1)) * 0xFFFF);
-		}
-
-		if(ImgH >= h){
-			yabs = (DWORD)(((float)y / (float)(h-1)) * 0xFFFF);
-		} else {
-			int realy = y - ((h - ImgH) / 2);
-			if(!IsValidMouseRange(realy, ImgH)){return false;}
-			yabs = (DWORD)(((float)realy / (float)(ImgH-1)) * 0xFFFF);
-		}
-
-		res = (yabs << 16) + xabs;
+		*res = (DWORD)(((float)real / (float)(ts-1)) * 0xFFFF);
 	}
 
-	return res;
+	return true;
+}
+
+bool CClientInputs::EncodeMousePosition(int x, int y, int w, int h, int ImgW, int ImgH, bool Stretched, DWORD *res)
+{
+	*res = 0;
+	DWORD xabs, yabs;
+
+	if(Stretched){
+		EncodeStretchedCoordinates(x, w, &xabs);
+		EncodeStretchedCoordinates(y, h, &yabs);
+	} else {
+		if(!EncodeNonStretchedCoordinates(x, w, ImgW, &xabs) || !EncodeNonStretchedCoordinates(y, h, ImgH, &yabs))
+			return false;
+	}
+
+	*res = (yabs << 16) + xabs;
+
+	return true;
 }
 
 BYTE CClientInputs::EncodeMouseButton(UINT Button, bool up)

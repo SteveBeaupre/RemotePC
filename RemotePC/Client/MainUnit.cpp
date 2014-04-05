@@ -9,7 +9,7 @@
 TMainForm *MainForm;
 //---------------------------------------------------------------------------
 #ifdef _DEBUG
-#define DISABLE_MOUSE_INPUTS
+//#define DISABLE_MOUSE_INPUTS
 #endif
 //---------------------------------------------------------------------------
 CRemotePCClient *pRemotePCClient = NULL;
@@ -242,6 +242,9 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 			}
 			NetworkSpeedTimer->Enabled = true;
 			ButtonPause->Enabled = true;
+			#ifdef EMULATE_OPENGL
+			DesktopViewer->Color = clDkGray;
+			#endif
 		}
 		break;
 	case ON_DISCONNECTED:
@@ -252,6 +255,9 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		AddListboxMessageArg(szOnDisconnect[LangID]);
 		KbHookDllStub.RemoveHook();
 		EnableUI();
+		#ifdef EMULATE_OPENGL
+		DesktopViewer->Color = clBlack;
+		#endif
 		break;
 	case ON_CONNECTION_LOST:
 		LogedIn = false;
@@ -259,6 +265,9 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		AddListboxMessageArg(szOnConnectionLoss[LangID]);
 		KbHookDllStub.RemoveHook();
 		EnableUI();
+		#ifdef EMULATE_OPENGL
+		DesktopViewer->Color = clBlack;
+		#endif
 		break;
 	case ON_CONNECTION_CANCELED:
 		AddListboxMessageArg(szOnConnectionCanceled[LangID]);
@@ -371,10 +380,11 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 		DesktopViewer->SetFocus();
 
 		CMouseInputMsgStruct mm;
+		int TexW = pRemotePCClient->GetOpenGL()->GetTexture()->Width;
+		int TexH = pRemotePCClient->GetOpenGL()->GetTexture()->Height;
 		mm.Msg  = MSG_MOUSE_MOVE;
-		mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
-
-		pRemotePCClient->SendMouseMsg(&mm);
+		if(pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, TexW,TexH, CheckBoxStretch->Checked, &mm.Data))
+			pRemotePCClient->SendMouseMsg(&mm);
 	}
 	#endif
 }
@@ -387,10 +397,11 @@ void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton 
 
 	#ifndef DISABLE_MOUSE_INPUTS
 	CMouseInputMsgStruct mm;
+	int TexW = pRemotePCClient->GetOpenGL()->GetTexture()->Width;
+	int TexH = pRemotePCClient->GetOpenGL()->GetTexture()->Height;
 	mm.Msg  = pRemotePCClient->GetClientInputs()->EncodeMouseButton(Button, false);
-	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, true);
-
-	pRemotePCClient->SendMouseMsg(&mm);
+	if(pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, TexW,TexH, CheckBoxStretch->Checked, &mm.Data))
+		pRemotePCClient->SendMouseMsg(&mm);
 	#endif
 }
 //---------------------------------------------------------------------------
@@ -401,10 +412,11 @@ void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Bu
 
 	#ifndef DISABLE_MOUSE_INPUTS
 	CMouseInputMsgStruct mm;
+	int TexW = pRemotePCClient->GetOpenGL()->GetTexture()->Width;
+	int TexH = pRemotePCClient->GetOpenGL()->GetTexture()->Height;
 	mm.Msg  = pRemotePCClient->GetClientInputs()->EncodeMouseButton(Button, true);
-	mm.Data = pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, 0,0, CheckBoxStretch->Checked);
-
-	pRemotePCClient->SendMouseMsg(&mm);
+	if(pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, TexW,TexH, CheckBoxStretch->Checked, &mm.Data))
+		pRemotePCClient->SendMouseMsg(&mm);
 	#endif
 }
 //---------------------------------------------------------------------------
@@ -446,6 +458,9 @@ void __cdecl OnKeyEvent(DWORD wParam, DWORD lParam)
 void __fastcall TMainForm::CheckBoxStretchClick(TObject *Sender)
 {
 	pRemotePCClient->GetOpenGL()->SetStretchedFlag(CheckBoxStretch->Checked);
+	#ifdef EMULATE_OPENGL
+	DesktopViewer->Invalidate();
+	#endif
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::CheckBoxShowFPSClick(TObject *Sender)
@@ -526,6 +541,7 @@ void __fastcall TMainForm::NetworkSpeedTimerTimer(TObject *Sender)
 	StatusBar->Panels->Items[1]->Text = AnsiString(Tot);
 	StatusBar->Panels->Items[2]->Text = AnsiString(Avg);
 }
+
 //---------------------------------------------------------------------------
 
 void __fastcall TMainForm::ButtonPauseClick(TObject *Sender)
