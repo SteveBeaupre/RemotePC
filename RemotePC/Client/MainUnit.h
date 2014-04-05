@@ -15,6 +15,7 @@
 #include "DesktopViewer.hpp"
 #include "NetworkSpeedViewer.hpp"
 //---------------------------------------------------------------------------
+#include "RemotePCGUI.h"
 /*#include "RemotePCClient.h"
 #include "KbHookDllStub.h"
 #include "Settings.h"
@@ -98,7 +99,7 @@ public:		// User declarations
 	int  LangID;
 	bool LogedIn;
 
-	void AddListboxMessageArg(const char *fmt, ...);
+	//void AddListboxMessageArg(const char *fmt, ...);
 	bool __fastcall IsLoopbackAddress(AnsiString s);
 	void __fastcall LoadSettings();
 	void __fastcall SaveSettings();

@@ -2,7 +2,7 @@
 
 CRemotePCServer::CRemotePCServer()
 {
-
+	AllowControl = false;
 }
 
 CRemotePCServer::~CRemotePCServer()
@@ -36,10 +36,12 @@ void CRemotePCServer::ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE 
 		OnScreenshotRequest((ScrFormat*)pMsgData);
 		break;
 	case MSG_MOUSE_INPUT_DATA:
-		OnMouseMsg((CMouseInputMsgStruct*)pMsgData);
+		if(AllowControl)
+			OnMouseMsg((CMouseInputMsgStruct*)pMsgData);
 		break;
 	case MSG_KB_INPUT_DATA:
-		OnKeyboardMsg((CKeyboardInputMsgStruct*)pMsgData);
+		if(AllowControl)
+			OnKeyboardMsg((CKeyboardInputMsgStruct*)pMsgData);
 		break;
 	}
 }

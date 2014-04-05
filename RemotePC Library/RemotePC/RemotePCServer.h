@@ -17,6 +17,7 @@ public:
 	CRemotePCServer();
 	~CRemotePCServer();
 private:
+	bool AllowControl;
 	bool MultithreadedScreenshot;
 private:
 	CLoginInfo LoginInfo;
@@ -27,6 +28,8 @@ private:
 public:
 	void Reset();
 	void ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData);
+
+	void EnableControl(bool val){AllowControl = val;}
 
 	void SetMultiThreadedMode(bool MultithreadTheScreenshot);
 

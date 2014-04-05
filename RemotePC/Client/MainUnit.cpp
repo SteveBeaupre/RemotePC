@@ -16,7 +16,7 @@ CRemotePCClient *pRemotePCClient = NULL;
 CClientSettings Settings;
 //---------------------------------------------------------------------------
 #ifdef EMULATE_OPENGL
-TColor PanelBackColor = clBlackl
+TColor PanelBackColor = clBlack;
 #endif
 //---------------------------------------------------------------------------
 CKbHookDllStub KbHookDllStub;
@@ -201,26 +201,6 @@ void __fastcall TMainForm::DisableUI()
 	EditPassword->Enabled = false;
 }
 //---------------------------------------------------------------------------
-void TMainForm::AddListboxMessageArg(const char *fmt, ...)
-{
-	if(fmt == NULL)
-		return;
-
-	const int BufSize = 2048;
-
-	char TextBuf[BufSize];
-	char *pTxt = &TextBuf[0];
-	ZeroMemory(pTxt, BufSize);
-
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(pTxt, BufSize, fmt, ap);
-	va_end(ap);
-
-	ListBoxLog->Items->Add(pTxt);
-	StatusBar->Panels->Items[0]->Text = pTxt;
-}
-//---------------------------------------------------------------------------
 void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 {
 	switch(Message.Msg)
@@ -231,13 +211,13 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		break;
 	case ON_THREAD_START:
 		if(!CheckBoxConnectAsServer->Checked){
-			AddListboxMessageArg(szOnConnectionThreadStartedAsClient[LangID]);
+			AddListboxMessageArg(ListBoxLog, StatusBar, szOnConnectionThreadStartedAsClient[LangID]);
 		} else {
-			AddListboxMessageArg(szOnConnectionThreadStartedAsServer[LangID]);
+			AddListboxMessageArg(ListBoxLog, StatusBar, szOnConnectionThreadStartedAsServer[LangID]);
 		}
 		break;
 	case ON_CONNECTED:
-		AddListboxMessageArg(szOnConnectionEstablished[LangID]);
+		AddListboxMessageArg(ListBoxLog, StatusBar, szOnConnectionEstablished[LangID]);
 		if(pRemotePCClient){
 			KbHookDllStub.InstallHook(DesktopViewer->Handle, OnKeyEvent);
 
@@ -261,7 +241,7 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		NetworkSpeedTimer->Enabled = false;
 		if(pRemotePCClient)
 			pRemotePCClient->StopThread();
-		AddListboxMessageArg(szOnDisconnect[LangID]);
+		AddListboxMessageArg(ListBoxLog, StatusBar, szOnDisconnect[LangID]);
 		KbHookDllStub.RemoveHook();
 		EnableUI();
 		#ifdef EMULATE_OPENGL
@@ -271,7 +251,7 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 	case ON_CONNECTION_LOST:
 		LogedIn = false;
 		NetworkSpeedTimer->Enabled = false;
-		AddListboxMessageArg(szOnConnectionLoss[LangID]);
+		AddListboxMessageArg(ListBoxLog, StatusBar, szOnConnectionLoss[LangID]);
 		KbHookDllStub.RemoveHook();
 		EnableUI();
 		#ifdef EMULATE_OPENGL
@@ -279,7 +259,7 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		#endif
 		break;
 	case ON_CONNECTION_CANCELED:
-		AddListboxMessageArg(szOnConnectionCanceled[LangID]);
+		AddListboxMessageArg(ListBoxLog, StatusBar, szOnConnectionCanceled[LangID]);
 		EnableUI();
 		break;
 	case ON_CONNECTION_TIMED_OUT:
@@ -287,9 +267,9 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 			int NumAttemp   = Message.WParam;
 			int TotalAttemp = Message.LParam;
 
-			AddListboxMessageArg(szOnConnectionFailed[LangID], NumAttemp, TotalAttemp);
+			AddListboxMessageArg(ListBoxLog, StatusBar, szOnConnectionFailed[LangID], NumAttemp, TotalAttemp);
 			if(NumAttemp == TotalAttemp){
-				AddListboxMessageArg(szOnConnectionTimedOut[LangID]);
+				AddListboxMessageArg(ListBoxLog, StatusBar, szOnConnectionTimedOut[LangID]);
 				EnableUI();
 			}
 		}
@@ -299,16 +279,16 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		switch((LoginResults)Message.LParam)
 		{
 		case NoErrors:
-			AddListboxMessageArg(szOnLoginSucess[LangID]);
+			AddListboxMessageArg(ListBoxLog, StatusBar, szOnLoginSucess[LangID]);
 			LogedIn = true;
 			break;
 
 		case InvalidAuthorizationCode:
-			AddListboxMessageArg(szOnLoginFailedInvAuth[LangID]);
-			AddListboxMessageArg(szOnLoginFailedInvAuthTip[LangID]);
+			AddListboxMessageArg(ListBoxLog, StatusBar, szOnLoginFailedInvAuth[LangID]);
+			AddListboxMessageArg(ListBoxLog, StatusBar, szOnLoginFailedInvAuthTip[LangID]);
 			break;
 		case InvalidPassword:
-			AddListboxMessageArg(szOnLoginFailedInvPass[LangID]);
+			AddListboxMessageArg(ListBoxLog, StatusBar, szOnLoginFailedInvPass[LangID]);
 			break;
 		}
 
@@ -532,23 +512,7 @@ void __fastcall TMainForm::SwitchToWindowedMode()
 void __fastcall TMainForm::NetworkSpeedTimerTimer(TObject *Sender)
 {
 	CNetStats* pStats = pRemotePCClient->GetNetManager()->GetStats();
-	pStats->UpdateStats();
-
-	char* TD = pStats->GetTotalDownloaded();
-	char* TU = pStats->GetTotalUploaded();
-	char* AD = pStats->GetAverageDownloadKBPS();
-	char* AU = pStats->GetAverageUploadKBPS();
-
-	char Tot[256];
-	char Avg[256];
-	ZeroMemory(Tot, 256);
-	ZeroMemory(Avg, 256);
-
-	sprintf(Tot, "D: %s Byte  T: %s", AD, TD);
-	sprintf(Avg, "U: %s Byte  T: %s", AU, TU);
-
-	StatusBar->Panels->Items[1]->Text = AnsiString(Tot);
-	StatusBar->Panels->Items[2]->Text = AnsiString(Avg);
+	FormatNetworkSpeedStats(pStats, StatusBar);
 }
 
 //---------------------------------------------------------------------------
