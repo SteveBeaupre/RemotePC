@@ -22,32 +22,29 @@ enum ScrFormat {
 	scrf_1, 
 };
 
-struct ScreenshotInfoStruct {
+struct ImageInfoStruct {
 	int Width;
 	int Height;
+	int BitsPerPixel;
+	ScrFormat Format;
+};
+
+struct ScreenshotInfoStruct : public ImageInfoStruct {
 	int NumPixels;
-	int BitsPerPixel;
-	ScrFormat Format;
 	int BufferSize;
-};
-
-struct CompressedScreenshotInfoStruct {
-	int Width;
-	int Height;
-	int BitsPerPixel;
-	ScrFormat Format;
-	int UncompressedSize;
-};
-
-struct DecompressedScreenshotInfoStruct {
-	CRawBuffer *pBuffer;
-	int Width, Height, BitsPerPixel;
-	ScrFormat Format;
 };
 
 struct ScreenshotStruct {
 	ScreenshotInfoStruct Info;
 	CRawBuffer Buffer;
+};
+
+struct CompressedScreenshotInfoStruct : public ImageInfoStruct {
+	int UncompressedSize;
+};
+
+struct DecompressedScreenshotInfoStruct : public ImageInfoStruct {
+	CRawBuffer *pBuffer;
 };
 
 class IScreenshot {

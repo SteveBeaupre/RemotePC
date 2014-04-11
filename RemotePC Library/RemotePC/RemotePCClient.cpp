@@ -91,7 +91,7 @@ void CRemotePCClient::ClearScreen()
 
 void CRemotePCClient::SendLoginRequest(char *pUserName, char *pPassword)
 {
-	GetNetManager()->GetLog()->Log("Sending Login Request...\n");
+	GetNetManager()->GetLog()->Add("Sending Login Request...\n");
 
 	CLoginInfo LoginInfo;
 
@@ -106,7 +106,7 @@ void CRemotePCClient::SendLoginRequest(char *pUserName, char *pPassword)
 
 void CRemotePCClient::OnLoginResult(LoginResultStruct* pLoginResult)
 {
-	GetNetManager()->GetLog()->Log("Login result received\n");
+	GetNetManager()->GetLog()->Add("Login result received\n");
 
 	PostMessage(GetHostWnd(), ON_LOGIN, (BOOL)(pLoginResult->Result == NoErrors), (UINT)pLoginResult->Result);
 }
@@ -132,7 +132,7 @@ void CRemotePCClient::SetScreenshotFormat(ScrFormat Format)
 
 void CRemotePCClient::SendScreenshotRequest()
 {
-	GetNetManager()->GetLog()->Log("Sending Screenshot Request...\n");
+	GetNetManager()->GetLog()->Add("Sending Screenshot Request...\n");
 
 	MsgHeaderStruct MsgHeader;
 	MsgHeader.MsgSize = sizeof(ScreenshotFormat);
@@ -144,7 +144,7 @@ void CRemotePCClient::SendScreenshotRequest()
 
 void CRemotePCClient::OnScreenshotMsg(MsgHeaderStruct *pMsgHeader, BYTE *pMsgData)
 {
-	GetNetManager()->GetLog()->Log("Screenshot data received\n");
+	GetNetManager()->GetLog()->Add("Screenshot data received\n");
 
 	DecompressedScreenshotInfoStruct Info;
 	ScreenshotManager.Decompress(pMsgData, pMsgHeader->MsgSize, &Info);

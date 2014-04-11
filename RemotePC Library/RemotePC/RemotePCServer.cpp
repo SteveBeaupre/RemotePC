@@ -58,7 +58,7 @@ void CRemotePCServer::SetLoginInfo(char *pUserName, char *pPassword)
 
 void CRemotePCServer::OnLoginRequest(LoginInfoStruct *pInfo)
 {
-	GetNetManager()->GetLog()->Log("Login info received\n");
+	GetNetManager()->GetLog()->Add("Login info received\n");
 
 	LoginResults res = LoginInfo.CompareLoginInfo(pInfo);
 
@@ -85,7 +85,7 @@ void CRemotePCServer::CalcScreenSize(int *w, int *h)
 
 void CRemotePCServer::SendLoginResult(LoginResults Results)
 {
-	GetNetManager()->GetLog()->Log("Sending Login Info...\n");
+	GetNetManager()->GetLog()->Add("Sending Login Info...\n");
 
 	bool Succeded = Results == NoErrors;
 
@@ -112,7 +112,7 @@ void CRemotePCServer::SendLoginResult(LoginResults Results)
 
 void CRemotePCServer::OnScreenshotRequest(ScrFormat *pFormat)
 {
-	GetNetManager()->GetLog()->Log("Screenshot Request received\n");
+	GetNetManager()->GetLog()->Add("Screenshot Request received\n");
 
 	if(!MultithreadedScreenshot){
 		// Set the screenshot format
@@ -150,7 +150,7 @@ void CRemotePCServer::WaitForScreenshotThreadToFinish()
 
 void CRemotePCServer::SendScreenshot(CRawBuffer *pBuffer)
 {
-	GetNetManager()->GetLog()->Log("Sending Screenshot Data...\n");
+	GetNetManager()->GetLog()->Add("Sending Screenshot Data...\n");
 
 	MsgHeaderStruct MsgHeader;
 	MsgHeader.MsgSize = pBuffer->GetSize();

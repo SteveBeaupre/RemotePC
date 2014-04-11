@@ -8,10 +8,6 @@
 #pragma resource "*.dfm"
 TMainForm *MainForm;
 //---------------------------------------------------------------------------
-#ifdef _DEBUG
-//#define DISABLE_MOUSE_INPUTS
-#endif
-//---------------------------------------------------------------------------
 CRemotePCClient *pRemotePCClient = NULL;
 CClientSettings Settings;
 //---------------------------------------------------------------------------
@@ -60,6 +56,12 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	StatusBar->Panels->Items[0]->Text = "Disconnected.";
 	StatusBar->Panels->Items[1]->Text = "D: 0 Byte  T: 0.00 Kbp\\s";
 	StatusBar->Panels->Items[2]->Text = "U: 0 Byte  T: 0.00 Kbp\\s";
+
+	//FilesManagerTreeView->Align = alTop;
+	//FilesManagerTreeView->Height = 150;
+	PanelFilesManager->Parent = TabControl;
+	PanelFilesManager->Align = alClient;
+	TabControl->OnChange(this);
 
 	InitializeWinSock();
 	pRemotePCClient = new CRemotePCClient();
@@ -364,7 +366,6 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 		ConnectionPanel->Visible = ShowHiddenStuffs;
 	}
 
-	#ifndef DISABLE_MOUSE_INPUTS
 	if(LogedIn && !pRemotePCClient->GetThread()->IsThreadPaused()){
 		DesktopViewer->SetFocus();
 
@@ -375,7 +376,6 @@ void __fastcall TMainForm::DesktopViewerMouseMove(TObject *Sender, TShiftState S
 		if(pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, TexW,TexH, CheckBoxStretch->Checked, &mm.Data))
 			pRemotePCClient->SendMouseMsg(&mm);
 	}
-	#endif
 }
 //---------------------------------------------------------------------------
 
@@ -384,14 +384,12 @@ void __fastcall TMainForm::DesktopViewerMouseDown(TObject *Sender, TMouseButton 
 	if(!LogedIn || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
-	#ifndef DISABLE_MOUSE_INPUTS
 	CMouseInputMsgStruct mm;
 	int TexW = pRemotePCClient->GetOpenGL()->GetTexture()->Width;
 	int TexH = pRemotePCClient->GetOpenGL()->GetTexture()->Height;
 	mm.Msg  = pRemotePCClient->GetClientInputs()->EncodeMouseButton(Button, false);
 	if(pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, TexW,TexH, CheckBoxStretch->Checked, &mm.Data))
 		pRemotePCClient->SendMouseMsg(&mm);
-	#endif
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
@@ -399,14 +397,12 @@ void __fastcall TMainForm::DesktopViewerMouseUp(TObject *Sender, TMouseButton Bu
 	if(!LogedIn || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
-	#ifndef DISABLE_MOUSE_INPUTS
 	CMouseInputMsgStruct mm;
 	int TexW = pRemotePCClient->GetOpenGL()->GetTexture()->Width;
 	int TexH = pRemotePCClient->GetOpenGL()->GetTexture()->Height;
 	mm.Msg  = pRemotePCClient->GetClientInputs()->EncodeMouseButton(Button, true);
 	if(pRemotePCClient->GetClientInputs()->EncodeMousePosition(X,Y, DesktopViewer->Width, DesktopViewer->Height, TexW,TexH, CheckBoxStretch->Checked, &mm.Data))
 		pRemotePCClient->SendMouseMsg(&mm);
-	#endif
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDelta)
@@ -414,13 +410,11 @@ void __fastcall TMainForm::DesktopViewerMouseRoll(TObject *Sender, short WheelDe
 	if(!LogedIn || pRemotePCClient->GetThread()->IsThreadPaused())
 		return;
 
-	#ifndef DISABLE_MOUSE_INPUTS
 	CMouseInputMsgStruct mm;
 	mm.Msg  = MSG_MOUSE_ROLL;
 	mm.Data = WheelDelta;
 
 	pRemotePCClient->SendMouseMsg(&mm);
-	#endif
 }
 //---------------------------------------------------------------------------
 void __cdecl OnKeyEvent(DWORD wParam, DWORD lParam)
@@ -495,6 +489,9 @@ void __fastcall TMainForm::SwitchToFullscreenMode()
 	LeftPanel->Hide();
 	ConnectionPanel->Hide();
 	ViewerPanel->BevelOuter = bvNone;
+	StatusBar->Hide();
+	Splitter2->Hide();
+	Splitter2->Parent = NULL;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::SwitchToWindowedMode()
@@ -505,7 +502,11 @@ void __fastcall TMainForm::SwitchToWindowedMode()
 
 	LeftPanel->Show();
 	ConnectionPanel->Show();
+	Splitter2->Parent = MainForm;
+	Splitter2->Left = ViewerPanel->Left;
+	Splitter2->Show();
 	ViewerPanel->BevelOuter = bvRaised;
+	StatusBar->Show();
 }
 //---------------------------------------------------------------------------
 
@@ -566,4 +567,18 @@ void __fastcall TMainForm::ComboBoxScrFormatChange(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+
+void __fastcall TMainForm::TabControlChange(TObject *Sender)
+{
+	ListBoxLog->Visible = TabControl->TabIndex == 0;
+	PanelFilesManager->Visible = TabControl->TabIndex == 1;
+	Panel1->Visible = TabControl->TabIndex == 2;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TMainForm::ClearLogMenuClick(TObject *Sender)
+{
+	ListBoxLog->Clear();
+}
+//---------------------------------------------------------------------------
 

@@ -83,53 +83,56 @@ void CClientScreenshotManager::Decompress(BYTE *pCompressedBuffer, DWORD Compres
 		}
 	}
 	
+	// Convert the image if format is 4 bpp
 	if(Format != scrf_4){
-		pInfo->Width  = w;
-		pInfo->Height = h;
-		pInfo->BitsPerPixel = bpp;
-		pInfo->Format = Format;
 		pInfo->pBuffer = &OpenGLBuffer;
-	} else { // Convert 4bpp to 8 bpp
+	} else {
 		bpp = 8;
 		Format = scrf_8g;
 
-		int ConvPitch   = BitmapHelper.CalcPitchSize(w, h, bpp);
-		int ConvBufSize = BitmapHelper.CalcBufferSize(w, h, bpp);
+		Convert4To8bpp(w, h, bpp, Pitch);
 
-		ConvertedBuffer.Allocate(ConvBufSize, TRUE);
-
-		BYTE *pIn  = NULL;
-		BYTE *pOut = NULL;
-
-		BYTE i = 0;
-		BYTE o[2] = {0, 0};
-
-		for(int y = 0; y < h; y++){
-
-			pIn  = OpenGLBuffer.GetBuffer(Pitch * y);
-			pOut = ConvertedBuffer.GetBuffer(ConvPitch * y);
-
-			int InIndx  = 0;
-			int OutIndx = 0;
-
-			for(int x = 0; x < w; x++){
-
-				i = pIn[InIndx];
-				
-				o[0] = ((i & 0xF0) | (i >> 4));
-				o[1] = ((i & 0x0F) | (i << 4));
-
-				memcpy(&pOut[OutIndx], &o[0], 2);
-
-				InIndx++;
-				OutIndx+=2;
-			}
-		}
-
-		pInfo->Width  = w;
-		pInfo->Height = h;
-		pInfo->BitsPerPixel = bpp;
-		pInfo->Format = Format;
 		pInfo->pBuffer = &ConvertedBuffer;
+	}
+
+	pInfo->Width  = w;
+	pInfo->Height = h;
+	pInfo->BitsPerPixel = bpp;
+	pInfo->Format = Format;
+}
+
+void CClientScreenshotManager::Convert4To8bpp(int w, int h, int bpp, int Pitch)
+{
+	int ConvPitch   = BitmapHelper.CalcPitchSize(w, h, bpp);
+	int ConvBufSize = BitmapHelper.CalcBufferSize(w, h, bpp);
+
+	ConvertedBuffer.Allocate(ConvBufSize, TRUE);
+
+	BYTE *pIn  = NULL;
+	BYTE *pOut = NULL;
+
+	BYTE in = 0;
+	BYTE out[2] = {0, 0};
+
+	for(int y = 0; y < h; y++){
+
+		pIn  = OpenGLBuffer.GetBuffer(Pitch * y);
+		pOut = ConvertedBuffer.GetBuffer(ConvPitch * y);
+
+		int InIndx  = 0;
+		int OutIndx = 0;
+
+		for(int x = 0; x < w; x++){
+
+			in = pIn[InIndx];
+			
+			out[0] = ((in & 0xF0) | (in >> 4));
+			out[1] = ((in & 0x0F) | (in << 4));
+
+			memcpy(&pOut[OutIndx], &out[0], 2);
+
+			InIndx++;
+			OutIndx += 2;
+		}
 	}
 }

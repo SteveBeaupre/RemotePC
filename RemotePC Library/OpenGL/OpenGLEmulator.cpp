@@ -6,11 +6,6 @@ COpenGLEmulator::COpenGLEmulator()
 	hdc   = NULL;
 	hdcex = NULL;
 
-	// Allocate enough memory to hold a BITMAPINFO structure
-	BMISize = sizeof(BITMAPINFOHEADER) + (256 * sizeof(RGBQUAD));
-	bmi.Allocate(BMISize);
-	lpbi = (BITMAPINFO*)bmi.GetBuffer();
-
 	Shutdown();
 }
 
@@ -163,132 +158,7 @@ TextureStruct* COpenGLEmulator::GetTexture()
 
 //----------------------------------------------------------------------//
 
-int COpenGLEmulator::GetBitsPerPixels(ScrFormat Format)
-{
-	switch(Format)
-	{
-	case scrf_32: return 32;
-	case scrf_16: return 16;
-	case scrf_8c: 
-	case scrf_8g: return 8;
-	case scrf_4:  return 4;
-	case scrf_1:  return 1;
-	}
-
-	return 0;
-}
-
-//----------------------------------------------------------------------//
-
-void COpenGLEmulator::FillBMIHeader(int w, int h, int bpp)
-{
-	bmi.Erase();
-	lpbi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	lpbi->bmiHeader.biWidth = w;
-	lpbi->bmiHeader.biHeight = h;
-	lpbi->bmiHeader.biPlanes = 1;
-	lpbi->bmiHeader.biBitCount = bpp;
-	lpbi->bmiHeader.biCompression = BI_RGB;
-	lpbi->bmiHeader.biSizeImage = BitmapHelper.CalcBufferSize(w, h, bpp);
-	lpbi->bmiHeader.biXPelsPerMeter = 1000000;
-	lpbi->bmiHeader.biYPelsPerMeter = 1000000;
-}
-
-void COpenGLEmulator::GenPalette(ScrFormat Format, int bpp)
-{
-	switch(bpp)
-	{
-	case 1: Gen1bitsGrayscalePalette(); break;
-	case 4: Gen4bitsGrayscalePalette(); break;
-	case 8: Gen8BitsPalette(Format == scrf_8g); break;
-	}
-}
-
-//----------------------------------------------------------------------//
-
-void COpenGLEmulator::Gen8BitsPalette(bool Grayscale)
-{
-	static const int ncols = 256;
-	lpbi->bmiHeader.biClrUsed = ncols;
-	lpbi->bmiHeader.biClrImportant = ncols;
-
-	// Generate the palette
-	switch(Grayscale)
-	{
-	case false: Gen8bitsBGR233Palette();    break;
-	case true:  Gen8bitsGrayscalePalette(); break;
-	}
-}
-
-//----------------------------------------------------------------------//
-
-void COpenGLEmulator::Gen8bitsGrayscalePalette()
-{
-	static const int ncols = 256;
-	for(int i = 0; i < ncols; i++){
-		lpbi->bmiColors[i].rgbRed   = i;
-		lpbi->bmiColors[i].rgbGreen = i;
-		lpbi->bmiColors[i].rgbBlue  = i;
-	}
-}
-
-//----------------------------------------------------------------------//
-
-void COpenGLEmulator::Gen8bitsBGR233Palette()
-{
-	static const int ncols = 256;
-	static const BYTE _2_bits_index[4] = {0x00, 0x55, 0xAA, 0xFF};
-	static const BYTE _3_bits_index[8] = {0x00, 0x24, 0x49, 0x6D, 0x92, 0xB6, 0xDB, 0xFF};
-
-	for(int i = 0; i < ncols; i++){
-
-		int ri = (i & 0x07);
-		int gi = (i & 0x38) >> 3;
-		int bi = (i & 0xC0) >> 6;
-
-		lpbi->bmiColors[i].rgbRed   = _3_bits_index[ri];
-		lpbi->bmiColors[i].rgbGreen = _3_bits_index[gi];
-		lpbi->bmiColors[i].rgbBlue  = _2_bits_index[bi];
-	}
-}
-
-//---------------------------------------------------------------------------
-
-void COpenGLEmulator::Gen4bitsGrayscalePalette()
-{
-	static const int ncols = 16;
-	lpbi->bmiHeader.biClrUsed = ncols;
-	lpbi->bmiHeader.biClrImportant = ncols;
-
-	BYTE _4_bits_index[16] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
-
-	for(int i = 0; i < ncols; i++){
-		BYTE Col = _4_bits_index[i];
-		lpbi->bmiColors[i].rgbRed   = Col;
-		lpbi->bmiColors[i].rgbGreen = Col;
-		lpbi->bmiColors[i].rgbBlue  = Col;
-	}
-}
-
-//---------------------------------------------------------------------------
-
-void COpenGLEmulator::Gen1bitsGrayscalePalette()
-{
-	static const int ncols = 2;
-	lpbi->bmiHeader.biClrUsed = ncols;
-	lpbi->bmiHeader.biClrImportant = ncols;
-
-	for(int i = 0; i < ncols; i++){
-		BYTE Col = i == 0 ? 0 : 255;
-		lpbi->bmiColors[i].rgbRed   = Col;
-		lpbi->bmiColors[i].rgbGreen = Col;
-		lpbi->bmiColors[i].rgbBlue  = Col;
-	}
-}
-
-//----------------------------------------------------------------------//
-
-bool COpenGLEmulator::ConvertBuffers(BYTE* pOutput, BYTE* pInput, ScrFormat Format, int bpp, int w, int h)
+bool COpenGLEmulator::ConvertTo32Bits(BYTE* pOutput, BYTE* pInput, ScrFormat Format, int bpp, int w, int h)
 {
 	int PixWritten = 0;
 
@@ -301,7 +171,10 @@ bool COpenGLEmulator::ConvertBuffers(BYTE* pOutput, BYTE* pInput, ScrFormat Form
 	BYTE *Pix8  = pInput;
 	BYTE *Pix32 = pOutput;
 
-	GenPalette(Format, bpp);
+	BMI.Erase();
+	BITMAPINFO* lpbi = BMI.Get();
+	
+	Palette.Fill(lpbi, Format, bpp);
 
 	for(int y = 0; y < h; y++){
 
@@ -373,13 +246,12 @@ void COpenGLEmulator::LoadTexture(BYTE *pTex, UINT w, UINT h, ScrFormat Format)
 	int ConvBufSize = BitmapHelper.CalcBufferSize(w, h, 32);
 	CRawBuffer ConvBuffer(ConvBufSize);
 
-	// Convert the texture to 32 bits
-	ConvertBuffers(ConvBuffer.GetBuffer(), pTex, Format, bpp, w, h);
+	ConvertTo32Bits(ConvBuffer.GetBuffer(), pTex, Format, bpp, w, h);
 
-	// Delete the previsous bitmap, if any
+
 	if(hbitmap)
 		DeleteTexture();
-	// Create a 32-bit bitmap
+
 	hbitmap = (HBITMAP)CreateBitmap(w, h, 1, 32, ConvBuffer.GetBuffer());
 }
 
@@ -418,8 +290,6 @@ void COpenGLEmulator::DrawQuad(OpenGLImgDim *dim)
 
 void COpenGLEmulator::DrawQuad(int l, int t, int w, int h)
 {
-	Siz2 WndSize = CalcWndSize();
-
 	// Createa device context
 	HDC hdcex = CreateCompatibleDC(hdc);
 

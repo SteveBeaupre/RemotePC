@@ -58,6 +58,8 @@ __published:	// IDE-managed Components
 	TStatusBar *StatusBar;
 	TTimer *NetworkSpeedTimer;
 	TCheckBox *CheckBoxAllowControl;
+	TPopupMenu *PopupMenuClearLog;
+	TMenuItem *ClearLogMenu;
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 	void __fastcall ButtonListenClick(TObject *Sender);
 	void __fastcall ButtonDisconnectClick(TObject *Sender);
@@ -68,6 +70,7 @@ __published:	// IDE-managed Components
 	void __fastcall FrenchMenuClick(TObject *Sender);
 	void __fastcall NetworkSpeedTimerTimer(TObject *Sender);
 	void __fastcall CheckBoxAllowControlClick(TObject *Sender);
+	void __fastcall ClearLogMenuClick(TObject *Sender);
 private:	// User declarations
 protected:
 	void __fastcall WndProc(Messages::TMessage &Message);

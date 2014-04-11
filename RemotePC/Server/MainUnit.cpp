@@ -359,3 +359,9 @@ void __fastcall TMainForm::CheckBoxAllowControlClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TMainForm::ClearLogMenuClick(TObject *Sender)
+{
+	ListBoxLog->Clear();
+}
+//---------------------------------------------------------------------------
+

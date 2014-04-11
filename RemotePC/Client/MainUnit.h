@@ -66,8 +66,27 @@ __published:	// IDE-managed Components
 	TDesktopViewer *DesktopViewer;
 	TComboBox *ComboBoxScrFormat;
 	TStatusBar *StatusBar;
-	TTabControl *TabControl1;
+	TTabControl *TabControl;
 	TListBox *ListBoxLog;
+	TPanel *PanelFilesManager;
+	TTreeView *FilesManagerTreeView;
+	TButton *Button1;
+	TButton *Button2;
+	TButton *Button3;
+	TButton *Button4;
+	TButton *Button5;
+	TButton *Button6;
+	TButton *Button7;
+	TButton *Button8;
+	TButton *Button9;
+	TButton *Button10;
+	TButton *Button11;
+	TComboBox *ComboBox1;
+	TButton *Button12;
+	TSplitter *Splitter2;
+	TPopupMenu *PopupMenuClearLog;
+	TMenuItem *ClearLogMenu;
+	TPanel *Panel1;
 	void __fastcall ButtonConnectClick(TObject *Sender);
 	void __fastcall ButtonDisconnectClick(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
@@ -88,6 +107,8 @@ __published:	// IDE-managed Components
 	void __fastcall EnglishMenuClick(TObject *Sender);
 	void __fastcall CloseMenuClick(TObject *Sender);
 	void __fastcall ComboBoxScrFormatChange(TObject *Sender);
+	void __fastcall TabControlChange(TObject *Sender);
+	void __fastcall ClearLogMenuClick(TObject *Sender);
 private:	// User declarations
 	void __fastcall SaveScreenCoordinates();
 	void __fastcall RestoreScreenCoordinates();

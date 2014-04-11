@@ -5,11 +5,6 @@ CBitmapHelper::CBitmapHelper()
 	SetValues(0, 0, 0, 4);
 }
 
-CBitmapHelper::CBitmapHelper(int Width, int Height, int BitsPerPixels, int Align)
-{
-	SetValues(Width, Height, BitsPerPixels, Align);
-}
-
 void CBitmapHelper::SetValues(int Width, int Height, int BitsPerPixels, int Align)
 {
 	w = Width;
@@ -38,10 +33,10 @@ int CBitmapHelper::CalcPaddingSize(int RowSize)
 //////////////////////////////////////////////////////////////////////////
 int CBitmapHelper::CalcRowSize()
 {
-	int n = w * bpp;
+	int nbits = w * bpp;
 	
-	int size = n / 8;
-	if(n % 8 > 0)
+	int size = nbits / 8;
+	if(nbits % 8 > 0)
 		size++;
 
 	return size;
@@ -64,10 +59,10 @@ int CBitmapHelper::CalcBufferSize()
 	if(Alignment > 0){
 		return CalcPitchSize() * h;
 	} else {
-		int n = w * h * bpp;
+		int nbits = w * h * bpp;
 
-		int size = n / 8;
-		if(n % 8 > 0)
+		int size = nbits / 8;
+		if(nbits % 8 > 0)
 			size++;
 
 		return size;
@@ -77,6 +72,12 @@ int CBitmapHelper::CalcBufferSize()
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
+
+int CBitmapHelper::CalcPaddingSize(int Width, int Height, int BitsPerPixels, int Align)
+{
+	SetValues(Width, Height, BitsPerPixels, Align);
+	return CalcPaddingSize(CalcRowSize());
+}
 
 int CBitmapHelper::CalcRowSize(int Width, int Height, int BitsPerPixels, int Align)
 {

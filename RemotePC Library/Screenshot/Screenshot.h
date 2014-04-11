@@ -5,17 +5,20 @@
 //----------------------------------------------------------------------//
 #include "IScreenshot.h"
 //----------------------------------------------------------------------//
+#include "BMI.h"
+#include "Palette.h"
+//----------------------------------------------------------------------//
 #include "..\\Preproc.h"
 //----------------------------------------------------------------------//
+
+int GetBitsPerPixels(ScrFormat Format);
 
 class EXP_FUNC CScreenshot : public IScreenshot, private ScreenshotStruct {
 public:
 	CScreenshot();
 	~CScreenshot();
 private:
-	int BMISize;
-	CRawBuffer bmi;
-	BITMAPINFO *lpbi;
+	CBMI BMI;
 private:
 	CWinVersion   WinVer;
 	CBitmapHelper BitmapHelper;
@@ -24,16 +27,9 @@ private:
 	void TakeScreenshot(HWND hDesktopWnd, int x, int y, int w, int h);
 	HWND GetScreenInfo(int *x, int *y, int *w, int *h);
 
-	int  GetBitsPerPixels(ScrFormat Format);
 	void FillScreenshotInfo(ScrFormat Format, int w, int h, int bpp);
-	void FillBMIHeader(int w, int h, int bpp);
 	
-	void GenPalette(ScrFormat Format, int bpp);
-	void Gen8BitsPalette(bool Grayscale);
-	void Gen8bitsBGR233Palette();
-	void Gen8bitsGrayscalePalette();
-	void Gen4bitsGrayscalePalette();
-	void Gen1bitsGrayscalePalette();
+	CPalette Palette;
 public:
 	void Reset();
 	void Take(ScrFormat Format);

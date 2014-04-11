@@ -49,7 +49,7 @@ bool CNetLog::Create(char *fname)
 	return IsOpened();
 }
 
-void CNetLog::Log(const char *fmt, ...)
+void CNetLog::Add(const char *fmt, ...)
 {
 	if(!IsOpened() || m_Disabled || fmt == NULL)
 		return;

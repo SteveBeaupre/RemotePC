@@ -19,6 +19,8 @@ public:
 private:
 	CBitmapHelper BitmapHelper;
 	CRawBuffer UncompressedBuffer, OpenGLBuffer, ConvertedBuffer;
+private:
+	void Convert4To8bpp(int w, int h, int bpp, int Pitch);
 public:
 	void Reset();
 	void Decompress(BYTE *pCompressedBuffer, DWORD CompressedBufferSize, DecompressedScreenshotInfoStruct* pInfo);

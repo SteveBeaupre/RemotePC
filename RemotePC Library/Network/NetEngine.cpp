@@ -537,20 +537,20 @@ bool CNetBase::NetIO(DWORD Op, BYTE *buf, int bufsize, int *bufindx, int MaxPack
 
 		// Print current error message, if any...
 		if(err != 0)
-			Log.Log("%s\n", GetLastErrorMessage(err));
+			Log.Add("%s\n", GetLastErrorMessage(err));
 
 		if(Op == OP_IO_WRITE){
 
 			// Only return false on error except for WSAEWOULDBLOCK
 			if(err != 0 && err != WSAEWOULDBLOCK){
-				Log.Log("Send() returned false\n");
+				Log.Add("Send() returned false\n");
 				return false;
 			}
 			// Make sure res is 0 (and not -1) to avoid decrementing the counter
 			res = 0;
 			
 		} else {
-			Log.Log("Recv() returned false\n");
+			Log.Add("Recv() returned false\n");
 			return false;
 		}
 	}
@@ -560,7 +560,7 @@ bool CNetBase::NetIO(DWORD Op, BYTE *buf, int bufsize, int *bufindx, int MaxPack
 	// Inc. our counters
 	*bufindx += res;
 	
-	Log.Log("%s %d bytes (%d of %d bytes done.)\n", Op == OP_IO_READ ? "recv() read" : "send() sent", res, *bufindx, bufsize);
+	Log.Add("%s %d bytes (%d of %d bytes done.)\n", Op == OP_IO_READ ? "recv() read" : "send() sent", res, *bufindx, bufsize);
 	
 	switch(Op)
 	{

@@ -2,6 +2,8 @@
 //----------------------------------------------------------------------//
 #include "IOpenGL.h"
 //----------------------------------------------------------------------//
+#include "Screenshot.h"
+//----------------------------------------------------------------------//
 #include "..\\Preproc.h"
 //----------------------------------------------------------------------//
 
@@ -10,15 +12,13 @@ public:
 	COpenGLEmulator();
 	~COpenGLEmulator();
 private:
-	int BMISize;
-	CRawBuffer bmi;
-	BITMAPINFO *lpbi;
+	CBMI BMI;
+	CPalette Palette;
 	CBitmapHelper BitmapHelper;
 private:
 	HWND hWnd;
 	HDC  hdc, hdcex;
 	HBITMAP hbitmap;
-	void FillBMIHeader(int w, int h, int bpp);
 private:
 	TextureStruct Texture;
 	RenderSettingsStruct RenderSettings;
@@ -30,16 +30,9 @@ private:
 	void Set2DMode(int w, int h){}
 	void DrawQuad(OpenGLImgDim *dim);
 	void DrawQuad(int l, int t, int w, int h);
-	int  GetBitsPerPixels(ScrFormat Format);
 	OpenGLImgDim CalcImgDimentions(Siz2 WndSize);
 private:
-	void GenPalette(ScrFormat Format, int bpp);
-	void Gen8BitsPalette(bool Grayscale);
-	void Gen8bitsBGR233Palette();
-	void Gen8bitsGrayscalePalette();
-	void Gen4bitsGrayscalePalette();
-	void Gen1bitsGrayscalePalette();
-	bool ConvertBuffers(BYTE* pOutput, BYTE* pInput, ScrFormat Format, int bpp, int w, int h);
+	bool ConvertTo32Bits(BYTE* pOutput, BYTE* pInput, ScrFormat Format, int bpp, int w, int h);
 public:
 	HWND GetHWND();
 	Siz2 CalcWndSize();

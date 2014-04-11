@@ -21,6 +21,6 @@ public:
 	void Disable();
 	bool IsOpened();
 	bool Create(char *fname);
-	void Log(const char *fmt, ...);
+	void Add(const char *fmt, ...);
 	void Close();
 };
