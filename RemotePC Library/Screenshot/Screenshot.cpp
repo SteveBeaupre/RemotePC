@@ -96,26 +96,21 @@ void CScreenshot::TakeScreenshot(HWND hDesktopWnd, int x, int y, int w, int h)
 void CScreenshot::DrawScreenCursor(HDC hDC)
 {
 #ifdef RAD_STUDIO_XE
+	POINT CursorPos;
+	GetCursorPos(&CursorPos);
+	
 	CURSORINFO CursorInfo;
 	CursorInfo.cbSize = sizeof(CURSORINFO);
 	GetCursorInfo(&CursorInfo);
 
-	static DWORD Version = WinVer.DetectWindowsVersion();
-	//static HCURSOR hCur = LoadCursor(NULL, IDC_ARROW);
+	ICONINFO IconInfo;
+	ZeroMemory(&IconInfo, sizeof(ICONINFO));
+	GetIconInfo((HICON)CursorInfo.hCursor, &IconInfo);
 
-	DWORD CursorWidth  = GetSystemMetrics(SM_CXCURSOR);
-	DWORD CursorHeight = GetSystemMetrics(SM_CYCURSOR);
+	int x = CursorPos.x - IconInfo.xHotspot;
+	int y = CursorPos.y - IconInfo.yHotspot;
 
-	POINT CursorPos;
-	GetCursorPos(&CursorPos);
-	
-	// Needed for XP or older windows
-	if(Version < _WIN_VISTA_){
-		CursorPos.x -= CursorWidth  >> 2;
-		CursorPos.y -= CursorHeight >> 2;
-	}
-
-	DrawIconEx(hDC, CursorPos.x, CursorPos.y, CursorInfo.hCursor, CursorWidth, CursorHeight, 0, NULL, DI_NORMAL);
+	DrawIconEx(hDC, x, y, CursorInfo.hCursor, 0, 0, 0, NULL, DI_NORMAL);
 #endif
 }
 

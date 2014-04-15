@@ -20,7 +20,6 @@ public:
 private:
 	CBMI BMI;
 private:
-	CWinVersion   WinVer;
 	CBitmapHelper BitmapHelper;
 
 	void DrawScreenCursor(HDC hDC);
