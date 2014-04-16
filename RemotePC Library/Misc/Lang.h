@@ -21,6 +21,7 @@ LPCSTR szButtonPauseCaption2[2]            = {"Resume",     "Résumer"};
 LPCSTR szCheckBoxConnectAsClientCaption[2] = {"Reverse Connection", "Renverser Connection"};
 LPCSTR szCheckBoxConnectAsServerCaption[2] = {"Reverse Connection", "Renverser Connection"};
 LPCSTR szCheckBoxRemoveWallpaperCaption[2] = {"Remove Wallpaper",   "Effacer le papier paint"};
+LPCSTR szCheckBoxAllowControlCaption[2]    = {"Allow Control",      "Autoriser le controle"};
 
 LPCSTR szButtonCloseCaption[2]   = {"Close", "Fermer"};
 LPCSTR szLabelPasswordCaption[2] = {"Password", "Mot de Passe"};

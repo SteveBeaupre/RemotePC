@@ -25,6 +25,25 @@ __fastcall TMainForm::TMainForm(TComponent* Owner)
 {
 }
 //---------------------------------------------------------------------------
+void AddListboxMessageArg(TListBox *pListBox, const char *fmt, ...)
+{
+	if(fmt == NULL)
+		return;
+
+	const int BufSize = 2048;
+
+	char TextBuf[BufSize];
+	char *pTxt = &TextBuf[0];
+	ZeroMemory(pTxt, BufSize);
+
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(pTxt, BufSize, fmt, ap);
+	va_end(ap);
+
+	pListBox->Items->Add(pTxt);
+}
+//---------------------------------------------------------------------------
 bool IsValidURLChar(char c)
 {
 	static LPCSTR LegalChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~://?#[]@!$&'()*+,;=";

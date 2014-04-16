@@ -61,6 +61,7 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	//FilesManagerTreeView->Height = 150;
 	PanelFilesManager->Parent = TabControl;
 	PanelFilesManager->Align = alClient;
+	TabControl->Tabs->Delete(1);
 	TabControl->OnChange(this);
 
 	InitializeWinSock();
@@ -303,6 +304,17 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 		ScrollBox->VertScrollBar->Range = Message.LParam;
 		ScrollBox->HorzScrollBar->Range = Message.WParam;
 		break;
+
+	/*case WM_AVAILDRIVE_CB_CLEAR:
+		ComboBoxAvailableDrives->Clear();
+		break;
+
+	case WM_AVAILDRIVE_CB_ADDSTR:
+		{
+			UnicodeString s = UnicodeString((char*)Message.LParam);
+			ComboBoxAvailableDrives->Items->Add(s);
+		}
+		break;*/
 	}
 
 	TForm::WndProc(Message);
@@ -567,7 +579,6 @@ void __fastcall TMainForm::ComboBoxScrFormatChange(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-
 void __fastcall TMainForm::TabControlChange(TObject *Sender)
 {
 	ListBoxLog->Visible = TabControl->TabIndex == 0;
@@ -579,6 +590,18 @@ void __fastcall TMainForm::TabControlChange(TObject *Sender)
 void __fastcall TMainForm::ClearLogMenuClick(TObject *Sender)
 {
 	ListBoxLog->Clear();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TMainForm::ButtonSearchDrivesClick(TObject *Sender)
+{
+//	pRemotePCClient->SendGetDrivesRequest();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TMainForm::ComboBoxAvailableDrivesChange(TObject *Sender)
+{
+//
 }
 //---------------------------------------------------------------------------
 

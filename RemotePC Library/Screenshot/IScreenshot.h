@@ -50,7 +50,7 @@ struct DecompressedScreenshotInfoStruct : public ImageInfoStruct {
 class IScreenshot {
 public:
 	virtual void Reset() = 0;
-	virtual void Take() = 0;
+	virtual void Take(ScrFormat Format) = 0;
 	
 	virtual int GetWidth() = 0;
 	virtual int GetHeight() = 0;

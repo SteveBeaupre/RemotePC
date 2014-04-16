@@ -330,6 +330,7 @@ void __fastcall TMainForm::SetLanguage(int LanguageID)
 	CheckBoxConnectAsClient->Caption = szCheckBoxConnectAsClientCaption[LangID];
 	LabelPassword->Caption = szLabelPasswordCaption[LangID];
 	CheckBoxRemoveWallpaper->Caption = szCheckBoxRemoveWallpaperCaption[LangID];
+	CheckBoxAllowControl->Caption = szCheckBoxAllowControlCaption[LangID];
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::EnglishMenuClick(TObject *Sender)

@@ -21,6 +21,9 @@
 //////////////////////////////////////////////
 #define ON_UPDATE_SCROLLBARS_MSG	WM_USER + 159
 //////////////////////////////////////////////
+//#define WM_AVAILDRIVE_CB_CLEAR		WM_USER + 160
+//#define WM_AVAILDRIVE_CB_ADDSTR		WM_USER + 161
+//////////////////////////////////////////////
 #define READLOOP_START				1
 #define READLOOP_END				2
 #define READLOOP_SS_HEADER_SEND		3

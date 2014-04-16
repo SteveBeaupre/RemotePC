@@ -45,4 +45,7 @@ public:
 
 	void OnMouseMsg(CMouseInputMsgStruct* pMsg);
 	void OnKeyboardMsg(CKeyboardInputMsgStruct* pMsg);
+
+	//void OnGetDrivesRequest();
+	//void OnScanDirectoryRequest();
 };

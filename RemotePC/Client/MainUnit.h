@@ -40,7 +40,6 @@ __published:	// IDE-managed Components
 	TCheckBox *CheckBoxConnectAsServer;
 	TComboBox *ComboBoxHostName;
 	TTimer *NetworkSpeedTimer;
-	TTimer *RenderTimer;
 	TCTrayIcon *CTrayIcon;
 	TImageList *TrayImageList;
 	TPopupMenu *TrayPopupMenu;
@@ -69,7 +68,6 @@ __published:	// IDE-managed Components
 	TTabControl *TabControl;
 	TListBox *ListBoxLog;
 	TPanel *PanelFilesManager;
-	TTreeView *FilesManagerTreeView;
 	TButton *Button1;
 	TButton *Button2;
 	TButton *Button3;
@@ -80,13 +78,14 @@ __published:	// IDE-managed Components
 	TButton *Button8;
 	TButton *Button9;
 	TButton *Button10;
-	TButton *Button11;
-	TComboBox *ComboBox1;
-	TButton *Button12;
+	TComboBox *ComboBoxAvailableDrives;
+	TButton *ButtonSearchDrives;
 	TSplitter *Splitter2;
 	TPopupMenu *PopupMenuClearLog;
 	TMenuItem *ClearLogMenu;
 	TPanel *Panel1;
+	TListBox *ListBoxFilesManager;
+	TEdit *EditCurrentDirectory;
 	void __fastcall ButtonConnectClick(TObject *Sender);
 	void __fastcall ButtonDisconnectClick(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
@@ -109,6 +108,8 @@ __published:	// IDE-managed Components
 	void __fastcall ComboBoxScrFormatChange(TObject *Sender);
 	void __fastcall TabControlChange(TObject *Sender);
 	void __fastcall ClearLogMenuClick(TObject *Sender);
+	void __fastcall ButtonSearchDrivesClick(TObject *Sender);
+	void __fastcall ComboBoxAvailableDrivesChange(TObject *Sender);
 private:	// User declarations
 	void __fastcall SaveScreenCoordinates();
 	void __fastcall RestoreScreenCoordinates();

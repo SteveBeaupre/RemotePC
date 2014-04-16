@@ -157,7 +157,7 @@ DWORD WINAPI WaitForClientThread(void *param)
 		if(pNetEngine->WaitThread.MustExitThread()){
 			closesocket(*pSocket);
 			PostMessage(pNetEngine->GetHWND(), ON_CONNECTION_CANCELED, 0, 0);
-			return false;
+			return 0;
 		}
 
 		// Prepare the flags used by select()
@@ -175,7 +175,7 @@ DWORD WINAPI WaitForClientThread(void *param)
 	// check for error(s)
 	if(remoteSocket == INVALID_SOCKET){
 		closesocket(remoteSocket);
-		return false;
+		return 0;
 	}
 	closesocket(*pSocket);
 	*pSocket = remoteSocket;

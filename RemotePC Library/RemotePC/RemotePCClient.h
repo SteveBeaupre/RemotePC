@@ -9,19 +9,12 @@
 #include "RemotePC.h"
 #include "ClientScreenshotManager.h"
 //----------------------------------------------------------------------//
+#ifdef _DEBUG
 #define EMULATE_OPENGL
-
-#ifndef FAKE_OPENGL
+#endif
 #ifndef EMULATE_OPENGL
 #include "OpenGL.h"
-#endif
-#endif
-
-#ifdef FAKE_OPENGL
-#include "FakeOpenGL.h"
-#endif
-
-#ifdef EMULATE_OPENGL
+#else
 #include "OpenGLEmulator.h"
 #endif
 //----------------------------------------------------------------------//
@@ -41,6 +34,9 @@ private:
 	HWND hRendererWnd;
 	CClientScreenshotManager ScreenshotManager;
 	CClientInputs ClientInputs;
+private:
+	HWND hComboBoxAvailableDrives;
+	HWND hListBoxFilesManager;
 public:
 	IOpenGL* GetOpenGL(){return pOpenGL;}
 	CClientScreenshotManager* GetScreenshotManager(){return &ScreenshotManager;}
@@ -66,4 +62,10 @@ public:
 
 	void SendMouseMsg(CMouseInputMsgStruct *mm);
 	void SendKeyboardMsg(CKeyboardInputMsgStruct *km);
+
+	/*void SendGetDrivesRequest();
+	void OnGetDrivesReply(DWORD *pDrives);
+
+	void SendScanDirectoryRequest();
+	void OnScanDirectoryReply(DWORD *pDrives);*/
 };

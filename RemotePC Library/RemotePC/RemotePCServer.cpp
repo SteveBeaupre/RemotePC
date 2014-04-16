@@ -43,6 +43,12 @@ void CRemotePCServer::ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE 
 		if(AllowControl)
 			OnKeyboardMsg((CKeyboardInputMsgStruct*)pMsgData);
 		break;
+	/*case MSG_GETDRIVES_REQUEST:
+		OnGetDrivesRequest();
+		break;
+	case MSG_SCAN_DIRECTORY_REQUEST:
+		OnScanDirectoryRequest();
+		break;*/
 	}
 }
 
@@ -82,6 +88,13 @@ void CRemotePCServer::CalcScreenSize(int *w, int *h)
 	*w = r.right  - r.left;
 	*h = r.bottom - r.top;
 }
+
+void CRemotePCServer::SetMultiThreadedMode(bool MultithreadTheScreenshot)
+{
+	MultithreadedScreenshot = MultithreadTheScreenshot;
+}
+
+//----------------------------------------------------------------------//
 
 void CRemotePCServer::SendLoginResult(LoginResults Results)
 {
@@ -173,7 +186,67 @@ void CRemotePCServer::OnKeyboardMsg(CKeyboardInputMsgStruct* pMsg)
 
 //----------------------------------------------------------------------//
 
-void CRemotePCServer::SetMultiThreadedMode(bool MultithreadTheScreenshot)
+/*void CRemotePCServer::OnGetDrivesRequest()
 {
-	MultithreadedScreenshot = MultithreadTheScreenshot;
-}
+	CDriveManager DriveManager;
+
+	DWORD AvailableDrives = DriveManager.GetAvailableDrives();
+
+	MsgHeaderStruct MsgHeader;
+	MsgHeader.MsgSize = sizeof(DWORD);
+	MsgHeader.MsgID   = MSG_GETDRIVES_REPLY;
+
+	SendMsg(&MsgHeader, &AvailableDrives);
+}*/
+
+/*void CRemotePCServer::OnScanDirectoryRequest()
+{
+	// Append a "\*" or "*" to the end of the current path
+	char path[MAX_PATH_LEN];
+	ZeroMemory(&path[0], MAX_PATH_LEN);
+	MergePath(path, dir, "*");
+
+	WIN32_FIND_DATA fdata;
+
+	// If the directory is valid...
+	if(DirExist(dir, &fdata)){
+		
+		HANDLE h = FindFirstFile(&path[0], &fdata);
+
+		CFolderNode *pParentNode = pNode;
+		CFolderNode *pPrevNode = NULL;
+
+		// Add a sub-directories to the end of the current node childs list
+		do{	
+			pNode = pParentNode;
+
+			if(pNode->pFirstChild == NULL){
+				pNode->pFirstChild = new CFolderNode;
+				pPrevNode = NULL;
+				pNode = pNode->pFirstChild;
+			} else {
+				pNode = GetLastChild(pNode);
+				pNode->pNext = new CFolderNode;
+				pPrevNode = pNode;
+				pNode = pNode->pNext;
+			}
+
+			InitNode(pNode, pParentNode, pPrevNode, NULL, Level + 1, &fdata, dir);
+
+			if(strcmp(fdata.cFileName, ".") != 0 && strcmp(fdata.cFileName, "..") != 0){
+
+				char newpath[MAX_PATH_LEN];
+				ZeroMemory(&newpath[0], MAX_PATH_LEN);
+				MergePath(&newpath[0], dir, fdata.cFileName);
+
+				if(fdata.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY)
+					RecurseDirectory(pNode, &newpath[0], Level + 1);
+			}
+		} while(FindNextFile(h, &fdata) != NULL);
+
+		// Close the handle
+		FindClose(h);
+		pNode = pParentNode;
+	}
+}*/
+

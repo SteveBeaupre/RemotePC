@@ -41,6 +41,7 @@ void CServerSettings::Load()
 
 		Settings.Port = DEFAULT_PORT;
 		Settings.RemoveWallpaper = true;
+		Settings.AllowControl = true;
 
 		#ifdef RAD_STUDIO_XE
 		snprintf(Settings.ip, 16, "192.168.0.1");

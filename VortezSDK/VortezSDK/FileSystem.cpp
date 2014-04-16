@@ -181,7 +181,9 @@ void CFileManager::OpenURL(char *pURL)
 
 void CFolderManager::MergePath(char *pDest, char *p1, char *p2)
 {
-	if(strlen(p1) > 0 && p1[strlen(p1)-1] != '\\'){
+	int len = strlen(p1);
+
+	if(len > 0 && p1[len-1] != '\\'){
 		strcat(pDest, p1);
 		strcat(pDest, "\\");
 		strcat(pDest, p2);
@@ -448,7 +450,7 @@ bool CDriveManager::IsHardDriveDevice(char Drive)
 
 bool CDriveManager::IsFlashDriveDevice(char Drive)
 {
-	return this->GetType(Drive) == DRIVE_FIXED;
+	return this->GetType(Drive) == DRIVE_FIXED; // <-- fix this later (same code as IsHardDriveDevice())
 }
 
 bool CDriveManager::IsDriveRemovable(char Drive)

@@ -2,17 +2,9 @@
 
 CRemotePCClient::CRemotePCClient()
 {
-	#ifndef FAKE_OPENGL
 	#ifndef EMULATE_OPENGL
 	pOpenGL = new COpenGL;
-	#endif
-	#endif
-
-	#ifdef FAKE_OPENGL
-	pOpenGL = new CFakeOpenGL;
-	#endif
-
-	#ifdef EMULATE_OPENGL
+	#else
 	pOpenGL = new COpenGLEmulator;
 	#endif
 
@@ -50,6 +42,9 @@ void CRemotePCClient::ProcessRemotePCMessages(MsgHeaderStruct *pMsgHeader, BYTE 
 	case MSG_SCREENSHOT_REPLY: 
 		OnScreenshotMsg(pMsgHeader, pMsgData);
 		break;
+	/*case MSG_GETDRIVES_REPLY: 
+		OnGetDrivesReply((DWORD*)pMsgData);
+		break;*/
 	}
 }
 
@@ -174,4 +169,47 @@ void CRemotePCClient::SendKeyboardMsg(CKeyboardInputMsgStruct *km)
 
 	SendMsg(&MsgHeader, km);
 }
+
+//----------------------------------------------------------------------//
+
+/*void CRemotePCClient::SendGetDrivesRequest()
+{
+	MsgHeaderStruct MsgHeader;
+	MsgHeader.MsgSize = 0;
+	MsgHeader.MsgID   = MSG_GETDRIVES_REQUEST;
+
+	SendMsg(&MsgHeader, NULL);
+}
+
+void CRemotePCClient::OnGetDrivesReply(DWORD *pDrives)
+{
+	SendMessage(GetHostWnd(), WM_AVAILDRIVE_CB_CLEAR, 0, 0);
+	
+	char c = 0;
+	char szDrive[16];
+	
+	DWORD AvailableDrives = *pDrives;
+	for(int i = 0; i < 26; i++){
+		if(((AvailableDrives >> i) & 1) > 0){
+			c = i + 65;
+			ZeroMemory(szDrive, 16);
+			sprintf(szDrive, "%c:\\", c);
+			SendMessage(GetHostWnd(), WM_AVAILDRIVE_CB_ADDSTR, 0, (LPARAM)(LPCTSTR)szDrive);
+		}
+	}
+}
+
+void CRemotePCClient::SendScanDirectoryRequest()
+{
+	MsgHeaderStruct MsgHeader;
+	MsgHeader.MsgSize = 0;
+	MsgHeader.MsgID   = MSG_SCAN_DIRECTORY_REQUEST;
+
+	SendMsg(&MsgHeader, NULL);
+}
+
+void CRemotePCClient::OnScanDirectoryReply(DWORD *pDrives)
+{
+
+}*/
 
