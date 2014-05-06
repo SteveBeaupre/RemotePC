@@ -311,7 +311,7 @@ void __fastcall TMainForm::ButtonDownloadUpdatesClick(TObject *Sender)
 		}
 
 		PatchBuffer.Decrypt(0xDEADC0DE);
-		PatchBuffer.SaveToFile("C:\\Temp\\PatchContent.raw");
+		//PatchBuffer.SaveToFile("C:\\Temp\\PatchContent.raw");
 
 		DWORD BufHash = PatchBuffer.Hash();
 

@@ -34,9 +34,6 @@ private:
 	HWND hRendererWnd;
 	CClientScreenshotManager ScreenshotManager;
 	CClientInputs ClientInputs;
-private:
-	HWND hComboBoxAvailableDrives;
-	HWND hListBoxFilesManager;
 public:
 	IOpenGL* GetOpenGL(){return pOpenGL;}
 	CClientScreenshotManager* GetScreenshotManager(){return &ScreenshotManager;}

@@ -111,6 +111,11 @@ void CScreenshot::DrawScreenCursor(HDC hDC)
 	int y = CursorPos.y - IconInfo.yHotspot;
 
 	DrawIconEx(hDC, x, y, CursorInfo.hCursor, 0, 0, 0, NULL, DI_NORMAL);
+
+	if(IconInfo.hbmMask)
+		DeleteObject(IconInfo.hbmMask);
+	if(IconInfo.hbmColor)
+		DeleteObject(IconInfo.hbmColor);
 #endif
 }
 

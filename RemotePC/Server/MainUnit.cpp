@@ -203,12 +203,15 @@ void __fastcall TMainForm::WndProc(Messages::TMessage &Message)
 				pRemotePCServer->StartScreenshotThread();
 			}
 
+			NetworkSpeedTimer->Enabled = true;
+
 			// Start the network worker thread
 			pRemotePCServer->StartThread();
 		}
 		break;
 	case ON_DISCONNECTED:
 		AddListboxMessageArg(ListBoxLog, StatusBar, szOnDisconnect[LangID]);
+		NetworkSpeedTimer->Enabled = false;
 		if(pRemotePCServer)
 			pRemotePCServer->StopThread();
 		if(CheckBoxRemoveWallpaper->Checked)

@@ -192,10 +192,10 @@ bool COpenGLEmulator::ConvertTo32Bits(BYTE* pOutput, BYTE* pInput, ScrFormat For
 						memcpy(Pix32, Pix8, 4);
 					} else if(Format == scrf_16){
 						WORD *pw = (WORD*)Pix8;
-						WORD w = *pw;
-						Pix32[0] = (BYTE)(((float)(w & 0x001F) / 32.0f) * 255.0f);
-						Pix32[1] = (BYTE)(((float)((w >> 5) & 0x001F) / 32.0f) * 255.0f);
-						Pix32[2] = (BYTE)(((float)((w >> 10) & 0x001F) / 32.0f) * 255.0f);
+						WORD Col = *pw;
+						Pix32[0] = (BYTE)(((float)(Col & 0x001F) / 32.0f) * 255.0f);
+						Pix32[1] = (BYTE)(((float)((Col >> 5) & 0x001F) / 32.0f) * 255.0f);
+						Pix32[2] = (BYTE)(((float)((Col >> 10) & 0x001F) / 32.0f) * 255.0f);
 					} else {
 							int palIndx = 0;
 							if(Format == scrf_8c || Format == scrf_8g){
