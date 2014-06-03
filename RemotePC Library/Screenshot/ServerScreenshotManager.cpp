@@ -2,6 +2,7 @@
 
 CServerScreenshotManager::CServerScreenshotManager()
 {
+	lz4DllStub.Load("lz4-r117.dll");
 	SetFormat(scrf_32);
 	Reset();
 }
@@ -9,6 +10,7 @@ CServerScreenshotManager::CServerScreenshotManager()
 CServerScreenshotManager::~CServerScreenshotManager()
 {
 	Reset();
+	lz4DllStub.Free();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +140,7 @@ void CServerScreenshotManager::Compress()
 	BYTE *pIn  = UncompressedBuffer.GetBuffer();
 	BYTE *pOut = CompressedBuffer.GetBuffer(CompressedHeaderSize);
 
-	int CompressedDataSize = FreeImage_ZLibCompress(pOut, CompressedBufferSize, pIn, UncompressedSize);
+	int CompressedDataSize = lz4DllStub.Compress((char*)pIn, (char*)pOut, UncompressedSize);
 
 	CompressedBufferSize = CompressedHeaderSize + CompressedDataSize;
 	CompressedBuffer.Resize(CompressedBufferSize);
@@ -148,7 +150,7 @@ void CServerScreenshotManager::Compress()
 
 int CServerScreenshotManager::EstimateCompressedBufferSize(int UncompressedSize)
 {
-	return (int)(((float)UncompressedSize * 1.1f) + 12.0f);
+	return (int)((float)UncompressedSize * 1.1f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +160,7 @@ int CServerScreenshotManager::EstimateCompressedBufferSize(int UncompressedSize)
 DWORD WINAPI ScreenshotThreadFunc(void *params)
 {
 	CServerScreenshotManager* pScreenshotManager = (CServerScreenshotManager*)params;
-	
+
 	pScreenshotManager->Take();
 
 	return 0;

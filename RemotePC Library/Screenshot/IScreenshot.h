@@ -6,8 +6,7 @@
 #include "Windows.h"
 #include "stdio.h"
 //----------------------------------------------------------------------//
-#pragma comment(lib, "FreeImage.lib")
-#include "FreeImage.h"
+#include "lz4DllStub.h"
 //----------------------------------------------------------------------//
 #include "VortezSDK.h"
 #include "BitmapHelper.h"

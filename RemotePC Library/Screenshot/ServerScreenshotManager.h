@@ -22,6 +22,7 @@ public:
 private:
 	CThread ScreenshotTread;
 	CBitmapHelper BitmapHelper;
+	Clz4DllStub lz4DllStub;
 private:
 	CScreenshot Screenshot[2];
 	CScreenshot *pBackBuffer, *pFrontBuffer;

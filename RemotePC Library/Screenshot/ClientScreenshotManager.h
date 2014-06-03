@@ -17,6 +17,7 @@ public:
 	CClientScreenshotManager();
 	~CClientScreenshotManager();
 private:
+	Clz4DllStub lz4DllStub;
 	CBitmapHelper BitmapHelper;
 	CRawBuffer UncompressedBuffer, OpenGLBuffer, ConvertedBuffer;
 private:

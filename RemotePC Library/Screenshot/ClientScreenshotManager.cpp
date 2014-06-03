@@ -2,12 +2,14 @@
 
 CClientScreenshotManager::CClientScreenshotManager()
 {
+	lz4DllStub.Load("lz4-r117.dll");
 	Reset();
 }
 
 CClientScreenshotManager::~CClientScreenshotManager()
 {
 	Reset();
+	lz4DllStub.Free();
 }
 
 void CClientScreenshotManager::Reset()
@@ -39,8 +41,8 @@ void CClientScreenshotManager::Decompress(BYTE *pCompressedBuffer, DWORD Compres
 		BYTE *pOut = UncompressedBuffer.GetBuffer();
 
 		// Decompress the data
-		int Res = FreeImage_ZLibUncompress(pOut, UncSize, pIn, CompressedDataSize);
-		
+		int Res = lz4DllStub.Decompress((char*)pIn, (char*)pOut, CompressedDataSize, UncSize);
+
 		// Check for error
 		if(Res == 0){
 			pInfo->Width  = 0;
