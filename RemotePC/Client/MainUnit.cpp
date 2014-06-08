@@ -32,6 +32,11 @@ bool __fastcall TMainForm::IsLoopbackAddress(AnsiString s)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
+	if(!OneInstance.Check("REMOTE_PC_CLIENT_2014")){
+		Application->Terminate();
+		return;
+	}
+
 	LogedIn = false;
 
 	#ifdef EMULATE_OPENGL
@@ -45,6 +50,9 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	Top  = 20;
 	Width = 820;
 	#endif
+
+	Application->ShowMainForm = true;
+	Show();
 
 	char AppCaption[256];
 	SetCaption("RemotePC Client 2014", AppCaption, 256);

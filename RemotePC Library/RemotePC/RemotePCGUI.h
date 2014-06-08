@@ -12,6 +12,7 @@
 #include <Vcl.ComCtrls.hpp>
 //---------------------------------------------------------------------------
 #include "RemotePCClient.h"
+#include "OneInstance.h"
 //---------------------------------------------------------------------------
 void FormatNetworkSpeedStats(CNetStats* pStats, TStatusBar *StatusBar);
 void AddListboxMessageArg(TListBox *pListBox, TStatusBar *pStatusBar, const char *fmt, ...);

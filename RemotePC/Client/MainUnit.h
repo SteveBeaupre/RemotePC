@@ -16,13 +16,7 @@
 #include "NetworkSpeedViewer.hpp"
 //---------------------------------------------------------------------------
 #include "RemotePCGUI.h"
-/*#include "RemotePCClient.h"
-#include "KbHookDllStub.h"
-#include "Settings.h"
-#include "CompileDateTimeStamp.h"
-#include "UnicodeToChar.h"
-#include "Lang.h"
-#include "IP.h"*/
+//---------------------------------------------------------------------------
 #pragma comment(lib, "RemotePCLib.lib")
 #include "RemotePCLib.h"
 //---------------------------------------------------------------------------
@@ -121,6 +115,7 @@ public:		// User declarations
 	int  LangID;
 	bool LogedIn;
 
+	COneInstance OneInstance;
 	//void AddListboxMessageArg(const char *fmt, ...);
 	bool __fastcall IsLoopbackAddress(AnsiString s);
 	void __fastcall LoadSettings();

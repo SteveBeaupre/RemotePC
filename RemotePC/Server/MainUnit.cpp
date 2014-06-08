@@ -24,11 +24,19 @@ bool __fastcall TMainForm::IsLoopbackAddress(AnsiString s)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
+	if(!OneInstance.Check("REMOTE_PC_SERVER_2014")){
+		Application->Terminate();
+		return;
+	}
+
 	#ifdef _DEBUG
 	Position = poDefault;
 	Left = 15;
 	Top  = 20;
 	#endif
+
+	Application->ShowMainForm = true;
+	Show();
 
 	char AppCaption[256];
 	SetCaption("RemotePC Server 2014", AppCaption, 256);

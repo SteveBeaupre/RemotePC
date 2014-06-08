@@ -17,9 +17,9 @@ UINT CalcPieceSize(UINT PatchSize, UINT PiecesSize, UINT n)
 	if(PatchSize == 0)
 		return 0;
 
-	UINT PieceSize = PatchSize - (PiecesSize*n);
-	if(PieceSize > PiecesSize)
-		PieceSize = PiecesSize;
+	UINT Size = PatchSize - (PiecesSize*n);
+	if(Size > PiecesSize)
+		Size = PiecesSize;
 
-	return PieceSize;
+	return Size;
 }

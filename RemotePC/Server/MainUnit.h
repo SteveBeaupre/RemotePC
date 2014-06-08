@@ -13,15 +13,7 @@
 #include <Vcl.ComCtrls.hpp>
 //---------------------------------------------------------------------------
 #include "RemotePCGUI.h"
-/*#include "RemotePCServer.h"
-#include "ServerScreenshotManager.h"
-#include "Wallpaper.h"
-#include "Settings.h"
-#include "CompileDateTimeStamp.h"
-#include "UnicodeToChar.h"
-#include "Listbox.h"
-#include "Lang.h"
-#include "IP.h"*/
+//---------------------------------------------------------------------------
 #pragma comment(lib, "RemotePCLib.lib")
 #include "RemotePCLib.h"
 //---------------------------------------------------------------------------
@@ -79,6 +71,7 @@ public:		// User declarations
 
 	int LangID;
 
+	COneInstance OneInstance;
 	bool __fastcall IsLoopbackAddress(AnsiString s);
 	void __fastcall LoadSettings();
 	void __fastcall SaveSettings();

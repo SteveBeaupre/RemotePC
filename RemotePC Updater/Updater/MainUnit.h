@@ -14,8 +14,8 @@
 #pragma comment(lib, "VortezSDK.lib")
 #include "VortezSDK.h"
 //---------------------------------------------------------------------------
-#include "FileDownloader.h"
-#include "VersionNumber.h"
+#include "OneInstance.h"
+#include "UpdaterCls.h"
 #include "CompileDateTimeStamp.h"
 #include "rpc.h"
 //---------------------------------------------------------------------------
@@ -44,25 +44,26 @@ __published:	// IDE-managed Components
 private:	// User declarations
 public:		// User declarations
 	__fastcall TMainForm(TComponent* Owner);
-
-	void __fastcall DoUpdates(CRawBuffer* pPatchBuffer);
+	COneInstance OneInstance;
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TMainForm *MainForm;
-//---------------------------------------------------------------------------
-class CFileDownloaderExt : public CFileDownloader {
+
+class CUpdaterExt : public CUpdater
+{
 public:
-	void OnProgress(double DLTotal, double DLNow, double ULTotal, double ULNow);
+	void OnClearPatchNotesMsg();
+	void OnOutputPatchNotesMsg(char *txt);
+
+	void OnClearMsgs();
+	void OnUpdateMsgs();
+	void OnOutputMsg(char *txt);
+	void OnOutputMsg(const char *fmt, ...);
+	void OnShowPatchForm();
+	void OnDownloadCanceled();
+	void OnProcessMessages();
+	void OnUpdatesReady(int res, int PatchSize);
 };
-//---------------------------------------------------------------------------
-struct DownloadPatchThreadStruct {
-	char  UpdateAddr[MAX_PATH];
-	UINT  PartNo;
-	UINT  BufSize;
-	BYTE *pBuffer;
-};
-CLock DownloadPatchThreadLock;
-//---------------------------------------------------------------------------
-CFileDownloaderExt  FileDownloader;
-//---------------------------------------------------------------------------
+CUpdaterExt Updater;
+
 #endif
