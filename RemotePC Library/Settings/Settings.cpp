@@ -23,7 +23,7 @@ void CServerSettings::Load(char *fname)
 	Settings.Port = IniFile.ReadInteger("ConnectionSettings", "Port", DEFAULT_PORT);
 
 	Settings.AllowControl = IniFile.ReadBoolean("GUISettings", "AllowControl", false);
-	Settings.ConnectAsClient = IniFile.ReadBoolean("GUISettings", "ConnectAsClient", true);
+	Settings.ConnectAsClient = IniFile.ReadBoolean("GUISettings", "ConnectAsClient", false);
 	Settings.RemoveWallpaper = IniFile.ReadBoolean("GUISettings", "RemoveWallpaper", true);
 	Settings.MultithreadScreenshot = IniFile.ReadBoolean("GUISettings", "MultithreadScreenshot", true);
 
