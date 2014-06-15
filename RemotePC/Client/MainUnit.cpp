@@ -106,7 +106,7 @@ void __fastcall TMainForm::LoadSettings()
 
 	ClientSettingsStruct *pSettings = Settings.GetSettings();
 
-	LangID = pSettings->LangID;
+	LangID = pSettings->CommonSettings.LangID;
 	EnglishMenu->Checked = LangID == REMOTEPC_LANG_ENGLISH;
 	FrenchMenu->Checked  = LangID == REMOTEPC_LANG_FRENCH;
 	SetLanguage(LangID);
@@ -123,20 +123,20 @@ void __fastcall TMainForm::LoadSettings()
 		ComboBoxHostName->Items->Add(AnsiString(pSettings->ip));
 		ComboBoxHostName->ItemIndex = ComboBoxHostName->Items->Count-1;
 	}*/
-	ComboBoxHostName->Text = AnsiString(pSettings->ip);
-	EditPassword->Text = AnsiString(pSettings->pw);
-	EditPort->Text = AnsiString(pSettings->Port);
+	ComboBoxHostName->Text = AnsiString(pSettings->CommonSettings.ConnectionSettings.ip);
+	EditPassword->Text = AnsiString(pSettings->CommonSettings.ConnectionSettings.pw);
+	EditPort->Text = AnsiString(pSettings->CommonSettings.ConnectionSettings.Port);
 
-	CheckBoxConnectAsServer->Checked = pSettings->ConnectAsServer;
-	CheckBoxShowFPS->Checked = pSettings->ShowFPS;
-	CheckBoxStretch->Checked = pSettings->Stretch;
-	pRemotePCClient->GetOpenGL()->SetStretchedFlag(pSettings->Stretch);
-	pRemotePCClient->GetOpenGL()->SetShowFPSFlag(pSettings->ShowFPS);
+	CheckBoxConnectAsServer->Checked = pSettings->GUISettings.ConnectAsServer;
+	CheckBoxShowFPS->Checked = pSettings->GUISettings.ShowFPS;
+	CheckBoxStretch->Checked = pSettings->GUISettings.Stretch;
+	pRemotePCClient->GetOpenGL()->SetStretchedFlag(pSettings->GUISettings.Stretch);
+	pRemotePCClient->GetOpenGL()->SetShowFPSFlag(pSettings->GUISettings.ShowFPS);
 
-	ComboBoxScrFormat->ItemIndex = pSettings->ColorDepth;
+	ComboBoxScrFormat->ItemIndex = pSettings->GUISettings.ColorDepth;
 
 	this->Position = poDesktopCenter;
-	this->WindowState = (TWindowState)pSettings->WndCoords.wState;
+	this->WindowState = (TWindowState)pSettings->CommonSettings.WndCoords.wState;
 
 	/*if(pSettings->WndCoords.l == 0 || pSettings->WndCoords.t == 0 || pSettings->WndCoords.w == 0 || pSettings->WndCoords.h == 0){
 		#ifndef _DEBUG
@@ -157,23 +157,23 @@ void __fastcall TMainForm::SaveSettings()
 	ClientSettingsStruct ClientSettings;
 	ZeroMemory(&ClientSettings, sizeof(ClientSettingsStruct));
 
-	ClientSettings.LangID = LangID;
+	ClientSettings.CommonSettings.LangID = LangID;
 
-	ConvertUnicodeToChar(ClientSettings.ip, 16, ComboBoxHostName->Text.c_str());
-	ConvertUnicodeToChar(ClientSettings.pw, 32, EditPassword->Text.c_str());
-	ClientSettings.Port = _wtoi(EditPort->Text.c_str());
+	ConvertUnicodeToChar(ClientSettings.CommonSettings.ConnectionSettings.ip, 16, ComboBoxHostName->Text.c_str());
+	ConvertUnicodeToChar(ClientSettings.CommonSettings.ConnectionSettings.pw, 32, EditPassword->Text.c_str());
+	ClientSettings.CommonSettings.ConnectionSettings.Port = _wtoi(EditPort->Text.c_str());
 
-	ClientSettings.ConnectAsServer = CheckBoxConnectAsServer->Checked;
-	ClientSettings.Stretch = CheckBoxStretch->Checked;
-	ClientSettings.ShowFPS = CheckBoxShowFPS->Checked;
+	ClientSettings.GUISettings.ConnectAsServer = CheckBoxConnectAsServer->Checked;
+	ClientSettings.GUISettings.Stretch = CheckBoxStretch->Checked;
+	ClientSettings.GUISettings.ShowFPS = CheckBoxShowFPS->Checked;
 
-	ClientSettings.WndCoords.l = this->Left;
-	ClientSettings.WndCoords.t = this->Top;
-	ClientSettings.WndCoords.w = this->Width;
-	ClientSettings.WndCoords.h = this->Height;
-	ClientSettings.WndCoords.wState = (int)this->WindowState;
+	ClientSettings.CommonSettings.WndCoords.l = this->Left;
+	ClientSettings.CommonSettings.WndCoords.t = this->Top;
+	ClientSettings.CommonSettings.WndCoords.w = this->Width;
+	ClientSettings.CommonSettings.WndCoords.h = this->Height;
+	ClientSettings.CommonSettings.WndCoords.wState = (int)this->WindowState;
 
-	ClientSettings.ColorDepth = ComboBoxScrFormat->ItemIndex;
+	ClientSettings.GUISettings.ColorDepth = ComboBoxScrFormat->ItemIndex;
 
 	Settings.SetSettings(&ClientSettings);
 

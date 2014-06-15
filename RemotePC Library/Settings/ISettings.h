@@ -7,18 +7,18 @@
 #include "stdio.h"
 //----------------------------------------------------------------------//
 #include "IniFile.h"
+#include "RawBuffer.h"
 //----------------------------------------------------------------------//
 #define DEFAULT_PORT  13981
 #define DEFAULT_IP    "127.0.0.1"
+//----------------------------------------------------------------------//
+#define REMOTEPC_SERVER_SETTINGS  1
+#define REMOTEPC_CLIENT_SETTINGS  2
 //----------------------------------------------------------------------//
 
 //----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 #pragma pack(1)
-//----------------------------------------------------------------------//
-struct LanguageSettingsStruct {
-	int LangID;
-};
 //----------------------------------------------------------------------//
 struct ConnectionSettingsStruct {
 	char ip[16];
@@ -31,21 +31,36 @@ struct WndCoordsStruct {
 	int wState;
 };
 //----------------------------------------------------------------------//
-//------------------? why did i use inheritance here ?------------------//
-struct ServerSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {
-	WndCoordsStruct WndCoords;
+struct ServerGUISettingsStruct {
+
 	bool ConnectAsClient;
 	bool RemoveWallpaper;
 	bool MultithreadScreenshot;
 	bool AllowControl;
 };
 //----------------------------------------------------------------------//
-struct ClientSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {
-	WndCoordsStruct WndCoords;
+struct ClientGUISettingsStruct {
 	UINT ColorDepth;
 	bool ConnectAsServer;
 	bool ShowFPS;
 	bool Stretch;
+};
+//----------------------------------------------------------------------//
+struct CommonSettingsStruct {
+	ConnectionSettingsStruct ConnectionSettings;
+	WndCoordsStruct WndCoords;
+	int LangID;
+};
+//----------------------------------------------------------------------//
+//----------------------------------------------------------------------//
+struct ServerSettingsStruct {
+	ServerGUISettingsStruct GUISettings;
+	CommonSettingsStruct CommonSettings;
+};
+//----------------------------------------------------------------------//
+struct ClientSettingsStruct {
+	ClientGUISettingsStruct GUISettings;
+	CommonSettingsStruct CommonSettings;
 };
 //----------------------------------------------------------------------//
 #pragma pack()
@@ -54,7 +69,25 @@ struct ClientSettingsStruct : public ConnectionSettingsStruct, public LanguageSe
 
 class IRemotePCSettings {
 public:
-	virtual void Load(char *fname) = 0;
-	virtual void Save(char *fname) = 0;
+	IRemotePCSettings();
+protected:
+	int Type;
+	CRawBuffer FileName;
+private:
+	void ReadBasicSettings();
+	void WriteBasicSettings();
+protected:
+	CIniFile IniFile;
+
+	void ReadGlobalSettings();
+	void WriteGlobalSettings();
+
+	virtual void ReadSettings(){}
+	virtual void WriteSettings(){}
+	virtual void EraseSettings(){}
+	virtual CommonSettingsStruct* GetCommonSettings(){return NULL;}
+public:
+	void Load(char *fname);
+	void Save(char *fname);
 };
 

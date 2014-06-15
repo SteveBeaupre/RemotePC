@@ -15,12 +15,13 @@ class EXP_FUNC CServerSettings : public IRemotePCSettings {
 public:
 	CServerSettings();
 private:
-	char FileName[MAX_PATH];
 	ServerSettingsStruct Settings;
 public:
-	void Load(char *fname);
-	void Save(char *fname);
+	void ReadSettings();
+	void WriteSettings();
 public:
+	void EraseSettings();
+	CommonSettingsStruct* GetCommonSettings();
 	ServerSettingsStruct* GetSettings();
 	void SetSettings(ServerSettingsStruct *pSettings);
 };
@@ -29,12 +30,13 @@ class EXP_FUNC CClientSettings : public IRemotePCSettings {
 public:
 	CClientSettings();
 private:
-	char FileName[MAX_PATH];
 	ClientSettingsStruct Settings;
 public:
-	void Load(char *fname);
-	void Save(char *fname);
+	void ReadSettings();
+	void WriteSettings();
 public:
+	void EraseSettings();
+	CommonSettingsStruct* GetCommonSettings();
 	ClientSettingsStruct* GetSettings();
 	void SetSettings(ClientSettingsStruct *pSettings);
 };

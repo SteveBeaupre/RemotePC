@@ -78,7 +78,7 @@ void __fastcall TMainForm::LoadSettings()
 
 	ServerSettingsStruct *pSettings = Settings.GetSettings();
 
-	LangID = pSettings->LangID;
+	LangID = pSettings->CommonSettings.LangID;
 	SetLanguage(LangID);
 	EnglishMenu->Checked = LangID == REMOTEPC_LANG_ENGLISH;
 	FrenchMenu->Checked  = LangID == REMOTEPC_LANG_FRENCH;
@@ -95,13 +95,13 @@ void __fastcall TMainForm::LoadSettings()
 		ComboBoxHostName->Items->Add(AnsiString(pSettings->ip));
 		ComboBoxHostName->ItemIndex = ComboBoxHostName->Items->Count-1;
 	}*/
-	EditPort->Text = AnsiString(pSettings->Port);
-	EditPassword->Text = AnsiString(pSettings->pw);
+	EditPort->Text = AnsiString(pSettings->CommonSettings.ConnectionSettings.Port);
+	EditPassword->Text = AnsiString(pSettings->CommonSettings.ConnectionSettings.pw);
 
-	CheckBoxConnectAsClient->Checked = pSettings->ConnectAsClient;
-	CheckBoxRemoveWallpaper->Checked = pSettings->RemoveWallpaper;
-	CheckBoxMultithreaded->Checked   = pSettings->MultithreadScreenshot;
-	CheckBoxAllowControl->Checked    = pSettings->AllowControl;
+	CheckBoxConnectAsClient->Checked = pSettings->GUISettings.ConnectAsClient;
+	CheckBoxRemoveWallpaper->Checked = pSettings->GUISettings.RemoveWallpaper;
+	CheckBoxMultithreaded->Checked   = pSettings->GUISettings.MultithreadScreenshot;
+	CheckBoxAllowControl->Checked    = pSettings->GUISettings.AllowControl;
 
 	this->Position = poDesktopCenter;
 
@@ -123,22 +123,22 @@ void __fastcall TMainForm::SaveSettings()
 	ServerSettingsStruct ServerSettings;
 	ZeroMemory(&ServerSettings, sizeof(ServerSettingsStruct));
 
-	ServerSettings.LangID = LangID;
+	ServerSettings.CommonSettings.LangID = LangID;
 
-	ConvertUnicodeToChar(ServerSettings.ip, 16, ComboBoxHostName->Text.c_str());
-	ConvertUnicodeToChar(ServerSettings.pw, 32, EditPassword->Text.c_str());
-	ServerSettings.Port = _wtoi(EditPort->Text.c_str());
+	ConvertUnicodeToChar(ServerSettings.CommonSettings.ConnectionSettings.ip, 16, ComboBoxHostName->Text.c_str());
+	ConvertUnicodeToChar(ServerSettings.CommonSettings.ConnectionSettings.pw, 32, EditPassword->Text.c_str());
+	ServerSettings.CommonSettings.ConnectionSettings.Port = _wtoi(EditPort->Text.c_str());
 
-	ServerSettings.ConnectAsClient = CheckBoxConnectAsClient->Checked;
-	ServerSettings.RemoveWallpaper = CheckBoxRemoveWallpaper->Checked;
-	ServerSettings.MultithreadScreenshot = CheckBoxMultithreaded->Checked;
-	ServerSettings.AllowControl = CheckBoxAllowControl->Checked;
+	ServerSettings.GUISettings.ConnectAsClient = CheckBoxConnectAsClient->Checked;
+	ServerSettings.GUISettings.RemoveWallpaper = CheckBoxRemoveWallpaper->Checked;
+	ServerSettings.GUISettings.MultithreadScreenshot = CheckBoxMultithreaded->Checked;
+	ServerSettings.GUISettings.AllowControl = CheckBoxAllowControl->Checked;
 
-	ServerSettings.WndCoords.l = this->Left;
-	ServerSettings.WndCoords.t = this->Top;
-	ServerSettings.WndCoords.w = this->Width;
-	ServerSettings.WndCoords.h = this->Height;
-	ServerSettings.WndCoords.wState = 0;
+	ServerSettings.CommonSettings.WndCoords.l = this->Left;
+	ServerSettings.CommonSettings.WndCoords.t = this->Top;
+	ServerSettings.CommonSettings.WndCoords.w = this->Width;
+	ServerSettings.CommonSettings.WndCoords.h = this->Height;
+	ServerSettings.CommonSettings.WndCoords.wState = 0;
 
 	Settings.SetSettings(&ServerSettings);
 
