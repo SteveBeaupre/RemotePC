@@ -12,6 +12,10 @@ CRemotePCServer *pRemotePCServer = NULL;
 CServerSettings Settings;
 CWallpaper Wallpaper;
 //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+AnsiString AppDir = "";
+AnsiString SaveFileName = "RemotePC Server.ini";
+//---------------------------------------------------------------------------
 __fastcall TMainForm::TMainForm(TComponent* Owner)
 	: TForm(Owner)
 {
@@ -24,6 +28,8 @@ bool __fastcall TMainForm::IsLoopbackAddress(AnsiString s)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
+	AppDir = GetCurrentDir();
+
 	if(!OneInstance.Check("REMOTE_PC_SERVER_2014")){
 		Application->Terminate();
 		return;
@@ -34,9 +40,6 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	Left = 15;
 	Top  = 20;
 	#endif
-
-	Application->ShowMainForm = true;
-	Show();
 
 	char AppCaption[256];
 	SetCaption("RemotePC Server 2014", AppCaption, 256);
@@ -53,6 +56,9 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	StatusBar->Panels->Items[0]->Text = "Disconnected.";
 	StatusBar->Panels->Items[1]->Text = "D: 0 Byte  T: 0.00 Kbp\\s";
 	StatusBar->Panels->Items[2]->Text = "U: 0 Byte  T: 0.00 Kbp\\s";
+
+	Application->ShowMainForm = true;
+	Show();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
@@ -67,7 +73,9 @@ void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::LoadSettings()
 {
-	Settings.Load();
+	AnsiString fname = GenSaveFileName(AppDir, SaveFileName);
+	Settings.Load(fname.c_str());
+
 	ServerSettingsStruct *pSettings = Settings.GetSettings();
 
 	LangID = pSettings->LangID;
@@ -75,7 +83,7 @@ void __fastcall TMainForm::LoadSettings()
 	EnglishMenu->Checked = LangID == REMOTEPC_LANG_ENGLISH;
 	FrenchMenu->Checked  = LangID == REMOTEPC_LANG_FRENCH;
 
-	ComboBoxHostName->Items->Clear();
+	/*ComboBoxHostName->Items->Clear();
 	ComboBoxHostName->Items->Add("127.0.0.1");
 	ComboBoxHostName->Items->Add("192.168.0.1");
 	if(IsLoopbackAddress(AnsiString(pSettings->ip))){
@@ -86,7 +94,7 @@ void __fastcall TMainForm::LoadSettings()
 	} else {
 		ComboBoxHostName->Items->Add(AnsiString(pSettings->ip));
 		ComboBoxHostName->ItemIndex = ComboBoxHostName->Items->Count-1;
-	}
+	}*/
 	EditPort->Text = AnsiString(pSettings->Port);
 	EditPassword->Text = AnsiString(pSettings->pw);
 
@@ -130,10 +138,12 @@ void __fastcall TMainForm::SaveSettings()
 	ServerSettings.WndCoords.t = this->Top;
 	ServerSettings.WndCoords.w = this->Width;
 	ServerSettings.WndCoords.h = this->Height;
-	ServerSettings.WndCoords.ws = 0;
+	ServerSettings.WndCoords.wState = 0;
 
 	Settings.SetSettings(&ServerSettings);
-	Settings.Save();
+
+	AnsiString fname = GenSaveFileName(AppDir, SaveFileName);
+	Settings.Save(fname.c_str());
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::ButtonCloseClick(TObject *Sender)

@@ -11,6 +11,9 @@ TMainForm *MainForm;
 CRemotePCClient *pRemotePCClient = NULL;
 CClientSettings Settings;
 //---------------------------------------------------------------------------
+AnsiString AppDir = "";
+AnsiString SaveFileName = "RemotePC Client.ini";
+//---------------------------------------------------------------------------
 #ifdef EMULATE_OPENGL
 TColor PanelBackColor = clBlack;
 #endif
@@ -32,6 +35,8 @@ bool __fastcall TMainForm::IsLoopbackAddress(AnsiString s)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormCreate(TObject *Sender)
 {
+	AppDir = GetCurrentDir();
+
 	if(!OneInstance.Check("REMOTE_PC_CLIENT_2014")){
 		Application->Terminate();
 		return;
@@ -50,9 +55,6 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 	Top  = 20;
 	Width = 820;
 	#endif
-
-	Application->ShowMainForm = true;
-	Show();
 
 	char AppCaption[256];
 	SetCaption("RemotePC Client 2014", AppCaption, 256);
@@ -77,6 +79,9 @@ void __fastcall TMainForm::FormCreate(TObject *Sender)
 
 	LoadSettings();
 	EnableUI();
+
+	Application->ShowMainForm = true;
+	Show();
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
@@ -96,7 +101,9 @@ void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::LoadSettings()
 {
-	Settings.Load();
+	AnsiString fname = GenSaveFileName(AppDir, SaveFileName);
+	Settings.Load(fname.c_str());
+
 	ClientSettingsStruct *pSettings = Settings.GetSettings();
 
 	LangID = pSettings->LangID;
@@ -104,7 +111,7 @@ void __fastcall TMainForm::LoadSettings()
 	FrenchMenu->Checked  = LangID == REMOTEPC_LANG_FRENCH;
 	SetLanguage(LangID);
 
-	ComboBoxHostName->Items->Clear();
+	/*ComboBoxHostName->Items->Clear();
 	ComboBoxHostName->Items->Add("127.0.0.1");
 	ComboBoxHostName->Items->Add("192.168.0.1");
 	if(IsLoopbackAddress(AnsiString(pSettings->ip))){
@@ -115,7 +122,8 @@ void __fastcall TMainForm::LoadSettings()
 	} else {
 		ComboBoxHostName->Items->Add(AnsiString(pSettings->ip));
 		ComboBoxHostName->ItemIndex = ComboBoxHostName->Items->Count-1;
-	}
+	}*/
+	ComboBoxHostName->Text = AnsiString(pSettings->ip);
 	EditPassword->Text = AnsiString(pSettings->pw);
 	EditPort->Text = AnsiString(pSettings->Port);
 
@@ -128,7 +136,7 @@ void __fastcall TMainForm::LoadSettings()
 	ComboBoxScrFormat->ItemIndex = pSettings->ColorDepth;
 
 	this->Position = poDesktopCenter;
-	this->WindowState = (TWindowState)pSettings->WndCoords.ws;
+	this->WindowState = (TWindowState)pSettings->WndCoords.wState;
 
 	/*if(pSettings->WndCoords.l == 0 || pSettings->WndCoords.t == 0 || pSettings->WndCoords.w == 0 || pSettings->WndCoords.h == 0){
 		#ifndef _DEBUG
@@ -163,12 +171,14 @@ void __fastcall TMainForm::SaveSettings()
 	ClientSettings.WndCoords.t = this->Top;
 	ClientSettings.WndCoords.w = this->Width;
 	ClientSettings.WndCoords.h = this->Height;
-	ClientSettings.WndCoords.ws = (int)this->WindowState;
+	ClientSettings.WndCoords.wState = (int)this->WindowState;
 
 	ClientSettings.ColorDepth = ComboBoxScrFormat->ItemIndex;
 
 	Settings.SetSettings(&ClientSettings);
-	Settings.Save();
+
+	AnsiString fname = GenSaveFileName(AppDir, SaveFileName);
+	Settings.Save(fname.c_str());
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::CloseMenuClick(TObject *Sender)
@@ -486,12 +496,12 @@ void __fastcall TMainForm::SaveScreenCoordinates()
 	WndCoords.t  = this->Top;
 	WndCoords.w  = this->Width;
 	WndCoords.h  = this->Height;
-	WndCoords.ws = this->WindowState;
+	WndCoords.wState = this->WindowState;
 }
 void __fastcall TMainForm::RestoreScreenCoordinates()
 {
 	MoveWindow(Handle, WndCoords.l, WndCoords.t, WndCoords.w, WndCoords.h, TRUE);
-	this->WindowState = (TWindowState)WndCoords.ws;
+	this->WindowState = (TWindowState)WndCoords.wState;
 	this->BorderStyle = bsSizeable;
 }
 //---------------------------------------------------------------------------

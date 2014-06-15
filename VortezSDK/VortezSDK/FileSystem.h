@@ -116,7 +116,7 @@ public:
 	virtual void _INTERNAL_LINKAGE Rename(char *pOldName, char *pNewName) = 0;
 	virtual void _INTERNAL_LINKAGE SendToRecycleBin(char *pFileName) = 0;
 	virtual bool _INTERNAL_LINKAGE DoesExist(char *pFolderName, bool TreatDriveRootAsFolder = true) = 0;
-	virtual void _INTERNAL_LINKAGE GetCurrent(char *pFolderName) = 0;
+	virtual void _INTERNAL_LINKAGE GetCurrent(char **pFolderName, UINT BufSize) = 0;
 	virtual void _INTERNAL_LINKAGE SetCurrent(char *pFolderName) = 0;
 	virtual void _INTERNAL_LINKAGE GetShortName(char *pLongFileName, char *pShortFileName) = 0;
 
@@ -139,7 +139,7 @@ public:
 	void _INTERNAL_LINKAGE Rename(char *pOldName, char *pNewName);
 	void _INTERNAL_LINKAGE SendToRecycleBin(char *pFileName);
 	bool _INTERNAL_LINKAGE DoesExist(char *pFolderName, bool TreatDriveRootAsFolder = true);
-	void _INTERNAL_LINKAGE GetCurrent(char *pFolderName);
+	void _INTERNAL_LINKAGE GetCurrent(char **pFolderName, UINT BufSize);
 	void _INTERNAL_LINKAGE SetCurrent(char *pFolderName);
 	void _INTERNAL_LINKAGE GetShortName(char *pLongFileName, char *pShortFileName);
 	//void _INTERNAL_LINKAGE Find();

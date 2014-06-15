@@ -4,6 +4,18 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 
+void GetAppDir(char *AppDir, UINT BufSize)
+{
+	CFolderManager FolderManager;
+	ZeroMemory(AppDir, BufSize);
+	FolderManager.GetCurrent(&AppDir, BufSize);
+}
+
+AnsiString GenSaveFileName(AnsiString AppDir, AnsiString SaveFileName)
+{
+	return (AppDir + "\\" + SaveFileName);
+}
+
 void FormatNetworkSpeedStats(CNetStats* pStats, TStatusBar *StatusBar)
 {
 	pStats->UpdateStats();

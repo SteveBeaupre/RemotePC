@@ -321,9 +321,9 @@ void CFolderManager::SendToRecycleBin(char *pFileName)
 	FileManager.SendToRecycleBin(pFileName);
 }
 
-void CFolderManager::GetCurrent(char *pFolderName)
+void CFolderManager::GetCurrent(char **pBuffer, UINT BufSize)
 {
-	_getcwd(pFolderName, MAX_PATH);
+	_getcwd(*pBuffer, BufSize);
 }
 
 

@@ -14,6 +14,8 @@
 #include "RemotePCClient.h"
 #include "OneInstance.h"
 //---------------------------------------------------------------------------
+void GetAppDir(char *AppDir, UINT BufSize);
+AnsiString GenSaveFileName(AnsiString AppDir, AnsiString SaveFileName);
 void FormatNetworkSpeedStats(CNetStats* pStats, TStatusBar *StatusBar);
 void AddListboxMessageArg(TListBox *pListBox, TStatusBar *pStatusBar, const char *fmt, ...);
 //---------------------------------------------------------------------------

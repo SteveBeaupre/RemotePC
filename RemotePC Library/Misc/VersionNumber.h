@@ -1,5 +1,5 @@
 #pragma once
 
-#define VERNUM "1.5.1"
+#define VERNUM "1.6.0"
 
-#define LAST_COMPATIBLE_VERSION "1.4.1"
+#define LAST_COMPATIBLE_VERSION "1.5.0"

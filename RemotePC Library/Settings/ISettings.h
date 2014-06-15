@@ -6,14 +6,13 @@
 #include "Windows.h"
 #include "stdio.h"
 //----------------------------------------------------------------------//
-#include "Registry.h"
+#include "IniFile.h"
+//----------------------------------------------------------------------//
+#define DEFAULT_PORT  13981
+#define DEFAULT_IP    "127.0.0.1"
 //----------------------------------------------------------------------//
 
-#define DEFAULT_PORT 13981
-
-#define REG_ROOT_KEY HKEY_LOCAL_MACHINE
-#define REG_PROG_KEY "SOFTWARE\\RemotePC 2014"
-
+//----------------------------------------------------------------------//
 //----------------------------------------------------------------------//
 #pragma pack(1)
 //----------------------------------------------------------------------//
@@ -29,10 +28,10 @@ struct ConnectionSettingsStruct {
 //----------------------------------------------------------------------//
 struct WndCoordsStruct {
 	int l,t,w,h;
-	int ws;
+	int wState;
 };
 //----------------------------------------------------------------------//
-//----------------------------------------------------------------------//
+//------------------? why did i use inheritance here ?------------------//
 struct ServerSettingsStruct : public ConnectionSettingsStruct, public LanguageSettingsStruct {
 	WndCoordsStruct WndCoords;
 	bool ConnectAsClient;
@@ -51,10 +50,11 @@ struct ClientSettingsStruct : public ConnectionSettingsStruct, public LanguageSe
 //----------------------------------------------------------------------//
 #pragma pack()
 //----------------------------------------------------------------------//
+//----------------------------------------------------------------------//
 
 class IRemotePCSettings {
 public:
-	virtual void Load() = 0;
-	virtual void Save() = 0;
+	virtual void Load(char *fname) = 0;
+	virtual void Save(char *fname) = 0;
 };
 
